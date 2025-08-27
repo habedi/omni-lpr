@@ -1,0 +1,51 @@
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artifacts and distribution files
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test, linting, and coverage artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+
+# Project configuration files not needed in the image
+.pre-commit-config.yaml
+codecov.yml
+poetry.toml
+poetry.lock
+Makefile
+env.example
+.env
+
+# Documentation, examples, and tests
+docs/
+examples/
+scripts/
+tests/
+
+# Top-level markdown and license files
+README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+LICENSE

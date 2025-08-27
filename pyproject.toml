@@ -1,0 +1,130 @@
+[project]
+name = "template-mcp-server"
+version = "0.1.0a1"
+description = "A template for developing Model Context Protocol (MCP) servers in Python."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Hassan Abedi", email = "hassan.abedi.t@gmail.com" }
+]
+maintainers = [
+    { name = "Hassan Abedi", email = "hassan.abedi.t@gmail.com" }
+]
+keywords = ["template", "python", "mcp", "llm", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "mcp[cli] (>=1.12.3,<2.0.0)",
+    "pydantic-settings (>=2.10.1,<3.0.0)",
+    "picologging (>=0.9.3,<0.10.0)",
+    "click (>=8.2.2,<9.0.0)"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.1",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-asyncio (>=0.26.0,<0.27.0)",
+    "mypy>=1.11.1",
+    "ruff>=0.9.3",
+    "pre-commit (>=4.2.0,<5.0.0)",
+]
+
+[project.urls]
+Repository = "https://github.com/habedi/template-mcp-server"
+Documentation = "https://github.com/habedi/template-mcp-server/blob/main/docs/README.md"
+
+[project.scripts]
+mcp-server = "server.server:main"
+
+[tool.poetry]
+include = ["README.md"]
+packages = [{ include = "server", from = "src" }]
+package-mode = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = [
+    "--tb=short",
+    #"--disable-warnings",
+    "--cov=src",
+    "--cov-branch",
+    "--cov-report=term",
+    "--cov-report=xml",
+    "-rs"
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["."]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = false
+skip_empty = true
+precision = 2
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+warn_return_any = true
+strict_optional = true
+warn_redundant_casts = true
+exclude = "^(examples/|tests/)"
+
+[tool.ruff]
+exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".mypy_cache",
+    ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv",
+    "__pypackages__", "_build", "buck-out", "build", "dist", "node_modules",
+    "venv", "tests"
+]
+line-length = 100
+indent-width = 4
+src = ["src"]
+target-version = "py310"
+unsafe-fixes = false
+
+[tool.ruff.lint]
+select = ["ANN", "E", "F", "I", "W", "B", "RUF", "SIM", "C90"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = []
