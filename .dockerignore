@@ -1,9 +1,10 @@
+# File: ./.dockerignore
 # Git
 .git/
 .gitignore
 
 # Docker
-Dockerfile
+# removed `Dockerfile` to ensure Dockerfile is included in build context
 .dockerignore
 
 # Python virtual environment
@@ -33,19 +34,19 @@ coverage.xml
 .pre-commit-config.yaml
 codecov.yml
 poetry.toml
-poetry.lock
-Makefile
+# poetry.lock
+# Makefile
 env.example
 .env
 
 # Documentation, examples, and tests
 docs/
 examples/
-scripts/
+# scripts/
 tests/
 
-# Top-level markdown and license files
-README.md
+# Additional files
 CONTRIBUTING.md
 CODE_OF_CONDUCT.md
-LICENSE
+#LICENSE
+#README.md

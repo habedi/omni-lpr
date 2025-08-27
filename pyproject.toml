@@ -1,20 +1,42 @@
 [project]
-name = "template-mcp-server"
-version = "0.1.0a1"
-description = "A template for developing Model Context Protocol (MCP) servers in Python."
+name = "omni-lpr"
+version = "0.1.0"
+description = " A multiprotocol (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
-    { name = "Hassan Abedi", email = "hassan.abedi.t@gmail.com" }
+    { name = "Hassan Abedi", email = "hassan.abedi.t+omnilpr@gmail.com" }
 ]
 maintainers = [
-    { name = "Hassan Abedi", email = "hassan.abedi.t@gmail.com" }
+    { name = "Hassan Abedi", email = "hassan.abedi.t+omnilpr@gmail.com" }
 ]
-keywords = ["template", "python", "mcp", "llm", "automation"]
+
+keywords = [
+    "alpr",
+    "lpr",
+    "license plate recognition",
+    "automatic license plate recognition",
+    "api",
+    "rest",
+    "mcp",
+    "computer vision",
+    "server",
+    "microservice",
+    "onnx",
+    "openvino",
+    "cuda"
+]
+
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -27,27 +49,38 @@ dependencies = [
     "python-dotenv (>=1.1.0,<2.0.0)",
     "mcp[cli] (>=1.12.3,<2.0.0)",
     "pydantic-settings (>=2.10.1,<3.0.0)",
-    "picologging (>=0.9.3,<0.10.0)",
-    "click (>=8.2.2,<9.0.0)"
+    "click (>=8.2.1,<9.0.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "gunicorn (>=23.0.0,<24.0.0)",
+    "python-json-logger (>=3.3.0,<4.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "fast-alpr[onnx] (>=0.3.0,<0.4.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
 ]
 
 [project.optional-dependencies]
+openvino = [
+    "fast-alpr[onnx-openvino] (>=0.3.0,<0.4.0)",
+]
+cuda = [
+    "fast-alpr[onnx-gpu] (>=0.3.0,<0.4.0)",
+]
 dev = [
     "pytest>=8.0.1",
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
-    "pytest-asyncio (>=0.26.0,<0.27.0)",
+    "pytest-asyncio (>=1.1.0,<2.0.0)",
     "mypy>=1.11.1",
     "ruff>=0.9.3",
     "pre-commit (>=4.2.0,<5.0.0)",
 ]
 
 [project.urls]
-Repository = "https://github.com/habedi/template-mcp-server"
-Documentation = "https://github.com/habedi/template-mcp-server/blob/main/docs/README.md"
+Repository = "https://github.com/habedi/omni-lpr"
+Documentation = "https://github.com/habedi/omni-lpr/blob/main/README.md"
 
 [project.scripts]
-mcp-server = "server.server:main"
+omni-lpr = "server.__main__:main"
 
 [tool.poetry]
 include = ["README.md"]
@@ -95,7 +128,7 @@ check_untyped_defs = true
 warn_return_any = true
 strict_optional = true
 warn_redundant_casts = true
-exclude = "^(examples/|tests/)"
+exclude = "^(scripts/|tests/)"
 
 [tool.ruff]
 exclude = [

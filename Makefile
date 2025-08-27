@@ -1,11 +1,3 @@
-# Load environment variables from .env file
-ifneq (,$(wildcard ./.env))
-    include .env
-    export $(shell sed 's/=.*//' .env)
-else
-    $(warning .env file not found. Environment variables not loaded.)
-endif
-
 # ==============================================================================
 # VARIABLES
 # ==============================================================================
@@ -13,9 +5,11 @@ PYTHON      ?= python3
 PIP         ?= pip3
 DEP_MNGR    ?= poetry
 DOCS_DIR    ?= docs
+DOCKERFILE   ?= Dockerfile
+GUNICORN_NUM_WORKERS ?= 4
 
 # Server configuration (can be overridden by environment variables)
-TRANSPORT ?= sse
+TRANSPORT_PROTOCOL ?= sse
 PORT      ?= 8000
 HOST      ?= 0.0.0.0
 
@@ -31,10 +25,12 @@ TMP_DIRS    = site
 # HELP
 # ==============================================================================
 .PHONY: help
-help: ## Show help messages for all available targets
+help: ## Show the help messages for all targets
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Targets:"
 	@grep -E '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
-	awk 'BEGIN {FS = ":.*## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
+	awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 # ==============================================================================
 # SETUP & INSTALLATION
@@ -42,14 +38,13 @@ help: ## Show help messages for all available targets
 .PHONY: setup
 setup: ## Install system dependencies and dependency manager (e.g., Poetry)
 	sudo apt-get update
-	sudo apt-get install -y python3-pip docker.io docker-compose
+	sudo apt-get install -y python3-pip docker.io
 	$(PIP) install --upgrade pip
 	$(PIP) install $(DEP_MNGR)
 
 .PHONY: install
 install: ## Install Python dependencies
 	$(DEP_MNGR) install --all-extras --no-interaction
-
 
 # ==============================================================================
 # QUALITY & TESTING
@@ -80,15 +75,18 @@ setup-hooks: ## Install Git hooks (pre-commit and pre-push)
 test-hooks: ## Test Git hooks on all files
 	$(DEP_MNGR) run pre-commit run --all-files
 
-
 # ==============================================================================
 # APPLICATION
 # ==============================================================================
 .PHONY: run
-run: ## Run the MCP server application
-	@echo "Starting MCP server..."
-	$(DEP_MNGR) run mcp-server
+run: ## Start the server
+	@echo "Starting the server..."
+	$(DEP_MNGR) run mcp-lpr
 
+.PHONY: run-gunicorn
+run-gunicorn: ## Start the server with Gunicorn
+	@echo "Starting the server with Gunicorn..."
+	$(DEP_MNGR) run gunicorn -w $(GUNICORN_NUM_WORKERS) -k uvicorn.workers.UvicornWorker src.server.server:starlette_app
 
 # ==============================================================================
 # BUILD & PUBLISH
@@ -104,16 +102,63 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 
 
 # ==============================================================================
+# EXAMPLES
+# ==============================================================================
+.PHONY: example-rest example-mcp
+
+SERVER_PID := /tmp/mcp-lpr-server.pid
+
+define run_example
+    @echo "Starting server in background..."
+    $(DEP_MNGR) run mcp-lpr --transport sse > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
+    @echo "Waiting for server to start..."
+    @while ! nc -z localhost 8000; do sleep 1; done
+    @echo "Server started. Running example: $(1)"
+    $(DEP_MNGR) run python $(2)
+    @echo "Stopping server..."
+    @kill `cat $(SERVER_PID)`
+endef
+
+example-rest: ## Run the REST API examples
+	$(call run_example,"REST",examples/rest_simple_example.py)
+
+example-mcp: ## Run the MCP examples
+	$(call run_example,"MCP",examples/mcp_simple_example.py)
+
+# ==============================================================================
 # DOCKER
 # ==============================================================================
+IMAGE_NAME ?= omni-lpr
+
+.PHONY: docker-build-cpu
+docker-build-cpu: ## Build the Docker image for CPU
+	docker build -t $(IMAGE_NAME):cpu --build-arg BACKEND=cpu --target cpu -f Dockerfile .
+
+.PHONY: docker-build-cuda
+docker-build-cuda: ## Build the Docker image for CUDA
+	docker build -t $(IMAGE_NAME):cuda --build-arg BACKEND=cuda --target cuda -f Dockerfile .
+
+.PHONY: docker-build-openvino
+docker-build-openvino: ## Build the Docker image for OpenVINO
+	docker build -t $(IMAGE_NAME):openvino --build-arg BACKEND=openvino --target openvino -f Dockerfile .
+
 .PHONY: docker-build
-docker-build: ## Build the Docker image for the server
-	docker build -t template-mcp-server .
+docker-build: docker-build-cpu ## Build the default Docker image (CPU)
+
+.PHONY: docker-run-cpu
+docker-run-cpu: ## Run the CPU Docker container
+	docker run --rm -it -p $(PORT):$(PORT) $(IMAGE_NAME):cpu
+
+.PHONY: docker-run-cuda
+docker-run-cuda: ## Run the CUDA Docker container
+	docker run --rm -it --gpus all -p $(PORT):$(PORT) $(IMAGE_NAME):cuda
+
+.PHONY: docker-run-openvino
+docker-run-openvino: ## Run the OpenVINO Docker container
+	docker run --rm -it -p $(PORT):$(PORT) $(IMAGE_NAME):openvino
 
 .PHONY: docker-run
-docker-run: ## Run the server inside a Docker container
-	docker run --rm -it -p $(PORT):$(PORT) template-mcp-server
-
+docker-run: docker-run-cpu ## Run the default Docker container (CPU)
 
 # ==============================================================================
 # MAINTENANCE

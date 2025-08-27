@@ -1,14 +1,32 @@
-#!/bin/bash
-# This script is the entrypoint for the Docker container.
-# It ensures that any command is executed with the correct context.
-
-# Exit immediately if a command exits with a non-zero status.
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 echo "Container entrypoint executing..."
+echo "Starting the server with Gunicorn..."
 
-# Execute the run command from the Makefile
-# This starts the MCP server using the variables defined in the Makefile or environment.
-make run
+# Defaults (can be overridden at runtime with -e)
+: "${GUNICORN_WORKERS:=4}"
+: "${HOST:=0.0.0.0}"
+: "${PORT:=8000}"
+: "${GUNICORN_EXTRA_ARGS:=}"
 
-echo "Server process finished."
+VENV_BIN="/home/appuser/app/.venv/bin"
+GUNICORN_BIN="${VENV_BIN}/gunicorn"
+
+# Ensure Python can import the package in `src/`
+export PYTHONPATH="/home/appuser/app/src:${PYTHONPATH:-}"
+
+if [ ! -x "${GUNICORN_BIN}" ]; then
+  echo "Error: gunicorn not found at ${GUNICORN_BIN}"
+  echo "Contents of ${VENV_BIN}:"
+  ls -la "${VENV_BIN}" || true
+  exit 1
+fi
+
+export PATH="${VENV_BIN}:$PATH"
+
+BIND="${HOST}:${PORT}"
+echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker server:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
+
+# exec so Gunicorn is PID 1
+exec "${GUNICORN_BIN}" -w "${GUNICORN_WORKERS}" -k uvicorn.workers.UvicornWorker server:starlette_app --bind "${BIND}" ${GUNICORN_EXTRA_ARGS}

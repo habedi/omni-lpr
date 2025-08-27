@@ -1,15 +1,15 @@
-import picologging as logging
+import logging
 
 logging.basicConfig()
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .server import main
+from .__main__ import main, starlette_app
 
 _logger = logging.getLogger(__name__)
 
 try:
-    __version__ = version("template-mcp-server")
+    __version__ = version("omni-lpr")
 except PackageNotFoundError:
     __version__ = "0.0.0-unknown"
     _logger.warning(
@@ -17,4 +17,4 @@ except PackageNotFoundError:
         "Is the library installed correctly?"
     )
 
-__all__ = [main]
+__all__ = ["main", "starlette_app"]

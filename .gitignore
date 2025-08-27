@@ -79,3 +79,4 @@ site/
 # Add any additional file patterns a directory names that should be ignored down here
 .env
 *_output.txt
+*.log

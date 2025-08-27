@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          lfs: false
 
       - name: Set Up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -30,11 +32,13 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          make setup
+          pip install --upgrade pip
+          pip install poetry
           make install
 
       - name: Run Tests with Coverage
         run: |
+          source .venv/bin/activate
           make test
 
       - name: Upload coverage reports to Codecov
