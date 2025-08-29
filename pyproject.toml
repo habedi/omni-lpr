@@ -13,13 +13,12 @@ maintainers = [
 
 keywords = [
     "alpr",
-    "lpr",
     "license plate recognition",
     "automatic license plate recognition",
+    "computer vision",
     "api",
     "rest",
     "mcp",
-    "computer vision",
     "microservice",
     "onnx",
     "openvino",
@@ -29,7 +28,6 @@ keywords = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
