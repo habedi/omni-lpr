@@ -37,8 +37,8 @@ COPY --from=builder /app/src ./src
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/Makefile ./Makefile
 
-# --- CPU final image ---
-FROM python:3.12-slim-trixie as cpu
+# --- Common final image base for CPU/OpenVINO ---
+FROM python:3.12-slim-trixie as common-final
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libglib2.0-0 libgl1 libsm6 libxext6 libxrender1 && \
@@ -63,34 +63,12 @@ ENV PATH="/home/appuser/app/.venv/bin:$PATH"
 EXPOSE 8000
 
 ENTRYPOINT ["/bin/bash", "/home/appuser/app/scripts/docker_entrypoint.sh"]
+
+# --- CPU final image ---
+FROM common-final as cpu
 
 # --- OpenVINO final image ---
-
-FROM python:3.12-slim-trixie as openvino
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libglib2.0-0 libgl1 libsm6 libxext6 libxrender1 && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN useradd --create-home --shell /bin/bash appuser && mkdir -p /home/appuser/app
-
-WORKDIR /home/appuser/app
-
-COPY --from=common /home/appuser/app /home/appuser/app
-
-RUN python -m venv /home/appuser/app/.venv && \
-    /home/appuser/app/.venv/bin/pip install --upgrade pip && \
-    /home/appuser/app/.venv/bin/pip install --no-deps --no-cache-dir -r requirements.txt && \
-    /home/appuser/app/.venv/bin/pip install --no-deps --no-cache-dir . && \
-    chown -R appuser:appuser /home/appuser/app
-
-USER appuser
-
-ENV PATH="/home/appuser/app/.venv/bin:$PATH"
-
-EXPOSE 8000
-
-ENTRYPOINT ["/bin/bash", "/home/appuser/app/scripts/docker_entrypoint.sh"]
+FROM common-final as openvino
 
 # --- CUDA final image ---
 
