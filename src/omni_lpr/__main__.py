@@ -49,7 +49,7 @@ def setup_app_routes(app: Starlette):
         [
             Route("/mcp/sse", endpoint=handle_sse, methods=["GET"]),
             Mount("/mcp/messages/", app=sse.handle_post_message),
-            Route("/api/health", endpoint=health_check, methods=["GET"]),
+            Route("/health", endpoint=health_check, methods=["GET"]),
             Mount("/api", routes=setup_rest_routes()),
         ]
     )
