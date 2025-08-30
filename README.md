@@ -212,7 +212,7 @@ tool connected to the Omni-LPR server.
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/mcp-inspector-1.png" alt="MCP Inspector Screenshot" width="auto" height="auto">
+<img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto" height="auto">
 </picture>
 </div>
 

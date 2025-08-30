@@ -408,7 +408,7 @@ def setup_tools():
     detect_and_recognize_plate_tool_definition = types.Tool(
         name="detect_and_recognize_plate",
         title="Detect and Recognize License Plate",
-        description="Detects and recognizes all license plates in a full image.",
+        description="Detects and recognizes all license plates available in an image.",
         inputSchema=DetectAndRecognizePlateArgs.model_json_schema(),
     )
     tool_registry.register_tool(
@@ -421,7 +421,7 @@ def setup_tools():
     detect_and_recognize_plate_from_path_tool_definition = types.Tool(
         name="detect_and_recognize_plate_from_path",
         title="Detect and Recognize License Plate from Path",
-        description="Detects and recognizes license plates from an image at a given URL or local file path.",
+        description="Detects and recognizes license plates in an image at a given URL or local file path.",
         inputSchema=DetectAndRecognizePlateFromPathArgs.model_json_schema(),
     )
     tool_registry.register_tool(

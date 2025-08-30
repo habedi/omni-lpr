@@ -33,9 +33,7 @@ api_spec = SpecTree(
     title="Omni-LPR API",
     description="A multi-interface server for automatic license plate recognition.",
     version=pkg_version,
-    mode="strict",
-    swagger_url="/api/v1/docs",
-    redoc_url="/api/v1/redoc",
+    mode="strict"
 )
 
 
