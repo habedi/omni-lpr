@@ -186,6 +186,22 @@ more robust and production-ready.
 
 ---
 
+### Configuration
+
+The server can be configured using command-line arguments as well as environment variables.
+Environment variables are read from `.env` file if it exists and from the current process environment.
+Command-line arguments take precedence over environment variables.
+The following table summarizes the available configuration options:
+
+| Argument              | Env Var             | Description                                                                                                                         |
+|-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                       |
+| `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                  |
+| `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, and `ERROR`                                              |
+| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model` |
+
+-----
+
 ### Feature Roadmap
 
 - **Core ALPR Capabilities & Model Support**
@@ -239,22 +255,6 @@ more robust and production-ready.
     -   [ ] An expanded test dataset covering more diverse license plates (like countries, lighting conditions, and
         angles).
     -   [ ] Comparison benchmarks against other open-source ALPR solutions.
-
------
-
-### Configuration
-
-The server can be configured using command-line arguments as well as environment variables.
-Environment variables are read from `.env` file if it exists and from the current process environment.
-Command-line arguments take precedence over environment variables.
-The following table summarizes the available configuration options:
-
-| Argument              | Env Var             | Description                                                                                                                         |
-|-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                       |
-| `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                  |
-| `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, and `ERROR`                                              |
-| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model` |
 
 -----
 
