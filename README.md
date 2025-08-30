@@ -56,11 +56,10 @@ You can use models that are optimized for specific hardware backends by installi
 
 ##### Starting the Server
 
-To start the server (with the REST API and MCP enabled), set the `TRANSPORT` environment variable to `sse` and run the
-`omni-lpr` command:
+To start the server, run the `omni-lpr` command:
 
 ```sh
-omni-lpr --host 0.0.0.0 --port 8000 --transport sse
+omni-lpr --host 0.0.0.0 --port 8000
 ```
 
 #### Method 2
@@ -194,13 +193,8 @@ The following table summarizes the available configuration options:
 |-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                       |
 | `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                  |
-| `--transport`         | `TRANSPORT`         | Transport protocol (default: `stdio`). Valid values are `stdio` and `sse`                                                           |
 | `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, and `ERROR`                                              |
-| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model` |  
-
-> [!NOTE]
-> The REST API is only available when `TRANSPORT` is set to `sse`.
-> The MCP interface is available for both `stdio` (in-process) and `sse` (http) transports.
+| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model` |
 
 -----
 

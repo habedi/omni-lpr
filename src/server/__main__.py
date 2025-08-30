@@ -7,7 +7,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 
-from .mcp import app, run_stdio_transport
+from .mcp import app
 from .rest import setup_rest_routes
 from .settings import update_settings
 
@@ -51,13 +51,6 @@ starlette_app = Starlette(
 @click.command()
 @click.option("--host", default="127.0.0.1", help="The host to bind to.", envvar="HOST")
 @click.option("--port", default=8000, help="The port to bind to.", envvar="PORT")
-@click.option(
-    "--transport",
-    default="stdio",
-    help="The transport to use.",
-    type=click.Choice(["stdio", "sse"]),
-    envvar="TRANSPORT",
-)
 @click.option("--log-level", default="INFO", help="The log level to use.", envvar="LOG_LEVEL")
 @click.option(
     "--default-ocr-model",
@@ -65,17 +58,14 @@ starlette_app = Starlette(
     help="The default OCR model to use.",
     envvar="DEFAULT_OCR_MODEL",
 )
-def main(host: str, port: int, transport: str, log_level: str, default_ocr_model: str) -> int:
+def main(host: str, port: int, log_level: str, default_ocr_model: str) -> int:
     """Main entrypoint for the omni-lpr server."""
+    import uvicorn
+
     update_settings(default_ocr_model=default_ocr_model)
     setup_logging(log_level)
-    if transport == "sse":
-        import uvicorn
-
-        _logger.info(f"Starting SSE server on {host}:{port}")
-        uvicorn.run(starlette_app, host=host, port=port)
-    else:
-        run_stdio_transport(app)
+    _logger.info(f"Starting SSE server on {host}:{port}")
+    uvicorn.run(starlette_app, host=host, port=port)
     return 0
 
 

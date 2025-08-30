@@ -9,7 +9,6 @@ DOCKERFILE   ?= Dockerfile
 GUNICORN_NUM_WORKERS ?= 4
 
 # Server configuration (can be overridden by environment variables)
-TRANSPORT_PROTOCOL ?= sse
 PORT      ?= 8000
 HOST      ?= 0.0.0.0
 
@@ -110,7 +109,7 @@ SERVER_PID := /tmp/mcp-lpr-server.pid
 
 define run_example
     @echo "Starting server in background..."
-    $(DEP_MNGR) run mcp-lpr --transport sse > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
+    $(DEP_MNGR) run mcp-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
     @echo "Waiting for server to start..."
     @while ! nc -z localhost 8000; do sleep 1; done
     @echo "Server started. Running example: $(1)"
