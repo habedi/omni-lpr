@@ -13,7 +13,7 @@ echo "Starting the server with Gunicorn..."
 VENV_BIN="/home/appuser/app/.venv/bin"
 GUNICORN_BIN="${VENV_BIN}/gunicorn"
 
-# Ensure Python can import the package in `src/`
+# Make sure Python can import the package in `src/`
 export PYTHONPATH="/home/appuser/app/src:${PYTHONPATH:-}"
 
 if [ ! -x "${GUNICORN_BIN}" ]; then
