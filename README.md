@@ -209,55 +209,38 @@ The following table summarizes the available configuration options:
 
 - **Core ALPR Capabilities & Model Support**
     -   [x] Plate detection via YOLO-v9 models.
-    -   [x] Plate recognition via Character Centric Transformer (CCT) models.
-    -   [x] Support for multiple hardware backends (ONNX CPU, OpenVINO, and CUDA).
-    -   [ ] Support for additional OCR models (like specialized models for different regions or plate styles).
-    -   [ ] Dynamic model loading and management via configuration, without requiring a server restart.
-    -   [ ] Vehicle attribute recognition (like color, make, and model) as an optional tool.
-    -   [ ] Advanced image pre-processing options (like de-skewing and contrast enhancement) to improve accuracy in
-        challenging conditions.
+    -   [x] Plate recognition via character centric transformer models.
+    -   [x] Support for multiple hardware backends (generic CPUs, Intel CPUs via OpenVINO, and CUDA).
 
 - **API, Interfaces, and Developer Experience**
-    -   [x] REST API for all core tool functions.
     -   [x] MCP interface for AI agent integration.
+    -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
     -   [ ] Interactive API documentation (like Swagger UI and OpenAPI).
-    -   [ ] Support for direct image uploads (`multipart/form-data`) in the REST API as an alternative to Base64
-        encoding.
-    -   [ ] Dedicated `GET` endpoints for system status and model listings (like `/api/status`, `/api/models`) to
-        replace the current `POST /api/list_models` tool.
-    -   [ ] Asynchronous job processing with webhook callbacks for long-running tasks (e.g., video file processing).
-    -   [ ] Refined and structured JSON responses, removing the need for double JSON encoding in the `TextContent`
-        block.
+    -   [ ] Support for direct image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
+        images.
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
     -   [ ] Request batching for model inference to significantly improve throughput under a heavy load.
-    -   [ ] A configurable caching layer (e.g., Redis) to store results for repeated requests.
+    -   [ ] A configurable caching layer (like Redis) to store results for repeated requests.
     -   [ ] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
 
 - **Integrations and Ecosystem**
     -   [x] Standalone microservice architecture.
     -   [ ] An official Python client library to simplify interaction with the REST API.
-    -   [ ] Connectors for common video sources (e.g., RTSP streams) to enable real-time processing.
-    -   [ ] Pluggable exporters for sending recognition results to external systems like Kafka, MQTT, or a PostgreSQL
-        database.
 
 - **Deployment and Operations**
-    -   [x] Pre-built Docker images for CPU, OpenVINO, and CUDA backends.
+    -   [x] Pre-built Docker images for different hardware backends.
     -   [x] Configuration via environment variables and CLI arguments.
     -   [ ] A Helm chart for simplified deployment to Kubernetes clusters.
     -   [ ] More detailed health checks that verify the status of loaded models.
-    -   [ ] Graceful shutdown in Gunicorn/Uvicorn to finish processing in-flight requests before exiting.
 
 - **Testing and Benchmarks**
     -   [x] Unit and integration test suite with Pytest.
     -   [x] Code coverage reporting.
     -   [x] Linting and static analysis via Ruff and MyPy.
     -   [ ] Formal performance benchmarks (requests/second, latency) for different hardware backends and request types.
-    -   [ ] An expanded test dataset covering more diverse license plates (like countries, lighting conditions, and
-        angles).
-    -   [ ] Comparison benchmarks against other open-source ALPR solutions.
 
 -----
 
