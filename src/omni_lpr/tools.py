@@ -80,13 +80,21 @@ OcrModel = Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"]
 
 
 # --- Pydantic Models for Input Validation ---
-# These will be defined inside the setup_tools function after settings are loaded.
-# This allows us to use the loaded settings for default values in the schema.
+# These models are placeholders. The actual models with dynamic default
+# values are defined and used within the setup_tools() function.
 class RecognizePlateArgs(BaseModel):
     pass
 
 
+class RecognizePlateFromPathArgs(BaseModel):
+    pass
+
+
 class DetectAndRecognizePlateArgs(BaseModel):
+    pass
+
+
+class DetectAndRecognizePlateFromPathArgs(BaseModel):
     pass
 
 
@@ -224,11 +232,12 @@ async def _get_image_from_source(
         raise ValueError(f"Data from {source_for_error_msg} is not a valid image file.") from e
 
 
-async def recognize_plate(args: RecognizePlateArgs) -> list[types.ContentBlock]:
-    image_rgb = await _get_image_from_source(
-        image_base64=getattr(args, "image_base64", None), path=getattr(args, "path", None)
-    )
-    recognizer = await _get_ocr_recognizer(args.ocr_model)  # type: ignore
+async def _recognize_plate_logic(
+    ocr_model: str, image_base64: Optional[str] = None, path: Optional[str] = None
+) -> list[types.ContentBlock]:
+    """Core logic to recognize a license plate from an image."""
+    image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    recognizer = await _get_ocr_recognizer(ocr_model)
     image_np = np.array(image_rgb)
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
 
@@ -251,11 +260,15 @@ async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
     return _alpr_cache[cache_key]
 
 
-async def detect_and_recognize_plate(args: DetectAndRecognizePlateArgs) -> list[types.ContentBlock]:
-    image_rgb = await _get_image_from_source(
-        image_base64=getattr(args, "image_base64", None), path=getattr(args, "path", None)
-    )
-    alpr = await _get_alpr_instance(args.detector_model, args.ocr_model)  # type: ignore
+async def _detect_and_recognize_plate_logic(
+    detector_model: str,
+    ocr_model: str,
+    image_base64: Optional[str] = None,
+    path: Optional[str] = None,
+) -> list[types.ContentBlock]:
+    """Core logic to detect and recognize a license plate from an image."""
+    image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    alpr = await _get_alpr_instance(detector_model, ocr_model)
     image_np = np.array(image_rgb)
     results = await anyio.to_thread.run_sync(alpr.predict, image_np)
 
@@ -263,6 +276,39 @@ async def detect_and_recognize_plate(args: DetectAndRecognizePlateArgs) -> list[
 
     _logger.info(f"ALPR processed. Found {len(results_dict)} plate(s).")
     return [types.TextContent(type="text", text=json.dumps(results_dict))]
+
+
+# --- Tool-specific wrapper functions ---
+
+
+async def recognize_plate_base64_tool(args: "RecognizePlateArgs") -> list[types.ContentBlock]:
+    return await _recognize_plate_logic(
+        ocr_model=args.ocr_model, image_base64=args.image_base64
+    )
+
+
+async def recognize_plate_path_tool(
+    args: "RecognizePlateFromPathArgs",
+) -> list[types.ContentBlock]:
+    return await _recognize_plate_logic(ocr_model=args.ocr_model, path=args.path)
+
+
+async def detect_and_recognize_plate_base64_tool(
+    args: "DetectAndRecognizePlateArgs",
+) -> list[types.ContentBlock]:
+    return await _detect_and_recognize_plate_logic(
+        detector_model=args.detector_model,
+        ocr_model=args.ocr_model,
+        image_base64=args.image_base64,
+    )
+
+
+async def detect_and_recognize_plate_path_tool(
+    args: "DetectAndRecognizePlateFromPathArgs",
+) -> list[types.ContentBlock]:
+    return await _detect_and_recognize_plate_logic(
+        detector_model=args.detector_model, ocr_model=args.ocr_model, path=args.path
+    )
 
 
 async def list_models(_: ListModelsArgs) -> list[types.ContentBlock]:
@@ -277,27 +323,27 @@ async def list_models(_: ListModelsArgs) -> list[types.ContentBlock]:
 def setup_tools():
     """
     Defines and registers all tools in the tool registry.
-
-    This function is called after the main application settings are loaded,
-    allowing us to define Pydantic models with defaults based on those settings.
-    This ensures that the generated JSON schemas for the tools are accurate
-    without needing manual patching.
+    This function is called after settings are loaded, allowing Pydantic models
+    to be created with defaults based on those settings.
     """
 
     # --- Dynamically Defined Pydantic Models ---
+    # By defining these here, we can use the loaded `settings` for default values.
+    global RecognizePlateArgs, RecognizePlateFromPathArgs, DetectAndRecognizePlateArgs, DetectAndRecognizePlateFromPathArgs
 
-    class _BaseImageToolArgs(BaseModel):
+    class RecognizePlateArgs(BaseModel):
+        """Input arguments for recognizing text from a license plate image."""
+
         model_config = ConfigDict(extra="forbid")
-        image_base64: Optional[Base64ImageStr] = None
-        path: Optional[str] = None
+        image_base64: Base64ImageStr
+        ocr_model: OcrModel = Field(default=settings.default_ocr_model)
 
-        @model_validator(mode="after")
-        def check_one_of_image_or_path(self) -> "Self":
-            if self.image_base64 is None and self.path is None:
-                raise ValueError("Exactly one of 'image_base64' or 'path' must be provided.")
-            if self.image_base64 is not None and self.path is not None:
-                raise ValueError("Exactly one of 'image_base64' or 'path' must be provided.")
-            return self
+    class RecognizePlateFromPathArgs(BaseModel):
+        """Input arguments for recognizing text from a license plate image path."""
+
+        model_config = ConfigDict(extra="forbid")
+        path: str = Field(..., examples=["https://example.com/plate.jpg"])
+        ocr_model: OcrModel = Field(default=settings.default_ocr_model)
 
         @field_validator("path")
         @classmethod
@@ -306,54 +352,88 @@ def setup_tools():
                 raise ValueError("Path cannot be empty.")
             return v
 
-    # The actual models used by the tool functions are defined here.
-    # We redefine the global names so that other parts of the code can see the updated classes.
-    global RecognizePlateArgs, DetectAndRecognizePlateArgs
+    class DetectAndRecognizePlateArgs(BaseModel):
+        """Input arguments for detecting and recognizing a license plate from an image."""
 
-    class RecognizePlateArgs(_BaseImageToolArgs):  # type: ignore
-        """Input arguments for recognizing a license plate."""
-
-        ocr_model: OcrModel = Field(default=settings.default_ocr_model)
-
-    class DetectAndRecognizePlateArgs(_BaseImageToolArgs):  # type: ignore
-        """Input arguments for detecting and recognizing a license plate."""
-
+        model_config = ConfigDict(extra="forbid")
+        image_base64: Base64ImageStr
         detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
         ocr_model: OcrModel = Field(default=settings.default_ocr_model)
 
+    class DetectAndRecognizePlateFromPathArgs(BaseModel):
+        """Input arguments for detecting and recognizing a license plate from a path."""
+
+        model_config = ConfigDict(extra="forbid")
+        path: str = Field(..., examples=["https://example.com/car.jpg"])
+        detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
+        ocr_model: OcrModel = Field(default=settings.default_ocr_model)
+
+        @field_validator("path")
+        @classmethod
+        def path_must_not_be_empty(cls, v: str) -> str:
+            if not v or not v.strip():
+                raise ValueError("Path cannot be empty.")
+            return v
+
     # --- Tool Registration ---
 
-    # Tool: recognize_plate
+    # Tool 1: recognize_plate
     recognize_plate_tool_definition = types.Tool(
         name="recognize_plate",
-        title="License Plate Recognizer",
-        description="Recognizes text from an image of a license plate, provided as a Base64 string or a local/URL path.",
+        title="Recognize License Plate",
+        description="Recognizes text from a pre-cropped image of a license plate.",
         inputSchema=RecognizePlateArgs.model_json_schema(),
     )
     tool_registry.register_tool(
         tool_definition=recognize_plate_tool_definition,
         model=RecognizePlateArgs,
-        func=recognize_plate,
+        func=recognize_plate_base64_tool,
     )
 
-    # Tool: detect_and_recognize_plate
+    # Tool 2: recognize_plate_from_path
+    recognize_plate_from_path_tool_definition = types.Tool(
+        name="recognize_plate_from_path",
+        title="Recognize License Plate from Path",
+        description="Recognizes text from a pre-cropped license plate image located at a given URL or local file path.",
+        inputSchema=RecognizePlateFromPathArgs.model_json_schema(),
+    )
+    tool_registry.register_tool(
+        tool_definition=recognize_plate_from_path_tool_definition,
+        model=RecognizePlateFromPathArgs,
+        func=recognize_plate_path_tool,
+    )
+
+    # Tool 3: detect_and_recognize_plate
     detect_and_recognize_plate_tool_definition = types.Tool(
         name="detect_and_recognize_plate",
         title="Detect and Recognize License Plate",
-        description="Detects license plates in an image and recognizes the text, from a Base64 string or a local/URL path.",
+        description="Detects and recognizes all license plates in a full image.",
         inputSchema=DetectAndRecognizePlateArgs.model_json_schema(),
     )
     tool_registry.register_tool(
         tool_definition=detect_and_recognize_plate_tool_definition,
         model=DetectAndRecognizePlateArgs,
-        func=detect_and_recognize_plate,
+        func=detect_and_recognize_plate_base64_tool,
     )
 
-    # Tool: list_models
+    # Tool 4: detect_and_recognize_plate_from_path
+    detect_and_recognize_plate_from_path_tool_definition = types.Tool(
+        name="detect_and_recognize_plate_from_path",
+        title="Detect and Recognize License Plate from Path",
+        description="Detects and recognizes license plates from an image at a given URL or local file path.",
+        inputSchema=DetectAndRecognizePlateFromPathArgs.model_json_schema(),
+    )
+    tool_registry.register_tool(
+        tool_definition=detect_and_recognize_plate_from_path_tool_definition,
+        model=DetectAndRecognizePlateFromPathArgs,
+        func=detect_and_recognize_plate_path_tool,
+    )
+
+    # Tool 5: list_models
     list_models_tool_definition = types.Tool(
         name="list_models",
         title="List Available Models",
-        description="Lists the available detector and OCR models for the full ALPR process.",
+        description="Lists the available detector and OCR models.",
         inputSchema=ListModelsArgs.model_json_schema(),
     )
     tool_registry.register_tool(
