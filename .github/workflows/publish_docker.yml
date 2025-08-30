@@ -57,7 +57,7 @@ jobs:
           if [ -z "${{ steps.meta.outputs.tags }}" ]; then
             echo "tags=ghcr.io/${{ github.repository }}-${{ matrix.image_type }}:latest" >> $GITHUB_OUTPUT
           else
-            # Ensure tags value is trimmed and only the first tag is used if there are multiple
+            # Make sure tags value is trimmed and only the first tag is used if there are multiple
             first_tag=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
             echo "tags=${first_tag}" >> $GITHUB_OUTPUT
           fi
