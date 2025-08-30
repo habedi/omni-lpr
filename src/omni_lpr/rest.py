@@ -88,9 +88,9 @@ async def invoke_tool(request: Request) -> JSONResponse:
         return JSONResponse(error.model_dump(), status_code=400)
 
     try:
-        # Execute the tool
+        # Execute the tool with the already validated model
         # The tool function returns MCP-style ContentBlocks
-        mcp_content_blocks = await tool_registry.call(tool_name, validated_args.model_dump())
+        mcp_content_blocks = await tool_registry.call_validated(tool_name, validated_args)
 
         # Convert MCP ContentBlocks to our API's JsonContentBlock
         api_content_blocks = [
