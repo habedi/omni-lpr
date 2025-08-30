@@ -1,7 +1,8 @@
 # src/omni_lpr/api_models.py
 
-from pydantic import BaseModel, Field
 from typing import Any, List, Optional
+
+from pydantic import BaseModel, Field
 
 
 # A developer-friendly version of an MCP ContentBlock for JSON responses

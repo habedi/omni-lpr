@@ -19,7 +19,7 @@ A multi-interface (REST and MCP) server for automatic license plate recognition
 
 ---
 
-Omni-LPR is a self-hostable server that provides automatic license plate recognition (APLR) capabilities via a REST API
+Omni-LPR is a self-hostable server that provides automatic license plate recognition (ALPR) capabilities via a REST API
 and over the Model Context Protocol (MCP).
 It can be used both as a standalone ALPR microservice and as an ALPR toolbox for AI agents and LLMs.
 
@@ -28,7 +28,7 @@ It can be used both as a standalone ALPR microservice and as an ALPR toolbox for
 Using Omni-LPR can have the following benefits:
 
 - **Decoupling:** your main application can be in any programming language, and it won't need Python or ML dependencies.
-- **Multiple Interfaces:** you can use the APLR service via a standard REST API, or the MCP for AI agent integration.
+- **Multiple Interfaces:** you can use the ALPR service via a standard REST API, or the MCP for AI agent integration.
 - **Ready-to-Deploy:** easy to deploy and start with pre-built Docker images.
 - **Hardware Acceleration:** support for generic CPUs (ONNX), Intel CPUs (OpenVINO), and NVIDIA GPUs (CUDA).
 - **Asynchronous I/O:** built on Starlette for high-performance, non-blocking I/O.
@@ -42,7 +42,7 @@ Using Omni-LPR can have the following benefits:
 
 ### Getting Started
 
-You can run Omni-LPR either by installing it as a Python library or by using a read-to-use Docker image.
+You can run Omni-LPR either by installing it as a Python library or by using a ready-to-use Docker image.
 
 #### Method 1
 
@@ -119,36 +119,45 @@ When you have built or pulled the images, you can run them using the following c
 ### API Documentation
 
 The server exposes its functionality via two interfaces: REST API and MCP.
-
-> [!NOTE]
-> This project does not provide interactive API documentation (like Swagger UI).
-> This `README` and the `GET /api/tools` endpoint are the primary sources of API documentation.
+A health check endpoint is also available at `GET /api/health`.
 
 #### 1. REST API
 
 The REST API provides a simple way to interact with the server using standard HTTP requests.
-All tool endpoints are available under the `/api/` prefix.
+All tool endpoints are available under the `/api/v1` prefix.
+
+> [!TIP]
+> This project provides interactive API documentation (Swagger UI and ReDoc).
+> Once the server is running, you can access them at:
+> - **Swagger UI**: [http://127.0.0.1:8000/api/v1/docs](http://127.0.0.1:8000/api/v1/docs)
+> - **ReDoc**: [http://127.0.0.1:8000/api/v1/redoc](http://127.0.0.1:8000/api/v1/redoc)
 
 ##### Discovering Tools
 
-To get a list of available tools and their input schemas, send a `GET` request to the `/api/tools` endpoint.
+To get a list of available tools and their input schemas, send a `GET` request to the `/api/v1/tools` endpoint.
 
 ```sh
-curl http://localhost:8000/api/tools
+curl http://localhost:8000/api/v1/tools
 ```
 
 This will return a JSON array of tool objects, each with a `name`, `description`, and `input_schema`.
 
 ##### Calling a Tool
 
-To call a specific tool, send a `POST` request to the corresponding endpoint
-(for example, `/api/detect_and_recognize_plate`).
+To call a specific tool, send a `POST` request to the `/api/v1/tools/{tool_name}/invoke` endpoint.
 The request body must be a JSON object matching the tool's `input_schema`.
 
-###### Example
+The tool can accept an image in two ways:
 
-To recognize a plate, `POST` a JSON payload with a Base64-encoded image to the `/api/detect_and_recognize_plate`
+1. A Base64-encoded string in the `image_base64` field.
+2. A local file path or a URL in the `path` field.
+
+###### Example: Calling `detect_and_recognize_plate`
+
+To detect and recognize a plate, `POST` a JSON payload to the `/api/v1/tools/detect_and_recognize_plate/invoke`
 endpoint.
+
+**Using Base64:**
 
 ```sh
 # Encode your image to Base64
@@ -158,7 +167,22 @@ endpoint.
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"image_base64": "PASTE_YOUR_BASE64_STRING_HERE"}' \
-  http://localhost:8000/api/detect_and_recognize_plate
+  http://localhost:8000/api/v1/tools/detect_and_recognize_plate/invoke
+```
+
+**Using a file path or URL:**
+
+```sh
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/path/to/your/image.jpg"}' \
+  http://localhost:8000/api/v1/tools/detect_and_recognize_plate/invoke
+
+# Or with a URL
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"path": "https://example.com/plate.jpg"}' \
+  http://localhost:8000/api/v1/tools/detect_and_recognize_plate/invoke
 ```
 
 #### 2. MCP Interface (for AI Agents)
@@ -170,12 +194,10 @@ The MCP endpoint is available at [http://127.0.0.1:8000/mcp/sse](http://127.0.0.
 
 Currently, the following tools are implemented and can be called via the MCP interface:
 
-* **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
-* **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image located at a given URL or
-  local file path.
-* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
-* **`detect_and_recognize_plate_from_path`**: Detects and recognizes license plates from an image at a given URL or
-  local file path.
+* **`recognize_plate`**: Recognizes text from an image of a license plate, provided as a Base64 string or a local/URL
+  path.
+* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image, provided as a Base64
+  string or a local/URL path.
 * **`list_models`**: Lists the available detector and OCR models.
 
 The figure below shows a screenshot of the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
@@ -187,10 +209,6 @@ tool connected to the Omni-LPR server.
 </picture>
 </div>
 
-Of course. Based on my analysis of Omni-LPR and the structure of your example, here is a suggested feature roadmap for
-the project. It focuses on enhancing the core functionality, improving the developer experience, and making the service
-more robust and production-ready.
-
 ---
 
 ### Configuration
@@ -200,12 +218,18 @@ Environment variables are read from `.env` file if it exists and from the curren
 Command-line arguments take precedence over environment variables.
 The following table summarizes the available configuration options:
 
-| Argument              | Env Var             | Description                                                                                                                         |
-|-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                       |
-| `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                  |
-| `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, and `ERROR`                                              |
-| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model` |
+| Argument              | Env Var             | Description                                                                                                                          |
+|-----------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                        |
+| `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                   |
+| `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, `ERROR`, `CRITICAL` (case-insensitive).                   |
+| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model`. |
+
+> [!NOTE]
+> The `detect_and_recognize_plate` tool also takes a `detector_model` argument. The default is
+`yolo-v9-t-384-license-plate-end2end`. Other available detector models include `yolo-v9-s-608-license-plate-end2end`,
+`yolo-v9-t-640-license-plate-end2end`, `yolo-v9-t-512-license-plate-end2end`, `yolo-v9-t-416-license-plate-end2end` and
+`yolo-v9-t-256-license-plate-end2end`.
 
 -----
 
@@ -213,7 +237,7 @@ The following table summarizes the available configuration options:
 
 - **Core ALPR Capabilities & Model Support**
     -   [x] Plate detection via YOLO-v9 models.
-    -   [x] Plate recognition via character centric transformer models.
+    -   [x] Plate recognition via character-centric transformer models.
     -   [x] Support for multiple hardware backends (generic CPUs, Intel CPUs via OpenVINO, and CUDA).
 
 - **API, Interfaces, and Developer Experience**

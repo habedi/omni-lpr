@@ -2,6 +2,7 @@
 
 import json
 import logging
+
 from pydantic import BaseModel, ValidationError
 from spectree import Response, SpecTree
 from starlette.requests import Request

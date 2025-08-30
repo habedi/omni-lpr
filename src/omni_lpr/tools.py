@@ -9,8 +9,6 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
-    Coroutine,
     Literal,
     Optional,
     Type,
@@ -67,7 +65,6 @@ from pydantic import BeforeValidator
 
 # Annotated type for Base64 image strings
 Base64ImageStr = Annotated[str, BeforeValidator(_validate_base64)]
-
 
 # --- Define allowed models as Literal types for validation ---
 DetectorModel = Literal[
@@ -286,6 +283,7 @@ def setup_tools():
     This ensures that the generated JSON schemas for the tools are accurate
     without needing manual patching.
     """
+
     # --- Dynamically Defined Pydantic Models ---
 
     class _BaseImageToolArgs(BaseModel):

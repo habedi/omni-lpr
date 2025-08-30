@@ -1,4 +1,3 @@
-import base64
 import json
 from dataclasses import asdict, dataclass
 from typing import get_args
@@ -11,11 +10,9 @@ from pydantic import BaseModel
 from omni_lpr import tools
 from omni_lpr.errors import ErrorCode, ToolLogicError
 from omni_lpr.tools import (
-    DetectAndRecognizePlateArgs,
     DetectorModel,
     ListModelsArgs,
     OcrModel,
-    RecognizePlateArgs,
     ToolRegistry,
     detect_and_recognize_plate,
     list_models,
@@ -151,7 +148,8 @@ async def test_recognize_plate_success_base64(mocker):
     RecognizePlateArgsModel = tools.tool_registry._tool_models["recognize_plate"]
     mock_recognizer_instance = MagicMock()
     mock_recognizer_instance.run.return_value = ["TEST-123"]
-    mocker.patch("omni_lpr.tools._get_ocr_recognizer", return_value=AsyncMock(return_value=mock_recognizer_instance))
+    mocker.patch("omni_lpr.tools._get_ocr_recognizer",
+                 return_value=AsyncMock(return_value=mock_recognizer_instance))
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=["TEST-123"])
 
@@ -168,7 +166,8 @@ async def test_recognize_plate_success_path(mocker):
     RecognizePlateArgsModel = tools.tool_registry._tool_models["recognize_plate"]
     mock_recognizer_instance = MagicMock()
     mock_recognizer_instance.run.return_value = ["TEST-123"]
-    mocker.patch("omni_lpr.tools._get_ocr_recognizer", return_value=AsyncMock(return_value=mock_recognizer_instance))
+    mocker.patch("omni_lpr.tools._get_ocr_recognizer",
+                 return_value=AsyncMock(return_value=mock_recognizer_instance))
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=["TEST-123"])
 
@@ -190,8 +189,8 @@ async def test_recognize_plate_success_path(mocker):
         ({"image_base64": TINY_PNG_BASE64, "path": "/path"}, "Exactly one of"),
         ({}, "Exactly one of"),
         (
-            {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
-            "Extra inputs are not permitted",
+                {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
+                "Extra inputs are not permitted",
         ),
     ],
 )
@@ -208,10 +207,12 @@ async def test_recognize_plate_validation(invalid_data, expected_error_msg):
 @pytest.mark.asyncio
 async def test_detect_and_recognize_plate_success(mocker, mock_alpr_result):
     tools.setup_tools()
-    DetectAndRecognizePlateArgsModel = tools.tool_registry._tool_models["detect_and_recognize_plate"]
+    DetectAndRecognizePlateArgsModel = tools.tool_registry._tool_models[
+        "detect_and_recognize_plate"]
     mock_alpr_instance = MagicMock()
     mock_alpr_instance.predict.return_value = [mock_alpr_result]
-    mocker.patch("omni_lpr.tools._get_alpr_instance", return_value=AsyncMock(return_value=mock_alpr_instance))
+    mocker.patch("omni_lpr.tools._get_alpr_instance",
+                 return_value=AsyncMock(return_value=mock_alpr_instance))
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=[mock_alpr_result])
 
@@ -252,7 +253,8 @@ async def test_recognizer_model_caching(mocker):
 @pytest.mark.asyncio
 async def test_alpr_instance_caching(mocker):
     tools.setup_tools()
-    DetectAndRecognizePlateArgsModel = tools.tool_registry._tool_models["detect_and_recognize_plate"]
+    DetectAndRecognizePlateArgsModel = tools.tool_registry._tool_models[
+        "detect_and_recognize_plate"]
     mock_alpr_instance = MagicMock()
     mock_alpr_instance.predict.return_value = []
     mock_alpr_class = mocker.patch("fast_alpr.ALPR", return_value=mock_alpr_instance)

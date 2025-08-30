@@ -54,7 +54,7 @@ async def amain(image_path: str, url: str):
 
 def main():
     """Parses command-line arguments and runs the async main function."""
-    args = get_args(default_url="http://127.0.0.1:8000/mcp")
+    args = get_args(default_url="http://127.0.0.1:8000/mcp/sse")
     anyio.run(amain, args.image_path, args.url)
 
 
