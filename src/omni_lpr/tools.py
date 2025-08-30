@@ -27,7 +27,6 @@ from pydantic import (
     ValidationError,
     ValidationInfo,
     field_validator,
-    model_validator,
 )
 from pydantic_core import PydanticCustomError
 
@@ -282,9 +281,7 @@ async def _detect_and_recognize_plate_logic(
 
 
 async def recognize_plate_base64_tool(args: "RecognizePlateArgs") -> list[types.ContentBlock]:
-    return await _recognize_plate_logic(
-        ocr_model=args.ocr_model, image_base64=args.image_base64
-    )
+    return await _recognize_plate_logic(ocr_model=args.ocr_model, image_base64=args.image_base64)
 
 
 async def recognize_plate_path_tool(
@@ -329,7 +326,11 @@ def setup_tools():
 
     # --- Dynamically Defined Pydantic Models ---
     # By defining these here, we can use the loaded `settings` for default values.
-    global RecognizePlateArgs, RecognizePlateFromPathArgs, DetectAndRecognizePlateArgs, DetectAndRecognizePlateFromPathArgs
+    global \
+        RecognizePlateArgs, \
+        RecognizePlateFromPathArgs, \
+        DetectAndRecognizePlateArgs, \
+        DetectAndRecognizePlateFromPathArgs
 
     class RecognizePlateArgs(BaseModel):
         """Input arguments for recognizing text from a license plate image."""

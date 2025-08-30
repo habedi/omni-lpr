@@ -26,7 +26,6 @@ try:
 except PackageNotFoundError:
     pkg_version = "0.0.0"  # Fallback if the package is not installed
 
-
 # 1. Initialize Spectree for API documentation generation
 # This instance will be used to decorate and document our endpoints.
 api_spec = SpecTree(

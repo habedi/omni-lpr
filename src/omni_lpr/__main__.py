@@ -8,8 +8,6 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 
 from .mcp import app
-
-# Import the new setup function and the spec instance
 from .settings import settings
 from .tools import setup_tools
 
@@ -94,7 +92,7 @@ def main(
     # Then, setup logging
     setup_logging(settings.log_level)
 
-    # Now that settings are loaded, setup the tools and their schemas
+    # Now that settings are loaded, set up the tools and their schemas
     _logger.info("Setting up tools...")
     setup_tools()
 

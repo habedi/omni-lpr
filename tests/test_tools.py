@@ -225,16 +225,16 @@ async def test_detect_and_recognize_plate_path_tool_success(mocker, mock_alpr_re
     [
         ("recognize_plate", {"image_base64": ""}, "image_base64 cannot be empty"),
         (
-            "recognize_plate",
-            {"image_base64": "a" * 7000001},
-            "Input image is too large",
+                "recognize_plate",
+                {"image_base64": "a" * 7000001},
+                "Input image is too large",
         ),
         ("recognize_plate", {"image_base64": "not-base64"}, "Invalid base64 string"),
         ("recognize_plate_from_path", {"path": " "}, "Path cannot be empty"),
         (
-            "recognize_plate",
-            {"image_base64": TINY_PNG_BASE64, "path": "/path"},
-            "Extra inputs are not permitted",
+                "recognize_plate",
+                {"image_base64": TINY_PNG_BASE64, "path": "/path"},
+                "Extra inputs are not permitted",
         ),
         ("recognize_plate", {}, "Field required"),
     ],
@@ -321,16 +321,18 @@ async def test_list_models():
     }
     assert models == expected
 
+
 @pytest.mark.asyncio
 async def test_get_image_from_source_url_fails(mocker):
     # Mock httpx to return a 404 error
     mock_response = httpx.Response(404)
     mock_client = mocker.patch(
         "httpx.AsyncClient.get",
-        side_effect=httpx.HTTPStatusError("Not Found", request=mocker.MagicMock(), response=mock_response)
+        side_effect=httpx.HTTPStatusError("Not Found", request=mocker.MagicMock(),
+                                          response=mock_response)
     )
 
-    setup_tools() # To register the tools
+    setup_tools()  # To register the tools
     with pytest.raises(ToolLogicError) as exc_info:
         await global_tool_registry.call(
             "detect_and_recognize_plate_from_path",
