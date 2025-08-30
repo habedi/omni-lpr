@@ -27,3 +27,24 @@ async def test_app_client():
     async with AsyncClient(transport=ASGITransport(app=starlette_app),
                            base_url="http://test") as client:
         yield client
+
+
+@pytest.fixture
+async def no_tools_test_app_client():
+    """
+    Provides a test client where no tools have been registered.
+    """
+    # Clear any previously registered tools
+    tool_registry._tools.clear()
+    tool_registry._tool_definitions.clear()
+    tool_registry._tool_models.clear()
+
+    # Clear existing routes
+    starlette_app.routes.clear()
+
+    # Set up routes WITHOUT setting up tools
+    setup_app_routes(starlette_app)
+
+    async with AsyncClient(transport=ASGITransport(app=starlette_app),
+                           base_url="http://test") as client:
+        yield client

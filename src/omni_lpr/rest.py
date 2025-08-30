@@ -2,7 +2,6 @@
 
 import json
 import logging
-from importlib.metadata import PackageNotFoundError, version
 
 from pydantic import BaseModel, ValidationError
 from spectree import Response, SpecTree
@@ -16,24 +15,23 @@ from .api_models import (
     ToolListResponse,
     ToolResponse,
 )
+from .settings import settings
 from .tools import tool_registry
 
 # Initialize logger
 _logger = logging.getLogger(__name__)
 
-try:
-    pkg_version = version("omni-lpr")
-except PackageNotFoundError:
-    pkg_version = "0.0.0"  # Fallback if the package is not installed
 
 # 1. Initialize Spectree for API documentation generation
 # This instance will be used to decorate and document our endpoints.
 api_spec = SpecTree(
     "starlette",
-    title="Omni-LPR API",
+    title="Omni-LPR REST API",
     description="A multi-interface server for automatic license plate recognition.",
-    version=pkg_version,
-    mode="strict"
+    version=settings.pkg_version,
+    mode="strict",
+    swagger_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
 )
 
 
@@ -77,8 +75,10 @@ async def invoke_tool(request: Request) -> JSONResponse:
     input_model = tool_registry._tool_models.get(tool_name, BaseModel)
 
     try:
-        # Validate the incoming request body against the tool's specific model
-        json_data = await request.json()
+        # If the request has a body, parse it. Otherwise, default to an empty dict.
+        # This handles tools that require no arguments and are called with an empty body.
+        body = await request.body()
+        json_data = json.loads(body) if body else {}
         validated_args = input_model(**json_data)
     except ValidationError as e:
         error = ErrorResponse(
@@ -89,7 +89,7 @@ async def invoke_tool(request: Request) -> JSONResponse:
             }
         )
         return JSONResponse(error.model_dump(), status_code=400)
-    except Exception:
+    except json.JSONDecodeError:
         error = ErrorResponse(
             error={"code": "INVALID_JSON", "message": "Request body is not valid JSON."}
         )

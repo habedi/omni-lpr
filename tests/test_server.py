@@ -6,7 +6,18 @@ async def test_health_check(test_app_client):
     """Test the health check endpoint."""
     response = await test_app_client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    response_json = response.json()
+    assert response_json["status"] == "ok"
+    assert "version" in response_json
+
+
+@pytest.mark.asyncio
+async def test_list_tools_with_no_tools(no_tools_test_app_client):
+    """Test the GET /tools endpoint when no tools are registered."""
+    response = await no_tools_test_app_client.get("/api/v1/tools")
+    assert response.status_code == 200
+    response_json = response.json()
+    assert response_json == {"tools": []}
 
 
 @pytest.mark.asyncio
@@ -40,3 +51,16 @@ async def test_tool_invocation_endpoint(test_app_client):
     data = response_json["content"][0]["data"]
     assert "detector_models" in data
     assert "ocr_models" in data
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_with_empty_body(test_app_client):
+    """Test invoking a tool with an empty request body."""
+    response = await test_app_client.post(
+        "/api/v1/tools/list_models/invoke", content="", headers={"Content-Length": "0"}
+    )
+    assert response.status_code == 200
+    response_json = response.json()
+    assert "content" in response_json
+    data = response_json["content"][0]["data"]
+    assert "detector_models" in data

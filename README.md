@@ -134,8 +134,8 @@ All tool endpoints are available under the `/api/v1` prefix.
 > [!TIP]
 > This project provides interactive API documentation (Swagger UI and ReDoc).
 > Once the server is running, you can access them at:
-> - **Swagger UI**: [http://127.0.0.1:8000/api/v1/docs](http://127.0.0.1:8000/api/v1/docs)
-> - **ReDoc**: [http://127.0.0.1:8000/api/v1/redoc](http://127.0.0.1:8000/api/v1/redoc)
+> - **Swagger UI**: [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger)
+> - **ReDoc**: [http://127.0.0.1:8000/apidoc/redoc](http://127.0.0.1:8000/apidoc/redoc)
 
 ##### Discovering Tools
 

@@ -33,8 +33,12 @@ async def handle_sse(request):
 
 
 async def health_check(_request):
+    """
+    Health check endpoint.
+    Returns the status of the server and the server version.
+    """
     _logger.debug("Health check requested.")
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "ok", "version": settings.pkg_version})
 
 
 # Create app in global scope so it can be imported, but without routes.

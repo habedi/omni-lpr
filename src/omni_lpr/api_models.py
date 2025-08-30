@@ -9,8 +9,12 @@ from pydantic import BaseModel, Field
 class JsonContentBlock(BaseModel):
     """A container for structured JSON data in a response."""
 
-    type: str = Field("json", description="The type of the content block.")
-    data: Any = Field(..., description="The structured JSON payload.")
+    type: str = Field("json", description="The type of the content block.", examples=["json"])
+    data: Any = Field(
+        ...,
+        description="The structured JSON payload.",
+        examples=[{"plate_text": "HELLO", "confidence": 0.9}],
+    )
 
 
 class ToolResponse(BaseModel):
@@ -34,9 +38,15 @@ class ErrorBody(BaseModel):
     """The main error object containing codes and messages."""
 
     code: str = Field(
-        ..., description="A unique code for the error type (e.g., 'VALIDATION_ERROR')."
+        ...,
+        description="A unique code for the error type (e.g., 'VALIDATION_ERROR').",
+        examples=["VALIDATION_ERROR"],
     )
-    message: str = Field(..., description="A high-level, human-readable error message.")
+    message: str = Field(
+        ...,
+        description="A high-level, human-readable error message.",
+        examples=["Input validation failed."],
+    )
     details: Optional[List[ErrorDetail]] = Field(
         None, description="Optional list of specific validation errors."
     )
@@ -52,10 +62,21 @@ class ErrorResponse(BaseModel):
 class ToolDefinition(BaseModel):
     """Represents the definition of a single tool."""
 
-    name: str
-    title: str
-    description: str
-    inputSchema: dict
+    name: str = Field(..., examples=["recognize_plate"])
+    title: str = Field(..., examples=["Recognize License Plate"])
+    description: str = Field(
+        ..., examples=["Recognizes text from a pre-cropped image of a license plate."]
+    )
+    inputSchema: dict = Field(
+        ...,
+        examples=[
+            {
+                "type": "object",
+                "properties": {"image_base64": {"type": "string"}},
+                "required": ["image_base64"],
+            }
+        ],
+    )
 
 
 class ToolListResponse(BaseModel):
