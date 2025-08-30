@@ -4,8 +4,10 @@ import click
 from mcp.server.sse import SseServerTransport
 from pythonjsonlogger import jsonlogger
 from starlette.applications import Starlette
+from starlette.middleware import Middleware
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
+from starlette_prometheus import PrometheusMiddleware, metrics
 
 from .mcp import app
 from .settings import settings
@@ -43,7 +45,9 @@ async def health_check(_request):
 
 # Create app in global scope so it can be imported, but without routes.
 # Routes will be added in main() after tools are set up.
-starlette_app = Starlette(debug=True)
+starlette_app = Starlette(
+    debug=True, middleware=[Middleware(PrometheusMiddleware)]
+)
 
 
 def setup_app_routes(app: Starlette):
@@ -60,6 +64,7 @@ def setup_app_routes(app: Starlette):
             health_route,
             # Mount all the new, documented v1 API routes under /api/v1
             Mount("/api/v1", routes=setup_rest_routes()),
+            Route("/api/metrics", endpoint=metrics),
         ]
     )
     # Register the Spectree documentation generator with the app

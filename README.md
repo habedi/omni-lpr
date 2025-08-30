@@ -265,7 +265,7 @@ The following table summarizes the available configuration options:
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
-    -   [ ] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
+    -   [x] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
     -   [ ] Request batching for model inference to improve throughput under a heavy load.
 
 - **Integrations and Ecosystem**
