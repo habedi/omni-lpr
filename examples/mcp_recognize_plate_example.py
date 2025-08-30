@@ -6,7 +6,7 @@ from shared import get_args, get_image_base64
 
 
 async def amain(image_path: str, url: str):
-    """Connects to the MCP server using an SSE client and calls a tool."""
+    """Connects to the MCP server and calls the recognize_plate tool."""
     # Read the image file and encode it in base64
     image_base64 = get_image_base64(image_path)
     if not image_base64:
@@ -22,12 +22,10 @@ async def amain(image_path: str, url: str):
                 # Initialize the connection
                 await session.initialize()
 
-                print("Client initialized. Listing available tools...")
-                tools_response = await session.list_tools()
-                print("Available tools:", [tool.name for tool in tools_response.tools])
+                print("Client initialized.")
 
                 # The tool to call
-                tool_name = "detect_and_recognize_plate"
+                tool_name = "recognize_plate"
 
                 # The arguments for the tool
                 tool_args = {"image_base64": image_base64}

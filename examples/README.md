@@ -1,24 +1,24 @@
 ## Omni-LPR Examples
 
-This directory contains examples of how to use the Omni-LPR server via its REST and MCP APIs.
+This directory contains examples of how to use the Omni-LPR server.
 
 ### Running the Examples
 
 #### 1. Start the Server
 
-First, make sure the server is running in web server mode.
-You can start it with the following command from the root of the repository:
+First, make sure the server is running.
+You can start the server using the following command:
 
 ```bash
-TRANSPORT=sse poetry run omni-lpr
+poetry run omni-lpr
 ```
 
-The server will then be listening on [http://127.0.0.1:8000](http://127.0.0.1:8000).
+The server will then be listening on [http://127.0.0.1:8000](http://127.0.0.1:8000) by default.
 
 #### 2. Run an Example
 
-Then, you can run any of the examples from the `examples` (this) directory.
-Each example script accepts command-line arguments to specify the path to the image and the URL of the server endpoint.
+You can run individual examples from the `examples` (this) directory.
+Each script accepts command-line arguments to specify the path to the image and the URL of the server endpoint.
 
 For example, to run the REST API example with a specific image:
 
@@ -32,9 +32,32 @@ To see all available options for an example, use the `--help` flag:
 poetry run python examples/rest_simple_example.py --help
 ```
 
+#### 3. Run All Examples
+
+Alternatively, you can run all examples for a specific API using the `make` commands from the root of the repository:
+
+To run all REST API examples:
+
+```bash
+make example-rest
+```
+
+To run all MCP examples:
+
+```bash
+make example-mcp
+```
+
 ### Example Files
 
-| # | File                                             | Description                                                          |
-|---|--------------------------------------------------|----------------------------------------------------------------------|
-| 1 | [rest_simple_example.py](rest_simple_example.py) | Example of license plate recognition using the Omni-LPR REST API.    |
-| 2 | [mcp_simple_example.py](mcp_simple_example.py)   | Example of using the Omni-LPR MCP API for license plate recognition. |
+| # | File                                                                                                         | Description                                              |
+|---|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| 1 | [rest_recognize_plate_example.py](rest_recognize_plate_example.py)                                           | REST example for `recognize_plate` (base64 image).       |
+| 2 | [mcp_recognize_plate_example.py](mcp_recognize_plate_example.py)                                             | MCP example for `recognize_plate` (base64 image).        |
+| 3 | [rest_recognize_plate_from_path_example.py](rest_recognize_plate_from_path_example.py)                       | REST example for `recognize_plate_from_path`.            |
+| 4 | [mcp_recognize_plate_from_path_example.py](mcp_recognize_plate_from_path_example.py)                         | MCP example for `recognize_plate_from_path`.             |
+| 5 | [rest_detect_and_recognize_plate_from_path_example.py](rest_detect_and_recognize_plate_from_path_example.py) | REST example for `detect_and_recognize_plate_from_path`. |
+| 6 | [mcp_detect_and_recognize_plate_from_path_example.py](mcp_detect_and_recognize_plate_from_path_example.py)   | MCP example for `detect_and_recognize_plate_from_path`.  |
+| 7 | [rest_list_models_example.py](rest_list_models_example.py)                                                   | REST example for `list_models`.                          |
+| 8 | [mcp_list_models_example.py](mcp_list_models_example.py)                                                     | MCP example for `list_models`.                           |
+| 9 | [health_check_example.py](health_check_example.py)                                                           | Example for checking the server's health status.         |

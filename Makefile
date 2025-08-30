@@ -106,22 +106,29 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 
 SERVER_PID := /tmp/omni-lpr-server.pid
 
-define run_example
-    @echo "Starting server in background..."
-    $(DEP_MNGR) run omni-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
-    @echo "Waiting for server to start..."
-    @while ! nc -z localhost 8000; do sleep 1; done
-    @echo "Server started. Running example: $(1)"
-    $(DEP_MNGR) run python $(2)
-    @echo "Stopping server..."
-    @kill `cat $(SERVER_PID)`
+# Define the lists of example files
+REST_EXAMPLES := $(wildcard examples/rest_*_example.py)
+MCP_EXAMPLES := $(wildcard examples/mcp_*_example.py)
+
+define run_examples
+	@echo "Starting server in background..."
+	$(DEP_MNGR) run omni-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
+	@echo "Waiting for server to start..."
+	@while ! nc -z localhost 8000; do sleep 1; done
+	@echo "Server started. Running $(1) examples..."
+	@for example in $(2); do \
+		echo "\n--- Running $$example ---"; \
+		$(DEP_MNGR) run python $$example; \
+	done
+	@echo "\nStopping server..."
+	@kill `cat $(SERVER_PID)`
 endef
 
-example-rest: ## Run the REST API examples
-	$(call run_example,"REST",examples/rest_simple_example.py)
+example-rest: ## Run all REST API examples
+	$(call run_examples,"REST",$(REST_EXAMPLES))
 
-example-mcp: ## Run the MCP examples
-	$(call run_example,"MCP",examples/mcp_simple_example.py)
+example-mcp: ## Run all MCP API examples
+	$(call run_examples,"MCP",$(MCP_EXAMPLES))
 
 # ==============================================================================
 # DOCKER
