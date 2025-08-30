@@ -283,10 +283,10 @@ async def test_recognizer_model_caching(mocker):
     )
 
     args_a = RecognizePlateArgs(
-        image_base64=TINY_PNG_BASE64, model_name="cct-s-v1-global-model"
+        image_base64=TINY_PNG_BASE64, ocr_model="cct-s-v1-global-model"
     )
     args_b = RecognizePlateArgs(
-        image_base64=TINY_PNG_BASE64, model_name="cct-xs-v1-global-model"
+        image_base64=TINY_PNG_BASE64, ocr_model="cct-xs-v1-global-model"
     )
 
     await recognize_plate(args_a)
