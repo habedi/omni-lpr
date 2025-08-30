@@ -358,7 +358,7 @@ def setup_tools():
 
         model_config = ConfigDict(extra="forbid")
         image_base64: Base64ImageStr
-        detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
+        detector_model: DetectorModel = Field(default=settings.default_detector_model)
         ocr_model: OcrModel = Field(default=settings.default_ocr_model)
 
     class DetectAndRecognizePlateFromPathArgs(BaseModel):
@@ -366,7 +366,7 @@ def setup_tools():
 
         model_config = ConfigDict(extra="forbid")
         path: str = Field(..., examples=["https://example.com/car.jpg"])
-        detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
+        detector_model: DetectorModel = Field(default=settings.default_detector_model)
         ocr_model: OcrModel = Field(default=settings.default_ocr_model)
 
         @field_validator("path")

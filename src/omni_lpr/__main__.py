@@ -73,8 +73,18 @@ def setup_app_routes(app: Starlette):
     help="The default OCR model to use.",
     envvar="DEFAULT_OCR_MODEL",
 )
+@click.option(
+    "--default-detector-model",
+    default=None,
+    help="The default detector model to use.",
+    envvar="DEFAULT_DETECTOR_MODEL",
+)
 def main(
-    host: str | None, port: int | None, log_level: str | None, default_ocr_model: str | None
+    host: str | None,
+    port: int | None,
+    log_level: str | None,
+    default_ocr_model: str | None,
+    default_detector_model: str | None,
 ) -> int:
     """Main entrypoint for the omni-lpr server."""
     import uvicorn
@@ -88,6 +98,8 @@ def main(
         settings.log_level = log_level
     if default_ocr_model:
         settings.default_ocr_model = default_ocr_model
+    if default_detector_model:
+        settings.default_detector_model = default_detector_model
 
     # Then, setup logging
     setup_logging(settings.log_level)

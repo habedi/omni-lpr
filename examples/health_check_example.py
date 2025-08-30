@@ -1,5 +1,7 @@
-import httpx
 import argparse
+
+import httpx
+
 
 def main():
     """Performs a health check against the server."""

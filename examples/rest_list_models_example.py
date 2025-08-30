@@ -1,5 +1,7 @@
-import httpx
 import argparse
+
+import httpx
+
 
 def main():
     """Sends a request to the list_models tool and prints the result."""

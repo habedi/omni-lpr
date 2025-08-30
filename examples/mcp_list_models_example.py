@@ -1,8 +1,9 @@
+import argparse
+
 import anyio
 from mcp import ClientSession, types
 from mcp.client.sse import sse_client
 
-import argparse
 
 async def amain(url: str):
     """Connects to the MCP server and calls the list_models tool."""

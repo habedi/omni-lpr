@@ -8,6 +8,7 @@ class ServerSettings(BaseSettings):
     port: int = 8000
     log_level: str = "INFO"
     default_ocr_model: str = "cct-xs-v1-global-model"
+    default_detector_model: str = "yolo-v9-t-384-license-plate-end2end"
 
 
 # Singleton instance

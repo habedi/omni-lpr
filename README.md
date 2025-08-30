@@ -225,18 +225,29 @@ Environment variables are read from `.env` file if it exists and from the curren
 Command-line arguments take precedence over environment variables.
 The following table summarizes the available configuration options:
 
-| Argument              | Env Var             | Description                                                                                                                          |
-|-----------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| `--port`              | `PORT`              | Server port (default: `8000`)                                                                                                        |
-| `--host`              | `HOST`              | Server host (default: `127.0.0.1`)                                                                                                   |
-| `--log-level`         | `LOG_LEVEL`         | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, `ERROR`, `CRITICAL` (case-insensitive).                   |
-| `--default-ocr-model` | `DEFAULT_OCR_MODEL` | Default OCR model to use (default: `cct-xs-v1-global-model`). Valid values are `cct-xs-v1-global-model` and `cct-s-v1-global-model`. |
+| Argument                   | Env Var                  | Description                                                                                                        |
+|----------------------------|--------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `--port`                   | `PORT`                   | Server port (default: `8000`)                                                                                      |
+| `--host`                   | `HOST`                   | Server host (default: `127.0.0.1`)                                                                                 |
+| `--log-level`              | `LOG_LEVEL`              | Logging level (default: `INFO`). Valid values are `DEBUG`, `INFO`, `WARN`, `ERROR`, `CRITICAL` (case-insensitive). |
+| `--default-ocr-model`      | `DEFAULT_OCR_MODEL`      | Default OCR model to use (default: `cct-xs-v1-global-model`).                                                      |
+| `--default-detector-model` | `DEFAULT_DETECTOR_MODEL` | Default detector model to use (default: `yolo-v9-t-384-license-plate-end2end`).                                    |
 
 > [!NOTE]
-> The `detect_and_recognize_plate` tool also takes a `detector_model` argument. The default is
-`yolo-v9-t-384-license-plate-end2end`. Other available detector models include `yolo-v9-s-608-license-plate-end2end`,
-`yolo-v9-t-640-license-plate-end2end`, `yolo-v9-t-512-license-plate-end2end`, `yolo-v9-t-416-license-plate-end2end` and
-`yolo-v9-t-256-license-plate-end2end`.
+> The `detect_and_recognize_plate` and `detect_and_recognize_plate_from_path` tools take optional `detector_model` and
+`ocr_model` arguments to override the default models for a specific request.
+>
+> **Available OCR Models:**
+> - `cct-xs-v1-global-model` (default)
+> - `cct-s-v1-global-model`
+>
+> **Available Detector Models:**
+> - `yolo-v9-s-608-license-plate-end2end`
+> - `yolo-v9-t-640-license-plate-end2end`
+> - `yolo-v9-t-512-license-plate-end2end`
+> - `yolo-v9-t-416-license-plate-end2end`
+> - `yolo-v9-t-384-license-plate-end2end` (default)
+> - `yolo-v9-t-256-license-plate-end2end`
 
 -----
 
