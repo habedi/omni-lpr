@@ -1,5 +1,6 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
+
 from omni_lpr.__main__ import setup_app_routes, setup_tools, starlette_app
 from omni_lpr.tools import tool_registry
 
@@ -23,5 +24,6 @@ async def test_app_client():
     setup_app_routes(starlette_app)
 
     # Yield a test client
-    async with AsyncClient(transport=ASGITransport(app=starlette_app), base_url="http://test") as client:
+    async with AsyncClient(transport=ASGITransport(app=starlette_app),
+                           base_url="http://test") as client:
         yield client
