@@ -5,7 +5,7 @@ import json
 import logging
 from dataclasses import asdict
 from functools import partial
-from typing import TYPE_CHECKING, Literal, Type, get_args
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal, Type, get_args
 
 import anyio
 import httpx
@@ -197,14 +197,42 @@ async def _get_ocr_recognizer(ocr_model: str) -> "LicensePlateRecognizer":
     return _ocr_model_cache[ocr_model]
 
 
-async def recognize_plate(args: RecognizePlateArgs) -> list[types.ContentBlock]:
+async def _get_image_from_base64(encoded_str: str) -> Image.Image:
+    """Decodes a base64 string and returns a PIL Image."""
     try:
-        image_bytes = base64.b64decode(args.image_base64)
+        image_bytes = base64.b64decode(encoded_str)
         image = Image.open(io.BytesIO(image_bytes))
-        image_rgb = image.convert("RGB")
+        return image.convert("RGB")
     except UnidentifiedImageError as e:
-        raise ValueError(f"Invalid image data provided. Could not decode image. Error: {e}") from e
+        raise ValueError("Invalid image data provided. Could not decode image.") from e
 
+
+async def _run_on_path(path: str, model_runner: Callable[[Any], Coroutine[Any, Any, Any]]):
+    """
+    Runs a model on an image from a path, handling URL downloading.
+    """
+    try:
+        if path.startswith(("http://", "https://")):
+            async with httpx.AsyncClient() as client:
+                response = await client.get(path)
+                response.raise_for_status()
+                image_bytes = await response.aread()
+            image = Image.open(io.BytesIO(image_bytes))
+            image_rgb = image.convert("RGB")
+            image_np = np.array(image_rgb)
+            return await anyio.to_thread.run_sync(model_runner, image_np)
+        else:
+            return await anyio.to_thread.run_sync(model_runner, path)
+    except FileNotFoundError:
+        raise ValueError(f"File not found at path: {path}")
+    except httpx.HTTPStatusError as e:
+        raise ValueError(f"Failed to fetch image from URL: {e.response.status_code}")
+    except UnidentifiedImageError:
+        raise ValueError(f"Data from path '{path}' is not a valid image file.")
+
+
+async def recognize_plate(args: RecognizePlateArgs) -> list[types.ContentBlock]:
+    image_rgb = await _get_image_from_base64(args.image_base64)
     recognizer = await _get_ocr_recognizer(args.ocr_model)
     image_np = np.array(image_rgb)
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
@@ -215,30 +243,8 @@ async def recognize_plate(args: RecognizePlateArgs) -> list[types.ContentBlock]:
 
 async def recognize_plate_from_path(args: RecognizePlateFromPathArgs) -> list[types.ContentBlock]:
     path = args.path
-    try:
-        recognizer = await _get_ocr_recognizer(args.ocr_model)
-        if path.startswith("http://") or path.startswith("https://"):
-            async with httpx.AsyncClient() as client:
-                response = await client.get(path)
-                response.raise_for_status()
-                image_bytes = await response.aread()
-            image = Image.open(io.BytesIO(image_bytes))
-            image_rgb = image.convert("RGB")
-            image_np = np.array(image_rgb)
-            result = await anyio.to_thread.run_sync(recognizer.run, image_np)
-        else:
-            result = await anyio.to_thread.run_sync(recognizer.run, path)
-
-    except FileNotFoundError:
-        raise ValueError(f"File not found at path: {path}")
-    except httpx.HTTPStatusError as e:
-        raise ValueError(
-            f"Failed to fetch image from URL: {e.response.status_code} {e.response.reason_phrase}"
-        )
-    except UnidentifiedImageError as e:
-        raise ValueError(f"Data from path '{path}' is not a valid image file. Error: {e}") from e
-    except Exception as e:
-        raise ValueError(f"Could not process image from path '{path}': {e}")
+    recognizer = await _get_ocr_recognizer(args.ocr_model)
+    result = await _run_on_path(path, recognizer.run)
 
     _logger.info(f"License plate recognized from source '{path}': {result}")
     return [types.TextContent(type="text", text=json.dumps(result))]
@@ -260,13 +266,7 @@ async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
 
 
 async def detect_and_recognize_plate(args: DetectAndRecognizePlateArgs) -> list[types.ContentBlock]:
-    try:
-        image_bytes = base64.b64decode(args.image_base64)
-        image = Image.open(io.BytesIO(image_bytes))
-        image_rgb = image.convert("RGB")
-    except UnidentifiedImageError as e:
-        raise ValueError(f"Invalid image data. Could not decode image. Error: {e}") from e
-
+    image_rgb = await _get_image_from_base64(args.image_base64)
     alpr = await _get_alpr_instance(args.detector_model, args.ocr_model)
     image_np = np.array(image_rgb)
     results = await anyio.to_thread.run_sync(alpr.predict, image_np)
@@ -281,30 +281,8 @@ async def detect_and_recognize_plate_from_path(
     args: DetectAndRecognizePlateFromPathArgs,
 ) -> list[types.ContentBlock]:
     path = args.path
-    try:
-        alpr = await _get_alpr_instance(args.detector_model, args.ocr_model)
-        if path.startswith("http://") or path.startswith("https://"):
-            async with httpx.AsyncClient() as client:
-                response = await client.get(path)
-                response.raise_for_status()
-                image_bytes = await response.aread()
-            image = Image.open(io.BytesIO(image_bytes))
-            image_rgb = image.convert("RGB")
-            image_np = np.array(image_rgb)
-            results = await anyio.to_thread.run_sync(alpr.predict, image_np)
-        else:
-            results = await anyio.to_thread.run_sync(alpr.predict, path)
-
-    except FileNotFoundError:
-        raise ValueError(f"File not found at path: {path}")
-    except httpx.HTTPStatusError as e:
-        raise ValueError(
-            f"Failed to fetch image from URL: {e.response.status_code} {e.response.reason_phrase}"
-        )
-    except UnidentifiedImageError as e:
-        raise ValueError(f"Data from path '{path}' is not a valid image file. Error: {e}") from e
-    except Exception as e:
-        raise ValueError(f"Could not process image from path '{path}': {e}")
+    alpr = await _get_alpr_instance(args.detector_model, args.ocr_model)
+    results = await _run_on_path(path, alpr.predict)
 
     results_dict = [asdict(res) for res in results]
     _logger.info(f"ALPR processed source '{path}'. Found {len(results_dict)} plate(s).")
