@@ -8,9 +8,9 @@ import pytest
 from mcp import types
 from pydantic import BaseModel
 
-from server import tools
-from server.errors import ErrorCode, ToolLogicError
-from server.tools import (
+from omni_lpr import tools
+from omni_lpr.errors import ErrorCode, ToolLogicError
+from omni_lpr.tools import (
     DetectAndRecognizePlateArgs,
     DetectAndRecognizePlateFromPathArgs,
     DetectorModel,

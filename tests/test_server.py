@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_health_check():
-    from server.__main__ import starlette_app
+    from omni_lpr.__main__ import starlette_app
     from httpx import ASGITransport, AsyncClient
 
     async with AsyncClient(
