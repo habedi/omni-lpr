@@ -11,7 +11,7 @@ import httpx
 import mcp.types as types
 import numpy as np
 from PIL import Image, UnidentifiedImageError
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from .errors import ErrorCode, ToolLogicError
 from .settings import settings
@@ -39,6 +39,8 @@ OcrModel = Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"]
 
 # --- Pydantic Models for Input Validation ---
 class RecognizePlateArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     image_base64: str
     ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
@@ -57,6 +59,8 @@ class RecognizePlateArgs(BaseModel):
 
 
 class RecognizePlateFromPathArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     path: str
     ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
@@ -69,6 +73,8 @@ class RecognizePlateFromPathArgs(BaseModel):
 
 
 class DetectAndRecognizePlateArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     image_base64: str
     detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
     ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
@@ -88,6 +94,8 @@ class DetectAndRecognizePlateArgs(BaseModel):
 
 
 class DetectAndRecognizePlateFromPathArgs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     path: str
     detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
     ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
@@ -103,7 +111,7 @@ class DetectAndRecognizePlateFromPathArgs(BaseModel):
 class ListModelsArgs(BaseModel):
     """Input arguments for listing available models."""
 
-    pass
+    model_config = ConfigDict(extra="forbid")
 
 
 class ToolRegistry:

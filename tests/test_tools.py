@@ -168,8 +168,8 @@ async def test_recognize_plate_success(mocker):
         ({"image_base64": "not-base64"}, "Invalid base64 string"),
         ({"image_base64": ""}, "image_base64 cannot be empty"),
         (
-                {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
-                "Input should be",
+            {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
+            "Extra inputs are not permitted",
         ),
     ],
 )
