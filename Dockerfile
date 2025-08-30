@@ -30,7 +30,7 @@ RUN case ${BACKEND} in \
 FROM builder as common
 WORKDIR /home/appuser/app
 COPY --from=builder /app/requirements.txt ./requirements.txt
-COPY --from=builder /app/pyproject.toml ./pyproject.toml   # <-- add for editable install
+COPY --from=builder /app/pyproject.toml ./pyproject.toml
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/Makefile ./Makefile
