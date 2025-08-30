@@ -217,30 +217,24 @@ The following table summarizes the available configuration options:
     -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
     -   [ ] Interactive API documentation (like Swagger UI and OpenAPI).
-    -   [ ] Support for direct image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
-        images.
+    -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded images.
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
-    -   [ ] Request batching for model inference to significantly improve throughput under a heavy load.
-    -   [ ] A configurable caching layer (like Redis) to store results for repeated requests.
+    -   [ ] Request batching for model inference to improve throughput under a heavy load.
     -   [ ] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
 
 - **Integrations and Ecosystem**
     -   [x] Standalone microservice architecture.
-    -   [ ] An official Python client library to simplify interaction with the REST API.
+    -   [ ] A Python client library to simplify interaction with the REST API.
 
 - **Deployment and Operations**
     -   [x] Pre-built Docker images for different hardware backends.
     -   [x] Configuration via environment variables and CLI arguments.
     -   [ ] A Helm chart for simplified deployment to Kubernetes clusters.
-    -   [ ] More detailed health checks that verify the status of loaded models.
 
 - **Testing and Benchmarks**
-    -   [x] Unit and integration test suite with Pytest.
-    -   [x] Code coverage reporting.
-    -   [x] Linting and static analysis via Ruff and MyPy.
-    -   [ ] Formal performance benchmarks (requests/second, latency) for different hardware backends and request types.
+    -   [ ] Performance benchmarks for different hardware backends and request types.
 
 -----
 
