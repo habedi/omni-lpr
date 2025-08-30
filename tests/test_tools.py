@@ -1,6 +1,7 @@
 import base64
 import json
 from dataclasses import asdict, dataclass
+from typing import get_args
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -12,7 +13,9 @@ from server.errors import ErrorCode, ToolLogicError
 from server.tools import (
     DetectAndRecognizePlateArgs,
     DetectAndRecognizePlateFromPathArgs,
+    DetectorModel,
     ListModelsArgs,
+    OcrModel,
     RecognizePlateArgs,
     RecognizePlateFromPathArgs,
     ToolRegistry,
@@ -214,9 +217,7 @@ async def test_recognize_plate_from_path_file_success(mocker):
         "fast_plate_ocr.LicensePlateRecognizer", return_value=mock_recognizer_instance
     )
     image_bytes = base64.b64decode(TINY_PNG_BASE64)
-    mocker.patch(
-        "anyio.Path.read_bytes", new_callable=AsyncMock, return_value=image_bytes
-    )
+    mocker.patch("anyio.Path.read_bytes", new_callable=AsyncMock, return_value=image_bytes)
 
     args = RecognizePlateFromPathArgs(path="/fake/path/plate.jpg")
     result = await recognize_plate_from_path(args)
@@ -304,18 +305,21 @@ async def test_alpr_instance_caching(mocker):
 
     args_1 = DetectAndRecognizePlateArgs(
         image_base64=TINY_PNG_BASE64,
-        detector_model="detector-A",
-        ocr_model="ocr-X",
+        detector_model="yolo-v9-t-384-license-plate-end2end",
+        ocr_model="cct-s-v1-global-model",
     )
     args_2 = DetectAndRecognizePlateArgs(
         image_base64=TINY_PNG_BASE64,
-        detector_model="detector-B",
-        ocr_model="ocr-Y",
+        detector_model="yolo-v9-t-256-license-plate-end2end",
+        ocr_model="cct-xs-v1-global-model",
     )
 
     await detect_and_recognize_plate(args_1)
     await detect_and_recognize_plate(args_1)
-    mock_alpr_class.assert_called_once_with(detector_model="detector-A", ocr_model="ocr-X")
+    mock_alpr_class.assert_called_once_with(
+        detector_model="yolo-v9-t-384-license-plate-end2end",
+        ocr_model="cct-s-v1-global-model",
+    )
 
     await detect_and_recognize_plate(args_2)
     assert mock_alpr_class.call_count == 2
@@ -328,7 +332,7 @@ async def test_list_models():
     assert isinstance(result[0], types.TextContent)
     models = json.loads(result[0].text)
     expected = {
-        "detector_models": ["yolo-v9-t-384-license-plate-end2end"],
-        "ocr_models": ["cct-s-v1-global-model", "cct-xs-v1-global-model"],
+        "detector_models": list(get_args(DetectorModel)),
+        "ocr_models": list(get_args(OcrModel)),
     }
     assert models == expected

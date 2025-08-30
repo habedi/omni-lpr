@@ -4,7 +4,7 @@ import json
 import logging
 from dataclasses import asdict
 from functools import partial
-from typing import TYPE_CHECKING, Literal, Type
+from typing import TYPE_CHECKING, Literal, Type, get_args
 
 import anyio
 import httpx
@@ -24,13 +24,23 @@ _logger = logging.getLogger(__name__)
 _ocr_model_cache: dict[str, "LicensePlateRecognizer"] = {}
 _alpr_cache: dict[tuple[str, str], "ALPR"] = {}
 
+# --- Define allowed models as Literal types for validation ---
+DetectorModel = Literal[
+    "yolo-v9-s-608-license-plate-end2end",
+    "yolo-v9-t-640-license-plate-end2end",
+    "yolo-v9-t-512-license-plate-end2end",
+    "yolo-v9-t-416-license-plate-end2end",
+    "yolo-v9-t-384-license-plate-end2end",
+    "yolo-v9-t-256-license-plate-end2end",
+]
+
+OcrModel = Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"]
+
 
 # --- Pydantic Models for Input Validation ---
 class RecognizePlateArgs(BaseModel):
     image_base64: str
-    model_name: Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"] = Field(
-        default_factory=lambda: settings.default_ocr_model
-    )
+    model_name: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("image_base64")
     @classmethod
@@ -48,9 +58,7 @@ class RecognizePlateArgs(BaseModel):
 
 class RecognizePlateFromPathArgs(BaseModel):
     path: str
-    model_name: Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"] = Field(
-        default_factory=lambda: settings.default_ocr_model
-    )
+    model_name: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("path")
     @classmethod
@@ -62,8 +70,8 @@ class RecognizePlateFromPathArgs(BaseModel):
 
 class DetectAndRecognizePlateArgs(BaseModel):
     image_base64: str
-    detector_model: str = "yolo-v9-t-384-license-plate-end2end"
-    ocr_model: str = Field(default_factory=lambda: settings.default_ocr_model)
+    detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
+    ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("image_base64")
     @classmethod
@@ -81,8 +89,8 @@ class DetectAndRecognizePlateArgs(BaseModel):
 
 class DetectAndRecognizePlateFromPathArgs(BaseModel):
     path: str
-    detector_model: str = "yolo-v9-t-384-license-plate-end2end"
-    ocr_model: str = Field(default_factory=lambda: settings.default_ocr_model)
+    detector_model: DetectorModel = "yolo-v9-t-384-license-plate-end2end"
+    ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("path")
     @classmethod
@@ -331,9 +339,7 @@ list_models_tool_definition = types.Tool(
 async def list_models(_: ListModelsArgs) -> list[types.ContentBlock]:
     """Lists available detector and OCR models."""
     models = {
-        "detector_models": [
-            "yolo-v9-t-384-license-plate-end2end",
-        ],
-        "ocr_models": ["cct-s-v1-global-model", "cct-xs-v1-global-model"],
+        "detector_models": list(get_args(DetectorModel)),
+        "ocr_models": list(get_args(OcrModel)),
     }
     return [types.TextContent(type="text", text=json.dumps(models))]
