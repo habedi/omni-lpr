@@ -90,7 +90,7 @@ When you have built or pulled the images, you can run them using the following c
 - **CPU Image (OpenVINO):**
   ```sh
   make docker-run-openvino
-  
+
   # Or manually
   docker run --rm -it -p 8000:8000 ghcr.io/habedi/omni-lpr-openvino:TAG
   ```
@@ -98,7 +98,7 @@ When you have built or pulled the images, you can run them using the following c
 - **GPU Image (CUDA):**
   ```sh
   make docker-run-cuda
-  
+
   # Or manually
   docker run --rm -it --gpus all -p 8000:8000 ghcr.io/habedi/omni-lpr-cuda:TAG
   ```

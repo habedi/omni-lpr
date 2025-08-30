@@ -10,6 +10,7 @@ from starlette.routing import Mount, Route
 from .mcp import app
 from .rest import setup_rest_routes
 from .settings import update_settings
+from .tools import setup_tools
 
 _logger = logging.getLogger(__name__)
 
@@ -37,15 +38,21 @@ async def health_check(_request):
     return JSONResponse({"status": "ok"})
 
 
-starlette_app = Starlette(
-    debug=True,
-    routes=[
-        Route("/mcp/sse", endpoint=handle_sse, methods=["GET"]),
-        Mount("/mcp/messages/", app=sse.handle_post_message),
-        Route("/api/health", endpoint=health_check, methods=["GET"]),
-        Mount("/api", routes=setup_rest_routes()),
-    ],
-)
+# Create app in global scope so it can be imported, but without routes.
+# Routes will be added in main() after tools are set up.
+starlette_app = Starlette(debug=True)
+
+
+def setup_app_routes(app: Starlette):
+    """Adds routes to the Starlette application."""
+    app.routes.extend(
+        [
+            Route("/mcp/sse", endpoint=handle_sse, methods=["GET"]),
+            Mount("/mcp/messages/", app=sse.handle_post_message),
+            Route("/api/health", endpoint=health_check, methods=["GET"]),
+            Mount("/api", routes=setup_rest_routes()),
+        ]
+    )
 
 
 @click.command()
@@ -62,8 +69,19 @@ def main(host: str, port: int, log_level: str, default_ocr_model: str) -> int:
     """Main entrypoint for the omni-lpr server."""
     import uvicorn
 
+    # First, update settings from command line/env vars
     update_settings(default_ocr_model=default_ocr_model)
+
+    # Then, setup logging
     setup_logging(log_level)
+
+    # Now that settings are loaded, setup the tools and their schemas
+    _logger.info("Setting up tools...")
+    setup_tools()
+
+    # Now that tools are registered, add the routes to the app
+    setup_app_routes(starlette_app)
+
     _logger.info(f"Starting SSE server on {host}:{port}")
     uvicorn.run(starlette_app, host=host, port=port)
     return 0

@@ -80,7 +80,7 @@ test-hooks: ## Test Git hooks on all files
 .PHONY: run
 run: ## Start the server
 	@echo "Starting the server..."
-	$(DEP_MNGR) run mcp-lpr
+	$(DEP_MNGR) run omni-lpr
 
 .PHONY: run-gunicorn
 run-gunicorn: ## Start the server with Gunicorn
@@ -105,11 +105,11 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 # ==============================================================================
 .PHONY: example-rest example-mcp
 
-SERVER_PID := /tmp/mcp-lpr-server.pid
+SERVER_PID := /tmp/omni-lpr-server.pid
 
 define run_example
     @echo "Starting server in background..."
-    $(DEP_MNGR) run mcp-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
+    $(DEP_MNGR) run omni-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
     @echo "Waiting for server to start..."
     @while ! nc -z localhost 8000; do sleep 1; done
     @echo "Server started. Running example: $(1)"
