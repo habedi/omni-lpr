@@ -2,6 +2,7 @@
 
 import json
 import logging
+from importlib.metadata import PackageNotFoundError, version
 
 from pydantic import BaseModel, ValidationError
 from spectree import Response, SpecTree
@@ -20,13 +21,22 @@ from .tools import tool_registry
 # Initialize logger
 _logger = logging.getLogger(__name__)
 
+try:
+    pkg_version = version("omni-lpr")
+except PackageNotFoundError:
+    pkg_version = "0.0.0"  # Fallback if the package is not installed
+
+
 # 1. Initialize Spectree for API documentation generation
 # This instance will be used to decorate and document our endpoints.
 api_spec = SpecTree(
     "starlette",
     title="Omni-LPR API",
     description="A multi-interface server for automatic license plate recognition.",
-    version="1.0.0",
+    version=pkg_version,
+    mode="strict",
+    swagger_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
 )
 
 
