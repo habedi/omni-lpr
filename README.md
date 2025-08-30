@@ -194,10 +194,12 @@ The MCP endpoint is available at [http://127.0.0.1:8000/mcp/sse](http://127.0.0.
 
 Currently, the following tools are implemented and can be called via the MCP interface:
 
-* **`recognize_plate`**: Recognizes text from an image of a license plate, provided as a Base64 string or a local/URL
-  path.
-* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image, provided as a Base64
-  string or a local/URL path.
+* **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
+* **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image located at a given URL or
+  local file path.
+* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+* **`detect_and_recognize_plate_from_path`**: Detects and recognizes license plates from an image at a given URL or
+  local file path.
 * **`list_models`**: Lists the available detector and OCR models.
 
 The figure below shows a screenshot of the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
@@ -244,7 +246,7 @@ The following table summarizes the available configuration options:
     -   [x] MCP interface for AI agent integration.
     -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
-    -   [ ] Interactive API documentation (like Swagger UI and OpenAPI).
+    -   [x] Interactive API documentation (like Swagger UI and OpenAPI).
     -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
         images.
 
@@ -262,7 +264,7 @@ The following table summarizes the available configuration options:
     -   [x] Configuration via environment variables and CLI arguments.
     -   [ ] A Helm chart for simplified deployment to Kubernetes clusters.
 
-- **Testing and Benchmarks**
+- **Benchmarks**
     -   [ ] Performance benchmarks for different hardware backends and request types.
 
 -----
