@@ -40,7 +40,7 @@ OcrModel = Literal["cct-s-v1-global-model", "cct-xs-v1-global-model"]
 # --- Pydantic Models for Input Validation ---
 class RecognizePlateArgs(BaseModel):
     image_base64: str
-    model_name: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
+    ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("image_base64")
     @classmethod
@@ -58,7 +58,7 @@ class RecognizePlateArgs(BaseModel):
 
 class RecognizePlateFromPathArgs(BaseModel):
     path: str
-    model_name: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
+    ocr_model: OcrModel = Field(default_factory=lambda: settings.default_ocr_model)
 
     @field_validator("path")
     @classmethod
@@ -174,14 +174,14 @@ recognize_plate_tool_definition = types.Tool(
 )
 
 
-async def _get_ocr_recognizer(model_name: str) -> "LicensePlateRecognizer":
-    if model_name not in _ocr_model_cache:
-        _logger.info(f"Loading license plate OCR model: {model_name}")
+async def _get_ocr_recognizer(ocr_model: str) -> "LicensePlateRecognizer":
+    if ocr_model not in _ocr_model_cache:
+        _logger.info(f"Loading license plate OCR model: {ocr_model}")
         from fast_plate_ocr import LicensePlateRecognizer
 
-        recognizer = await anyio.to_thread.run_sync(LicensePlateRecognizer, model_name)
-        _ocr_model_cache[model_name] = recognizer
-    return _ocr_model_cache[model_name]
+        recognizer = await anyio.to_thread.run_sync(LicensePlateRecognizer, ocr_model)
+        _ocr_model_cache[ocr_model] = recognizer
+    return _ocr_model_cache[ocr_model]
 
 
 @tool_registry.register(recognize_plate_tool_definition, RecognizePlateArgs)
@@ -193,7 +193,7 @@ async def recognize_plate(args: RecognizePlateArgs) -> list[types.ContentBlock]:
     except UnidentifiedImageError as e:
         raise ValueError(f"Invalid image data provided. Could not decode image. Error: {e}") from e
 
-    recognizer = await _get_ocr_recognizer(args.model_name)
+    recognizer = await _get_ocr_recognizer(args.ocr_model)
     image_np = np.array(image_rgb)
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
 
@@ -213,7 +213,7 @@ recognize_plate_from_path_tool_definition = types.Tool(
 async def recognize_plate_from_path(args: RecognizePlateFromPathArgs) -> list[types.ContentBlock]:
     path = args.path
     try:
-        recognizer = await _get_ocr_recognizer(args.model_name)
+        recognizer = await _get_ocr_recognizer(args.ocr_model)
         if path.startswith("http://") or path.startswith("https://"):
             async with httpx.AsyncClient() as client:
                 response = await client.get(path)
