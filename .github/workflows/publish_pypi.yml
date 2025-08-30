@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 jobs:
-
   call_tests:
     uses: ./.github/workflows/tests.yml
 

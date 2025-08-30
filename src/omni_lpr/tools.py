@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import io
 import json
@@ -23,6 +24,8 @@ if TYPE_CHECKING:
 _logger = logging.getLogger(__name__)
 _ocr_model_cache: dict[str, "LicensePlateRecognizer"] = {}
 _alpr_cache: dict[tuple[str, str], "ALPR"] = {}
+_ocr_lock = asyncio.Lock()
+_alpr_lock = asyncio.Lock()
 
 # --- Define allowed models as Literal types for validation ---
 DetectorModel = Literal[
@@ -184,12 +187,13 @@ tool_registry = ToolRegistry()
 
 
 async def _get_ocr_recognizer(ocr_model: str) -> "LicensePlateRecognizer":
-    if ocr_model not in _ocr_model_cache:
-        _logger.info(f"Loading license plate OCR model: {ocr_model}")
-        from fast_plate_ocr import LicensePlateRecognizer
+    async with _ocr_lock:
+        if ocr_model not in _ocr_model_cache:
+            _logger.info(f"Loading license plate OCR model: {ocr_model}")
+            from fast_plate_ocr import LicensePlateRecognizer
 
-        recognizer = await anyio.to_thread.run_sync(LicensePlateRecognizer, ocr_model)
-        _ocr_model_cache[ocr_model] = recognizer
+            recognizer = await anyio.to_thread.run_sync(LicensePlateRecognizer, ocr_model)
+            _ocr_model_cache[ocr_model] = recognizer
     return _ocr_model_cache[ocr_model]
 
 
@@ -242,15 +246,16 @@ async def recognize_plate_from_path(args: RecognizePlateFromPathArgs) -> list[ty
 
 async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
     cache_key = (detector_model, ocr_model)
-    if cache_key not in _alpr_cache:
-        _logger.info(
-            f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'"
-        )
-        from fast_alpr import ALPR
+    async with _alpr_lock:
+        if cache_key not in _alpr_cache:
+            _logger.info(
+                f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'"
+            )
+            from fast_alpr import ALPR
 
-        alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
-        alpr_instance = await anyio.to_thread.run_sync(alpr_constructor)
-        _alpr_cache[cache_key] = alpr_instance
+            alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
+            alpr_instance = await anyio.to_thread.run_sync(alpr_constructor)
+            _alpr_cache[cache_key] = alpr_instance
     return _alpr_cache[cache_key]
 
 
