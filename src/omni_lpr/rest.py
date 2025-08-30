@@ -7,7 +7,12 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from .api_models import ErrorResponse, ToolResponse, JsonContentBlock
+from .api_models import (
+    ErrorResponse,
+    JsonContentBlock,
+    ToolListResponse,
+    ToolResponse,
+)
 from .tools import tool_registry
 
 # Initialize logger
@@ -21,6 +26,19 @@ api_spec = SpecTree(
     description="A multi-interface server for automatic license plate recognition.",
     version="1.0.0",
 )
+
+
+@api_spec.validate(resp=Response(HTTP_200=ToolListResponse), tags=["Tool Listing"])
+async def list_tools(request: Request) -> JSONResponse:
+    """
+    Lists all available tools.
+    """
+    tools = tool_registry.list()
+    # The tool definitions are TypedDicts, convert them to dicts for the response model
+    tool_dicts = [dict(t) for t in tools]
+    response_data = ToolListResponse(tools=tool_dicts)
+    return JSONResponse(response_data.model_dump())
+
 
 # 2. Define the core tool invocation endpoint logic
 @api_spec.validate(
@@ -88,6 +106,7 @@ def setup_rest_routes() -> list[Route]:
     Creates and decorates all REST API routes.
     """
     routes = [
+        Route("/tools", endpoint=list_tools, methods=["GET"]),
         Route("/tools/{tool_name}/invoke", endpoint=invoke_tool, methods=["POST"]),
     ]
 

@@ -33,3 +33,17 @@ class ErrorBody(BaseModel):
 class ErrorResponse(BaseModel):
     """The top-level structure for all API error responses."""
     error: ErrorBody
+
+
+# Model for listing tools
+class ToolDefinition(BaseModel):
+    """Represents the definition of a single tool."""
+    name: str
+    title: str
+    description: str
+    inputSchema: dict
+
+
+class ToolListResponse(BaseModel):
+    """The response model for listing all available tools."""
+    tools: List[ToolDefinition]
