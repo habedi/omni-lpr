@@ -16,7 +16,7 @@ def main():
 
     try:
         # Send the POST request
-        response = httpx.post(args.url, timeout=30)
+        response = httpx.post(args.url, timeout=30, json={})
         response.raise_for_status()
 
         # Print the result
