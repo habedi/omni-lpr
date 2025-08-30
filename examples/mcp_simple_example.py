@@ -1,22 +1,22 @@
 import anyio
 from mcp import ClientSession, types
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.sse import sse_client
 
 from shared import get_args, get_image_base64
 
 
 async def amain(image_path: str, url: str):
-    """Connects to the MCP server using the new ClientSession API and calls a tool."""
+    """Connects to the MCP server using an SSE client and calls a tool."""
     # Read the image file and encode it in base64
     image_base64 = get_image_base64(image_path)
     if not image_base64:
         return
 
-    print(f"Connecting to MCP server at {url}")
+    print(f"Connecting to MCP server using SSE at {url}")
 
     try:
-        # Use the new streamablehttp_client to get read/write streams
-        async with streamablehttp_client(url) as (read, write, _):
+        # Use the sse_client to get read/write streams over a Server-Sent Events connection
+        async with sse_client(url) as (read, write):
             # Create a session using the streams
             async with ClientSession(read, write) as session:
                 # Initialize the connection
@@ -37,7 +37,7 @@ async def amain(image_path: str, url: str):
                 # Call the tool
                 result = await session.call_tool(tool_name, arguments=tool_args)
 
-                # Print the result from the new response structure
+                # Print the result from the response structure
                 print("Response from server:")
                 content_block = result.content[0]
                 if isinstance(content_block, types.TextContent):
@@ -47,9 +47,7 @@ async def amain(image_path: str, url: str):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        print(
-            "Note: This client requires the server to be updated to use the latest MCP streamable HTTP transport."
-        )
+        print("Please ensure the Omni-LPR server is running and accessible at the specified URL.")
 
 
 def main():
