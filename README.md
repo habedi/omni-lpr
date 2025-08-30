@@ -81,30 +81,33 @@ When you have built or pulled the images, you can run them using the following c
 
 - **CPU Image (ONNX):**
   ```sh
+  # Use locally built image
   make docker-run-cpu
 
-  # Or manually
+  # Or from the GitHub Container Registry
   docker run --rm -it -p 8000:8000 ghcr.io/habedi/omni-lpr-cpu:TAG
   ```
 
 - **CPU Image (OpenVINO):**
   ```sh
+  # Use locally built image
   make docker-run-openvino
 
-  # Or manually
+  # Or from the GitHub Container Registry
   docker run --rm -it -p 8000:8000 ghcr.io/habedi/omni-lpr-openvino:TAG
   ```
 
 - **GPU Image (CUDA):**
   ```sh
+  # Use locally built image
   make docker-run-cuda
 
-  # Or manually
+  # Or from the GitHub Container Registry
   docker run --rm -it --gpus all -p 8000:8000 ghcr.io/habedi/omni-lpr-cuda:TAG
   ```
 
 > [!NOTE]
-> The `TAG` in the above commands is the latest tag for the image.
+> The `TAG` in the above commands is a release tag like `0.2.0` or `latest` for the latest development version.
 > You can find the available tags in the [GitHub Container Registry](https://github.com/habedi/omni-lpr/packages).
 
 ---
