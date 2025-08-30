@@ -1,7 +1,7 @@
 [project]
 name = "omni-lpr"
 version = "0.1.1"
-description = " A multiprotocol (REST and MCP) server for automatic license plate recognition"
+description = " A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
@@ -16,12 +16,10 @@ keywords = [
     "license plate recognition",
     "automatic license plate recognition",
     "computer vision",
-    "api",
-    "rest",
+    "rest-api",
     "mcp",
     "microservice",
     "onnx",
-    "openvino",
     "cuda"
 ]
 
@@ -125,7 +123,7 @@ check_untyped_defs = true
 warn_return_any = true
 strict_optional = true
 warn_redundant_casts = true
-exclude = "^(scripts/|tests/)"
+exclude = "^(examples/|scripts/|tests/)"
 
 [tool.ruff]
 exclude = [

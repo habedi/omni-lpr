@@ -13,7 +13,7 @@
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
 [![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
 
-A multiprotocol (REST and MCP) server for automatic license plate recognition
+A multi-interface (REST and MCP) server for automatic license plate recognition
 
 </div>
 
