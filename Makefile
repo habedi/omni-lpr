@@ -84,8 +84,8 @@ run: ## Start the server
 
 .PHONY: run-gunicorn
 run-gunicorn: ## Start the server with Gunicorn
-	@echo "Starting the server with Gunicorn..."
-	$(DEP_MNGR) run gunicorn -w $(GUNICORN_NUM_WORKERS) -k uvicorn.workers.UvicornWorker src.server.server:starlette_app
+	@echo "Starting the Omni-LPR server with Gunicorn..."
+	$(DEP_MNGR) run gunicorn -w $(GUNICORN_NUM_WORKERS) -k uvicorn.workers.UvicornWorker src.omni_lpr.server:starlette_app
 
 # ==============================================================================
 # BUILD & PUBLISH
