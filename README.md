@@ -12,6 +12,10 @@
 [![Python Version](https://img.shields.io/badge/python-%3E=3.10-3776ab?style=flat&labelColor=333333&logo=python&logoColor=white)](https://github.com/habedi/omni-lpr)
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
 [![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
+<br>
+[![Docker Image (CPU)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(cpu)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
+[![Docker Image (OpenVINO)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(openvino)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
+[![Docker Image (CUDA)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(cuda)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
@@ -240,7 +244,8 @@ The following table summarizes the available configuration options:
 - **Core ALPR Capabilities & Model Support**
     -   [x] Plate detection via YOLO-v9 models.
     -   [x] Plate recognition via character-centric transformer models.
-    -   [x] Support for multiple hardware backends (generic CPUs, Intel CPUs via OpenVINO, and CUDA).
+    -   [x] Support for models optimized for different hardware backends (generic CPUs, Intel CPUs via OpenVINO, and
+        NVIDIA GPUs via CUDA).
 
 - **API, Interfaces, and Developer Experience**
     -   [x] MCP interface for AI agent integration.
@@ -252,8 +257,8 @@ The following table summarizes the available configuration options:
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
-    -   [ ] Request batching for model inference to improve throughput under a heavy load.
     -   [ ] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
+    -   [ ] Request batching for model inference to improve throughput under a heavy load.
 
 - **Integrations and Ecosystem**
     -   [x] Standalone microservice architecture.
