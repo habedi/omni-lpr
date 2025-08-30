@@ -9,7 +9,7 @@ from starlette.routing import Mount, Route
 
 from .mcp import app
 from .rest import setup_rest_routes
-from .settings import update_settings
+from .settings import settings
 from .tools import setup_tools
 
 _logger = logging.getLogger(__name__)
@@ -56,24 +56,31 @@ def setup_app_routes(app: Starlette):
 
 
 @click.command()
-@click.option("--host", default="127.0.0.1", help="The host to bind to.", envvar="HOST")
-@click.option("--port", default=8000, help="The port to bind to.", envvar="PORT")
-@click.option("--log-level", default="INFO", help="The log level to use.", envvar="LOG_LEVEL")
+@click.option("--host", default=None, help="The host to bind to.", envvar="HOST")
+@click.option("--port", default=None, type=int, help="The port to bind to.", envvar="PORT")
+@click.option("--log-level", default=None, help="The log level to use.", envvar="LOG_LEVEL")
 @click.option(
     "--default-ocr-model",
-    default="cct-xs-v1-global-model",
+    default=None,
     help="The default OCR model to use.",
     envvar="DEFAULT_OCR_MODEL",
 )
-def main(host: str, port: int, log_level: str, default_ocr_model: str) -> int:
+def main(host: str | None, port: int | None, log_level: str | None, default_ocr_model: str | None) -> int:
     """Main entrypoint for the omni-lpr server."""
     import uvicorn
 
-    # First, update settings from command line/env vars
-    update_settings(default_ocr_model=default_ocr_model)
+    # Override settings from CLI if provided
+    if host:
+        settings.host = host
+    if port:
+        settings.port = port
+    if log_level:
+        settings.log_level = log_level
+    if default_ocr_model:
+        settings.default_ocr_model = default_ocr_model
 
     # Then, setup logging
-    setup_logging(log_level)
+    setup_logging(settings.log_level)
 
     # Now that settings are loaded, setup the tools and their schemas
     _logger.info("Setting up tools...")
@@ -82,8 +89,8 @@ def main(host: str, port: int, log_level: str, default_ocr_model: str) -> int:
     # Now that tools are registered, add the routes to the app
     setup_app_routes(starlette_app)
 
-    _logger.info(f"Starting SSE server on {host}:{port}")
-    uvicorn.run(starlette_app, host=host, port=port)
+    _logger.info(f"Starting SSE server on {settings.host}:{settings.port}")
+    uvicorn.run(starlette_app, host=settings.host, port=settings.port)
     return 0
 
 
