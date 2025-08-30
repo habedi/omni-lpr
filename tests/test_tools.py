@@ -24,7 +24,6 @@ from omni_lpr.tools import (
     list_models,
     recognize_plate,
     recognize_plate_from_path,
-    recognize_plate_tool_definition,
 )
 
 TINY_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
@@ -168,12 +167,18 @@ async def test_recognize_plate_success(mocker):
         ({"image_base64": "not-base64"}, "Invalid base64 string"),
         ({"image_base64": ""}, "image_base64 cannot be empty"),
         (
-            {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
-            "Extra inputs are not permitted",
+                {"image_base64": TINY_PNG_BASE64, "model_name": "invalid-model"},
+                "Extra inputs are not permitted",
         ),
     ],
 )
 async def test_recognize_plate_validation(tool_registry, invalid_data, expected_error_msg):
+    recognize_plate_tool_definition = types.Tool(
+        name="recognize_plate",
+        title="Recognize Plate",
+        description="A test tool for recognizing plates.",
+        inputSchema=RecognizePlateArgs.model_json_schema(),
+    )
     tool_registry.register(recognize_plate_tool_definition, RecognizePlateArgs)(AsyncMock())
 
     with pytest.raises(ToolLogicError) as excinfo:
