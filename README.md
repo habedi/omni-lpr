@@ -34,6 +34,10 @@ Using Omni-LPR can have the following benefits:
 - **Asynchronous I/O:** built on Starlette for high-performance, non-blocking I/O.
 - **Scalability:** the service can be scaled independently of your main application.
 
+> [!IMPORTANT]
+> Omni-LPR is in early development, so bugs and breaking API changes are expected.
+> Please use the [issues page](https://github.com/habedi/omni-lpr/issues) to report bugs or request features.
+
 ---
 
 ### Getting Started
@@ -217,7 +221,8 @@ The following table summarizes the available configuration options:
     -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
     -   [ ] Interactive API documentation (like Swagger UI and OpenAPI).
-    -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded images.
+    -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
+        images.
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
