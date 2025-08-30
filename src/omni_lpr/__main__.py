@@ -8,7 +8,8 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 
 from .mcp import app
-from .rest import setup_rest_routes
+
+# Import the new setup function and the spec instance
 from .settings import settings
 from .tools import setup_tools
 
@@ -45,14 +46,23 @@ starlette_app = Starlette(debug=True)
 
 def setup_app_routes(app: Starlette):
     """Adds routes to the Starlette application."""
+    from .rest import api_spec, setup_rest_routes
+
+    # The /api/health endpoint can now be documented as well if desired
+    health_route = Route("/api/health", endpoint=health_check, methods=["GET"])
+
     app.routes.extend(
         [
             Route("/mcp/sse", endpoint=handle_sse, methods=["GET"]),
             Mount("/mcp/messages/", app=sse.handle_post_message),
-            Route("/health", endpoint=health_check, methods=["GET"]),
-            Mount("/api", routes=setup_rest_routes()),
+            health_route,
+            # Mount all the new, documented v1 API routes under /api/v1
+            Mount("/api/v1", routes=setup_rest_routes()),
         ]
     )
+    # Register the Spectree documentation generator with the app
+    # This will create the /docs and /redoc endpoints
+    api_spec.register(app)
 
 
 @click.command()

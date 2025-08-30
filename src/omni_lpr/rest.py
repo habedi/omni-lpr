@@ -1,130 +1,121 @@
-import json
-import logging
+# src/omni_lpr/rest.py
 
-from mcp import types
-from pydantic import ValidationError
+import logging
+from pydantic import BaseModel, ValidationError
+from spectree import Response, SpecTree
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from .errors import ErrorCode
+from .api_models import (
+    ErrorResponse,
+    JsonContentBlock,
+    ToolListResponse,
+    ToolResponse,
+)
 from .tools import tool_registry
 
+# Initialize logger
 _logger = logging.getLogger(__name__)
 
-
-async def list_tools_endpoint(_: Request) -> JSONResponse:
-    """REST endpoint to list available tools."""
-    _logger.info("REST endpoint 'list_tools' called.")
-    tools_info = [
-        {
-            "name": tool.name,
-            "title": tool.title,
-            "description": tool.description,
-            "input_schema": tool.inputSchema,
-        }
-        for tool in tool_registry.list()
-    ]
-    return JSONResponse({"tools": tools_info})
+# 1. Initialize Spectree for API documentation generation
+# This instance will be used to decorate and document our endpoints.
+api_spec = SpecTree(
+    "starlette",
+    title="Omni-LPR API",
+    description="A multi-interface server for automatic license plate recognition.",
+    version="1.0.0",
+)
 
 
-async def tool_invocation_endpoint(request: Request) -> JSONResponse:
-    """A single, parameterized endpoint for executing any tool."""
+@api_spec.validate(resp=Response(HTTP_200=ToolListResponse), tags=["Tool Listing"])
+async def list_tools(request: Request) -> JSONResponse:
+    """
+    Lists all available tools.
+    """
+    tools = tool_registry.list()
+    # The tool definitions are TypedDicts, convert them to dicts for the response model
+    tool_dicts = [dict(t) for t in tools]
+    response_data = ToolListResponse(tools=tool_dicts)
+    return JSONResponse(response_data.model_dump())
+
+
+# 2. Define the core tool invocation endpoint logic
+@api_spec.validate(
+    resp=Response(
+        HTTP_200=ToolResponse,
+        HTTP_400=ErrorResponse,
+        HTTP_404=ErrorResponse,
+        HTTP_500=ErrorResponse,
+    ),
+    tags=["Tool Invocation"],
+)
+async def invoke_tool(request: Request) -> JSONResponse:
+    """
+    Handles the execution of a specific tool identified by its name.
+    """
     tool_name = request.path_params["tool_name"]
-    _logger.info(f"REST endpoint for tool '{tool_name}' invoked.")
+    _logger.info(f"REST endpoint 'invoke_tool' called for tool: '{tool_name}'")
 
+    # Check if the tool exists
     if tool_name not in tool_registry._tools:
-        _logger.warning(f"Attempted to invoke non-existent tool: {tool_name}")
-        error_response = {
-            "error": {
-                "code": "NOT_FOUND",
-                "message": f"Tool '{tool_name}' not found.",
-            }
-        }
-        return JSONResponse(error_response, status_code=404)
+        error = ErrorResponse(
+            error={"code": "NOT_FOUND", "message": f"Tool '{tool_name}' not found."}
+        )
+        return JSONResponse(error.model_dump(), status_code=404)
+
+    # Get the expected input model for this specific tool
+    input_model = tool_registry._tool_models.get(tool_name, BaseModel)
 
     try:
+        # Validate the incoming request body against the tool's specific model
         json_data = await request.json()
-    except json.JSONDecodeError:
-        body = await request.body()
-        if not body:
-            json_data = {}
-        else:
-            _logger.warning(f"Invalid JSON received for tool '{tool_name}'.")
-            error_response = {
-                "error": {
-                    "code": "VALIDATION_ERROR",
-                    "message": "Invalid JSON in request body.",
-                }
-            }
-            return JSONResponse(error_response, status_code=400)
-
-    model = tool_registry._tool_models[tool_name]
-    try:
-        validated_args = model(**json_data)
+        validated_args = input_model(**json_data)
     except ValidationError as e:
-        _logger.warning(f"Input validation failed for tool '{tool_name}': {e}")
-        error_response = {
-            "error": {
+        error = ErrorResponse(
+            error={
                 "code": "VALIDATION_ERROR",
                 "message": "Input validation failed.",
                 "details": e.errors(),
             }
-        }
-        return JSONResponse(error_response, status_code=400)
+        )
+        return JSONResponse(error.model_dump(), status_code=400)
+    except Exception:
+        error = ErrorResponse(
+            error={"code": "INVALID_JSON", "message": "Request body is not valid JSON."}
+        )
+        return JSONResponse(error.model_dump(), status_code=400)
 
     try:
-        result_content: list[types.ContentBlock] = await tool_registry.call(
-            tool_name, validated_args.model_dump()
-        )
+        # Execute the tool
+        # The tool function returns MCP-style ContentBlocks
+        mcp_content_blocks = await tool_registry.call(tool_name, validated_args.model_dump())
 
-        # The result from the tool is a list of ContentBlock objects.
-        # We need to serialize them to a JSON-compatible format.
-        results_data = []
-        for item in result_content:
-            if isinstance(item, types.TextContent):
-                if not item.text:
-                    continue  # Skip empty text content
-                try:
-                    # The tool returns a JSON string, so we parse it
-                    results_data.append(json.loads(item.text))
-                except json.JSONDecodeError:
-                    # If it's not a JSON string, wrap it as a simple text response
-                    _logger.warning(
-                        f"Tool '{tool_name}' produced non-JSON text output. Wrapping it."
-                    )
-                    results_data.append({"text": item.text})
-            else:
-                results_data.append(item.model_dump())
+        # Convert MCP ContentBlocks to our API's JsonContentBlock
+        api_content_blocks = [JsonContentBlock(data=block.text) for block in mcp_content_blocks]
 
-        # Wrap the final result in the specified 'content' structure
-        response_body = {"content": [{"type": "json", "data": results_data}]}
-        return JSONResponse(response_body)
+        # Wrap in the final ToolResponse model
+        response_data = ToolResponse(content=api_content_blocks)
+        return JSONResponse(response_data.model_dump())
 
     except Exception as e:
         _logger.error(f"An unexpected error occurred in tool '{tool_name}': {e}", exc_info=True)
-        error_response = {
-            "error": {
-                "code": "INTERNAL_SERVER_ERROR",
-                "message": "An internal server error occurred.",
-            }
-        }
-        return JSONResponse(error_response, status_code=500)
+        error = ErrorResponse(
+            error={"code": "INTERNAL_SERVER_ERROR", "message": "An internal server error occurred."}
+        )
+        return JSONResponse(error.model_dump(), status_code=500)
 
 
-async def health_check(_: Request) -> JSONResponse:
-    """Health check endpoint."""
-    return JSONResponse({"status": "ok"})
-
-
+# 3. Create a function to set up all v1 routes
 def setup_rest_routes() -> list[Route]:
-    """Create REST API v1 routes."""
+    """
+    Creates and decorates all REST API routes.
+    """
     routes = [
-        Route("/v1/tools", endpoint=list_tools_endpoint, methods=["GET"]),
-        Route(
-            "/v1/tools/{tool_name}/invoke",
-            endpoint=tool_invocation_endpoint,
-            methods=["POST"],
-        ),
+        Route("/tools", endpoint=list_tools, methods=["GET"]),
+        Route("/tools/{tool_name}/invoke", endpoint=invoke_tool, methods=["POST"]),
     ]
+
+    # Note: The GET /tools endpoint can be added here as well and decorated similarly.
+
     return routes
