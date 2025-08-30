@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo "Container entrypoint executing..."
-echo "Starting the server with Gunicorn..."
+echo "Starting the Omni-LPR server with Gunicorn..."
 
 # Defaults (can be overridden at runtime with -e)
 : "${GUNICORN_WORKERS:=4}"
@@ -26,7 +26,7 @@ fi
 export PATH="${VENV_BIN}:$PATH"
 
 BIND="${HOST}:${PORT}"
-echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker server:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
+echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
 
 # exec so Gunicorn is PID 1
-exec "${GUNICORN_BIN}" -w "${GUNICORN_WORKERS}" -k uvicorn.workers.UvicornWorker server:starlette_app --bind "${BIND}" ${GUNICORN_EXTRA_ARGS}
+exec "${GUNICORN_BIN}" -w "${GUNICORN_WORKERS}" -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind "${BIND}" "${GUNICORN_EXTRA_ARGS}"

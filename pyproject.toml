@@ -1,6 +1,6 @@
 [project]
 name = "omni-lpr"
-version = "0.1.1"
+version = "0.2.0"
 description = " A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
@@ -75,11 +75,11 @@ Repository = "https://github.com/habedi/omni-lpr"
 Documentation = "https://github.com/habedi/omni-lpr/blob/main/README.md"
 
 [project.scripts]
-omni-lpr = "server.__main__:main"
+omni-lpr = "omni_lpr.__main__:main"
 
 [tool.poetry]
 include = ["README.md"]
-packages = [{ include = "server", from = "src" }]
+packages = [{ include = "omni_lpr", from = "src" }]
 package-mode = true
 
 [build-system]
