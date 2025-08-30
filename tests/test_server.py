@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_health_check(test_app_client):
     """Test the health check endpoint."""
-    response = await test_app_client.get("/health")
+    response = await test_app_client.get("/api/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
@@ -24,8 +24,8 @@ async def test_list_tools_endpoint(test_app_client):
     )
     assert detect_tool is not None
     assert detect_tool["title"] == "Detect and Recognize License Plate"
-    assert "input_schema" in detect_tool
-    assert "image_base64" in detect_tool["input_schema"]["properties"]
+    assert "inputSchema" in detect_tool
+    assert "image_base64" in detect_tool["inputSchema"]["properties"]
 
 
 @pytest.mark.asyncio
@@ -37,6 +37,8 @@ async def test_tool_invocation_endpoint(test_app_client):
     assert "content" in response_json
     assert isinstance(response_json["content"], list)
     assert response_json["content"][0]["type"] == "json"
-    data = response_json["content"][0]["data"]
-    assert "detector_models" in data[0]
-    assert "ocr_models" in data[0]
+    data_str = response_json["content"][0]["data"]
+    import json
+    data = json.loads(data_str)
+    assert "detector_models" in data
+    assert "ocr_models" in data
