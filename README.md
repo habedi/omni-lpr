@@ -73,7 +73,7 @@ You can build the images locally or pull them from the registry.
 
 ##### Building the Docker Images
 
-You can build the Docker images for different backends using the provided `Makefile`:
+You can build the Docker images for different backends using the provided [Makefile](Makefile).
 
 - **CPU (default):** `make docker-build-cpu`
 - **OpenVINO:** `make docker-build-openvino`
