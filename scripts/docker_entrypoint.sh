@@ -28,5 +28,5 @@ export PATH="${VENV_BIN}:$PATH"
 BIND="${HOST}:${PORT}"
 echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
 
-# exec so Gunicorn is PID 1
+# Exec so Gunicorn is PID 1
 exec "${GUNICORN_BIN}" -w "${GUNICORN_WORKERS}" -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind "${BIND}" "${GUNICORN_EXTRA_ARGS}"

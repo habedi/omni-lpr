@@ -51,6 +51,7 @@ dependencies = [
     "httpx (>=0.28.1,<0.29.0)",
     "fast-alpr[onnx] (>=0.3.0,<0.4.0)",
     "pydantic (>=2.11.7,<3.0.0)",
+    "spectree[starlette] (>=1.5.4,<2.0.0)",
 ]
 
 [project.optional-dependencies]
