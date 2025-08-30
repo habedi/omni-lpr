@@ -115,7 +115,7 @@ When you have built or pulled the images, you can run them using the following c
 The server exposes its functionality via two interfaces: REST API and MCP.
 
 > [!NOTE]
-> This project does not provide interactive API documentation (e.g., Swagger UI or ReDoc).
+> This project does not provide interactive API documentation (like Swagger UI).
 > This `README` and the `GET /api/tools` endpoint are the primary sources of API documentation.
 
 #### 1. REST API
