@@ -221,13 +221,14 @@ async def test_recognize_plate_from_path_file_success(mocker):
     mocker.patch(
         "fast_plate_ocr.LicensePlateRecognizer", return_value=mock_recognizer_instance
     )
-    image_bytes = base64.b64decode(TINY_PNG_BASE64)
-    mocker.patch("anyio.Path.read_bytes", new_callable=AsyncMock, return_value=image_bytes)
 
-    args = RecognizePlateFromPathArgs(path="/fake/path/plate.jpg")
+    fake_path = "/fake/path/plate.jpg"
+    args = RecognizePlateFromPathArgs(path=fake_path)
     result = await recognize_plate_from_path(args)
 
     assert json.loads(result[0].text) == ["FILE-TEST"]
+    # Assert that the run method was called with the path string
+    mock_recognizer_instance.run.assert_called_once_with(fake_path)
 
 
 @pytest.mark.asyncio

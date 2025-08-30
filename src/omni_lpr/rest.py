@@ -1,5 +1,6 @@
 # src/omni_lpr/rest.py
 
+import json
 import logging
 from pydantic import BaseModel, ValidationError
 from spectree import Response, SpecTree
@@ -92,7 +93,9 @@ async def invoke_tool(request: Request) -> JSONResponse:
         mcp_content_blocks = await tool_registry.call(tool_name, validated_args.model_dump())
 
         # Convert MCP ContentBlocks to our API's JsonContentBlock
-        api_content_blocks = [JsonContentBlock(data=block.text) for block in mcp_content_blocks]
+        api_content_blocks = [
+            JsonContentBlock(data=json.loads(block.text)) for block in mcp_content_blocks
+        ]
 
         # Wrap in the final ToolResponse model
         response_data = ToolResponse(content=api_content_blocks)

@@ -37,8 +37,6 @@ async def test_tool_invocation_endpoint(test_app_client):
     assert "content" in response_json
     assert isinstance(response_json["content"], list)
     assert response_json["content"][0]["type"] == "json"
-    data_str = response_json["content"][0]["data"]
-    import json
-    data = json.loads(data_str)
+    data = response_json["content"][0]["data"]
     assert "detector_models" in data
     assert "ocr_models" in data
