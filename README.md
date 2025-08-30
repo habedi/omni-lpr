@@ -121,10 +121,11 @@ When you have built or pulled the images, you can run them using the following c
 
 ---
 
-### API Documentation
+### Documentation
 
 The server exposes its functionality via two interfaces: REST API and MCP.
 A health check endpoint is also available at `GET /api/health`.
+It also can be configured using command-line arguments or environment variables on startup.
 
 #### 1. REST API
 
@@ -195,7 +196,7 @@ curl -X POST \
 The server also exposes its capabilities as tools over the Model Context Protocol (MCP).
 The MCP endpoint is available at [http://127.0.0.1:8000/mcp/sse](http://127.0.0.1:8000/mcp/sse).
 
-##### Implemented Tools
+##### Available Tools
 
 Currently, the following tools are implemented and can be called via the MCP interface:
 
@@ -216,11 +217,9 @@ tool connected to the Omni-LPR server.
 </picture>
 </div>
 
----
+#### Startup Configuration
 
-### Configuration
-
-The server can be configured using command-line arguments as well as environment variables.
+As mentioned earlier, the server can be configured using command-line arguments or environment variables on startup.
 Environment variables are read from `.env` file if it exists and from the current process environment.
 Command-line arguments take precedence over environment variables.
 The following table summarizes the available configuration options:
@@ -248,8 +247,6 @@ The following table summarizes the available configuration options:
 > - `yolo-v9-t-416-license-plate-end2end`
 > - `yolo-v9-t-384-license-plate-end2end` (default)
 > - `yolo-v9-t-256-license-plate-end2end`
-
------
 
 ### Feature Roadmap
 
