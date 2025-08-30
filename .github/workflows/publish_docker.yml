@@ -67,6 +67,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          target: ${{ matrix.image_type }}
           push: true
           tags: ${{ steps.fallback.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
