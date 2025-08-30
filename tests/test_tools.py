@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 from typing import get_args
 from unittest.mock import AsyncMock, MagicMock
 
+import httpx
 import pytest
 from mcp import types
 from omni_lpr import tools
@@ -319,3 +320,20 @@ async def test_list_models():
         "ocr_models": list(get_args(OcrModel)),
     }
     assert models == expected
+
+@pytest.mark.asyncio
+async def test_get_image_from_source_url_fails(mocker):
+    # Mock httpx to return a 404 error
+    mock_response = httpx.Response(404)
+    mock_client = mocker.patch(
+        "httpx.AsyncClient.get",
+        side_effect=httpx.HTTPStatusError("Not Found", request=mocker.MagicMock(), response=mock_response)
+    )
+
+    setup_tools() # To register the tools
+    with pytest.raises(ToolLogicError) as exc_info:
+        await global_tool_registry.call(
+            "detect_and_recognize_plate_from_path",
+            {"path": "http://example.com/notfound.jpg"}
+        )
+    assert "Failed to fetch image from URL" in str(exc_info.value)
