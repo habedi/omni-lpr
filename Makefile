@@ -99,7 +99,6 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 	$(DEP_MNGR) config pypi-token.pypi $(PYPI_TOKEN)
 	$(DEP_MNGR) publish --build
 
-
 # ==============================================================================
 # EXAMPLES
 # ==============================================================================
@@ -167,3 +166,11 @@ clean: ## Remove caches and build artifacts
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 	rm -rf $(CACHE_DIRS) $(COVERAGE) $(DIST_DIRS) $(TMP_DIRS)
+
+## ==============================================================================
+# DOCUMENTATION
+# ==============================================================================
+
+.PHONY: docs
+docs: ## Generate the project documentation
+	$(DEP_MNGR) run mkdocs build

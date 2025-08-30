@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img alt="Omni-LPR Logo" src="logo.svg" height="25%" width="25%">
+    <img alt="Omni-LPR Logo" src="logo.svg" height="30%" width="30%">
   </picture>
 <br>
 

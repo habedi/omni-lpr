@@ -69,6 +69,9 @@ dev = [
     "mypy>=1.11.1",
     "ruff>=0.9.3",
     "pre-commit (>=4.2.0,<5.0.0)",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.12",
+    "mkdocstrings-python>=1.16.10"
 ]
 
 [project.urls]
