@@ -5,8 +5,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from mcp import types
-from pydantic import BaseModel
-
 from omni_lpr import tools
 from omni_lpr.errors import ErrorCode, ToolLogicError
 from omni_lpr.tools import (
@@ -18,6 +16,7 @@ from omni_lpr.tools import (
     list_models,
     recognize_plate,
 )
+from pydantic import BaseModel
 
 TINY_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 
@@ -146,12 +145,13 @@ async def test_call_unknown_tool(tool_registry: ToolRegistry):
 async def test_recognize_plate_success_base64(mocker):
     tools.setup_tools()
     RecognizePlateArgsModel = tools.tool_registry._tool_models["recognize_plate"]
-    mock_recognizer_instance = MagicMock()
-    mock_recognizer_instance.run.return_value = ["TEST-123"]
-    mocker.patch("omni_lpr.tools._get_ocr_recognizer",
-                 return_value=AsyncMock(return_value=mock_recognizer_instance))
+
+    # Mock the call that runs in a separate thread
+    mocker.patch("anyio.to_thread.run_sync", return_value=["TEST-123"])
+
+    # Mock dependencies that are called before run_sync
+    mocker.patch("omni_lpr.tools._get_ocr_recognizer", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
-    mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=["TEST-123"])
 
     args = RecognizePlateArgsModel(image_base64=TINY_PNG_BASE64)
     result = await recognize_plate(args)
@@ -164,12 +164,13 @@ async def test_recognize_plate_success_base64(mocker):
 async def test_recognize_plate_success_path(mocker):
     tools.setup_tools()
     RecognizePlateArgsModel = tools.tool_registry._tool_models["recognize_plate"]
-    mock_recognizer_instance = MagicMock()
-    mock_recognizer_instance.run.return_value = ["TEST-123"]
-    mocker.patch("omni_lpr.tools._get_ocr_recognizer",
-                 return_value=AsyncMock(return_value=mock_recognizer_instance))
+
+    # Mock the call that runs in a separate thread
+    mocker.patch("anyio.to_thread.run_sync", return_value=["TEST-123"])
+
+    # Mock dependencies that are called before run_sync
+    mocker.patch("omni_lpr.tools._get_ocr_recognizer", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
-    mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=["TEST-123"])
 
     args = RecognizePlateArgsModel(path="/fake/path.jpg")
     result = await recognize_plate(args)
@@ -208,13 +209,15 @@ async def test_recognize_plate_validation(invalid_data, expected_error_msg):
 async def test_detect_and_recognize_plate_success(mocker, mock_alpr_result):
     tools.setup_tools()
     DetectAndRecognizePlateArgsModel = tools.tool_registry._tool_models[
-        "detect_and_recognize_plate"]
-    mock_alpr_instance = MagicMock()
-    mock_alpr_instance.predict.return_value = [mock_alpr_result]
-    mocker.patch("omni_lpr.tools._get_alpr_instance",
-                 return_value=AsyncMock(return_value=mock_alpr_instance))
+        "detect_and_recognize_plate"
+    ]
+
+    # Mock the call that runs in a separate thread
+    mocker.patch("anyio.to_thread.run_sync", return_value=[mock_alpr_result])
+
+    # Mock dependencies that are called before run_sync
+    mocker.patch("omni_lpr.tools._get_alpr_instance", return_value=AsyncMock())
     mocker.patch("omni_lpr.tools._get_image_from_source", return_value=AsyncMock())
-    mocker.patch("omni_lpr.tools.anyio.to_thread.run_sync", return_value=[mock_alpr_result])
 
     args = DetectAndRecognizePlateArgsModel(image_base64=TINY_PNG_BASE64)
     result = await detect_and_recognize_plate(args)

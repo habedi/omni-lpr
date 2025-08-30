@@ -3,8 +3,8 @@ name: Build and Deploy Docs
 on:
   workflow_dispatch:
   push:
-      tags:
-        - "v*"
+    tags:
+      - "v*"
 
 permissions:
   contents: read

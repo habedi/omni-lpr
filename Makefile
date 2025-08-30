@@ -80,7 +80,7 @@ test-hooks: ## Test Git hooks on all files
 .PHONY: run
 run: ## Start the server
 	@echo "Starting the server..."
-	$(DEP_MNGR) run omni-lpr
+	$(DEP_MNGR) run omni-lpr --host $(HOST) --port $(PORT) --log-level DEBUG
 
 .PHONY: run-gunicorn
 run-gunicorn: ## Start the server with Gunicorn

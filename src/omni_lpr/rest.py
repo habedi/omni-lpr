@@ -102,6 +102,10 @@ async def invoke_tool(request: Request) -> JSONResponse:
         response_data = ToolResponse(content=api_content_blocks)
         return JSONResponse(response_data.model_dump())
 
+    except ValueError as e:
+        _logger.warning(f"Value error during tool execution for '{tool_name}': {e}")
+        error = ErrorResponse(error={"code": "BAD_REQUEST", "message": str(e)})
+        return JSONResponse(error.model_dump(), status_code=400)
     except Exception as e:
         _logger.error(f"An unexpected error occurred in tool '{tool_name}': {e}", exc_info=True)
         error = ErrorResponse(

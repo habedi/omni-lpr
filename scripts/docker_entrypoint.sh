@@ -29,4 +29,11 @@ BIND="${HOST}:${PORT}"
 echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
 
 # Exec so Gunicorn is PID 1
-exec "${GUNICORN_BIN}" -w "${GUNICORN_WORKERS}" -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind "${BIND}" "${GUNICORN_EXTRA_ARGS}"
+exec "${GUNICORN_BIN}" \
+    -w "${GUNICORN_WORKERS}" \
+    -k uvicorn.workers.UvicornWorker \
+    --access-logfile "-" \
+    --access-logformat '{"time": "%(t)s", "remote_addr": "%(h)s", "request": "%(r)s", "status": %(s)s, "bytes": %(b)s, "referer": "%(f)s", "user_agent": "%(a)s"}' \
+    omni_lpr:starlette_app \
+    --bind "${BIND}" \
+    "${GUNICORN_EXTRA_ARGS}"
