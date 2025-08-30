@@ -20,14 +20,14 @@ def create_rest_endpoint(tool_name: str, tool_func: callable, model: Type[BaseMo
     async def endpoint(request: Request) -> JSONResponse:
         _logger.info(f"REST endpoint '{tool_name}' called.")
         try:
-            if await request.body():
-                json_data = await request.json()
-            else:
-                json_data = {}
-
+            json_data = await request.json()
         except json.JSONDecodeError:
-            _logger.warning(f"Invalid JSON received for tool '{tool_name}'.")
-            return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+            body = await request.body()
+            if not body:
+                json_data = {}
+            else:
+                _logger.warning(f"Invalid JSON received for tool '{tool_name}'.")
+                return JSONResponse({"error": "Invalid JSON"}, status_code=400)
 
         try:
             validated_args = model(**json_data)
@@ -62,16 +62,7 @@ def create_rest_endpoint(tool_name: str, tool_func: callable, model: Type[BaseMo
                 else:
                     results.append(item.model_dump())
 
-            if not results:
-                return JSONResponse({})
-
-            # If the original tool result was a single item that we parsed into a list,
-            # unwrap it for a cleaner API response.
-            final_result = (
-                results[0] if len(results) == 1 and isinstance(results[0], list) else results
-            )
-            final_result = final_result[0] if len(final_result) == 1 else final_result
-            return JSONResponse(final_result)
+            return JSONResponse({"results": results})
 
         except ValueError as e:
             _logger.error(f"Error executing tool '{tool_name}': {e}", exc_info=True)
