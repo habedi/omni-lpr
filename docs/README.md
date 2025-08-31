@@ -150,27 +150,27 @@ a `.env` file if it exists. Command-line arguments take precedence over environm
 
 ### Concurrency and Worker Configuration
 
-Omni-LPR uses Gunicorn to manage multiple worker processes, allowing it to handle many REST API requests in parallel.
+Omni-LPR uses Gunicorn to manage multiple worker processes, allowing it to handle many concurrent REST API requests.
 By default, the official Docker images are configured to run with 4 worker processes.
 
-#### Important Considerations for the MCP Interface
+### Concurrency and Worker Configuration
 
-The MCP is a stateful protocol.
-This means it relies on a persistent connection and session data stored in the server's memory.
+Omni-LPR can be run in two ways: directly via the `omni-lpr` command, or using the official Docker images.
+The way you run it affects how it handles concurrent requests and how you should configure it, especially for the
+stateful MCP interface.
 
-- **Using MCP**: If you intend to use the MCP interface, you must run the server with only one worker process. If more
-  than one worker is used, the server will load-balance requests across different processes, causing the session to be
-  lost and leading to erratic behavior or errors.
+#### Running with Docker (Gunicorn)
 
-- **Using only the REST API**: If you are only using the stateless REST API, you can set the number of workers to a
-  higher value (for example, `4` or more) to maximize performance and handle more concurrent requests.
+The Docker images use Gunicorn as a process manager to run multiple Uvicorn workers.
+This setup is ideal for production as it allows the server to handle many REST API requests in parallel.
 
-#### Configuring the Number of Workers in Docker
+- **Default Behavior**: By default, the Docker images start with 4 worker processes.
+- **The MCP Problem**: The MCP is stateful. With multiple workers, Gunicorn may route requests for the same session to
+  different processes, causing errors.
+- **Solution**: If you plan to use the MCP interface, you must configure the Docker container to run with only one
+  worker. You can do this by setting the `GUNICORN_WORKERS` environment variable.
 
-You can control the number of workers by setting the `GUNICORN_WORKERS` environment variable when you run the Docker
-container.
-
-**Example: Running with a single worker for MCP compatibility**
+**Example: Running Docker with a single worker for MCP compatibility**
 
 ```sh
 docker run --rm -it --gpus all -p 8000:8000 \
@@ -178,7 +178,16 @@ docker run --rm -it --gpus all -p 8000:8000 \
   ghcr.io/habedi/omni-lpr-cpu:latest
 ```
 
-If the `GUNICORN_WORKERS` variable is not set, the container will default to 4 workers.
+If you are only using the stateless REST API, you can leave the worker count at the default of 4 (or higher) for better
+performance.
+
+#### Running with the `omni-lpr` Command (Uvicorn)
+
+When you install the package via `pip` and run the `omni-lpr` command, it uses Uvicorn directly as the web server.
+
+- **Default Behavior**: This method always runs with a single worker process.
+- **MCP Compatibility**: Because it only uses one worker, this method is always compatible with the MCP interface out of
+  the box. No special configuration is needed.
 
 ### Available Models
 
