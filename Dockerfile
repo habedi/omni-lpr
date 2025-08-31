@@ -75,7 +75,7 @@ FROM common-final as openvino
 FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 as cuda
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3.12 python3.12-venv python3-pip \
+        python3.11 python3.11-venv python3-pip \
         libglib2.0-0 libgl1 libsm6 libxext6 libxrender1 && \
     rm -rf /var/lib/apt/lists/*
 
@@ -85,7 +85,7 @@ WORKDIR /home/appuser/app
 
 COPY --from=common /home/appuser/app /home/appuser/app
 
-RUN python3.12 -m venv /home/appuser/app/.venv && \
+RUN python3.11 -m venv /home/appuser/app/.venv && \
     /home/appuser/app/.venv/bin/pip install --upgrade pip && \
     /home/appuser/app/.venv/bin/pip install --no-deps --no-cache-dir -r requirements.txt && \
     /home/appuser/app/.venv/bin/pip install --no-deps --no-cache-dir . && \
