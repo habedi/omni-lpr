@@ -46,6 +46,41 @@ async def list_tools(request: Request) -> JSONResponse:
     return JSONResponse(response_data.model_dump())
 
 
+async def _parse_tool_arguments(request: Request, model: BaseModel) -> BaseModel:
+    """
+    Parses tool arguments from the request based on Content-Type.
+    Handles 'application/json' and 'multipart/form-data'.
+    """
+    content_type = request.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        _logger.debug("Processing 'application/json' request.")
+        body = await request.body()
+        json_data = json.loads(body) if body else {}
+        return model(**json_data)
+
+    if "multipart/form-data" in content_type:
+        _logger.debug("Processing 'multipart/form-data' request.")
+        form = await request.form()
+        image_upload = form.get("image")
+        if not image_upload:
+            raise ValueError("Missing 'image' part in multipart form.")
+
+        image_bytes = await image_upload.read()
+        image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+        params = {k: v for k, v in form.items() if k != "image"}
+        params["image_base64"] = image_base64
+        return model(**params)
+
+    # Handle cases with no body or unsupported content types
+    if model.model_fields:
+        _logger.warning(f"Unsupported Content-Type: {content_type}")
+        raise ValueError("Unsupported Content-Type. Use application/json or multipart/form-data.")
+    else:
+        return model()
+
+
 # 2. Define the core tool invocation endpoint logic
 @api_spec.validate(
     resp=Response(
@@ -56,7 +91,7 @@ async def list_tools(request: Request) -> JSONResponse:
     ),
     tags=["Tool Invocation"],
 )
-async def invoke_tool(request: Request) -> JSONResponse:  # noqa: C901
+async def invoke_tool(request: Request) -> JSONResponse:
     """
     Handles the execution of a specific tool identified by its name.
     """
@@ -70,48 +105,15 @@ async def invoke_tool(request: Request) -> JSONResponse:  # noqa: C901
         return JSONResponse(error.model_dump(), status_code=404)
 
     input_model = tool_registry._tool_models.get(tool_name, BaseModel)
-    validated_args = None
-
-    content_type = request.headers.get("content-type", "")
 
     try:
-        if "multipart/form-data" in content_type:
-            _logger.debug("Processing 'multipart/form-data' request.")
-            form = await request.form()
-            image_upload = form.get("image")
-            if not image_upload:
-                raise ValueError("Missing 'image' part in multipart form.")
-
-            # Read image and convert to Base64
-            image_bytes = await image_upload.read()
-            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
-
-            # Extract other parameters, assuming they are top-level in the form
-            params = {k: v for k, v in form.items() if k != "image"}
-            params["image_base64"] = image_base64
-            validated_args = input_model(**params)
-
-        elif "application/json" in content_type:
-            _logger.debug("Processing 'application/json' request.")
-            body = await request.body()
-            json_data = json.loads(body) if body else {}
-            validated_args = input_model(**json_data)
-
-        else:
-            # Handle requests with no body (e.g., list_models if it were a POST)
-            # or unsupported content types for tools that expect input.
-            if input_model.model_fields:
-                _logger.warning(f"Unsupported Content-Type: {content_type}")
-                error = ErrorResponse(
-                    error={
-                        "code": "UNSUPPORTED_MEDIA_TYPE",
-                        "message": "Unsupported Content-Type. Use application/json or multipart/form-data.",
-                    }
-                )
-                return JSONResponse(error.model_dump(), status_code=415)
-            else:
-                # For tools with no arguments, proceed with empty args
-                validated_args = input_model()
+        validated_args = await _parse_tool_arguments(request, input_model)
+        mcp_content_blocks = await tool_registry.call_validated(tool_name, validated_args)
+        api_content_blocks = [
+            JsonContentBlock(data=json.loads(block.text)) for block in mcp_content_blocks
+        ]
+        response_data = ToolResponse(content=api_content_blocks)
+        return JSONResponse(response_data.model_dump())
 
     except ValidationError as e:
         error = ErrorResponse(
@@ -123,19 +125,6 @@ async def invoke_tool(request: Request) -> JSONResponse:  # noqa: C901
         )
         return JSONResponse(error.model_dump(), status_code=400)
     except (json.JSONDecodeError, ValueError) as e:
-        error = ErrorResponse(error={"code": "BAD_REQUEST", "message": str(e)})
-        return JSONResponse(error.model_dump(), status_code=400)
-
-    try:
-        mcp_content_blocks = await tool_registry.call_validated(tool_name, validated_args)
-        api_content_blocks = [
-            JsonContentBlock(data=json.loads(block.text)) for block in mcp_content_blocks
-        ]
-        response_data = ToolResponse(content=api_content_blocks)
-        return JSONResponse(response_data.model_dump())
-
-    except ValueError as e:
-        _logger.warning(f"Value error during tool execution for '{tool_name}': {e}")
         error = ErrorResponse(error={"code": "BAD_REQUEST", "message": str(e)})
         return JSONResponse(error.model_dump(), status_code=400)
     except Exception as e:

@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import AsyncMock
 
 
 @pytest.mark.asyncio
@@ -67,19 +68,25 @@ async def test_tool_invocation_with_empty_body(test_app_client):
 
 
 @pytest.mark.asyncio
-async def test_tool_invocation_with_multipart_form_data(test_app_client, test_data_path):
+async def test_tool_invocation_with_multipart_form_data(test_app_client, test_data_path, mocker):
     """Test invoking a tool with a multipart/form-data request (file upload)."""
+    # Mock the actual model loading and processing
+    mocker.patch("anyio.to_thread.run_sync", return_value=["MOCKED-RESULT"])
+    mocker.patch("omni_lpr.tools._get_image_from_source", new_callable=AsyncMock)
+    mocker.patch("omni_lpr.tools._get_ocr_recognizer")
+
     image_path = test_data_path / "dummy_image.png"
-    with open(image_path, "rb") as f:
-        files = {"image": ("dummy_image.png", f, "image/png")}
-        data = {"ocr_model": "cct-s-v1-global-model"}
-        response = await test_app_client.post(
-            "/api/v1/tools/recognize_plate/invoke", files=files, data=data
-        )
+    image_bytes = image_path.read_bytes()
+
+    files = {"image": ("dummy_image.png", image_bytes, "image/png")}
+    data = {"ocr_model": "cct-s-v1-global-model"}
+    response = await test_app_client.post(
+        "/api/v1/tools/recognize_plate/invoke", files=files, data=data
+    )
 
     assert response.status_code == 200, f"Request failed: {response.text}"
     response_json = response.json()
     assert "content" in response_json
     assert response_json["content"][0]["type"] == "json"
     result_data = response_json["content"][0]["data"]
-    assert isinstance(result_data, list)
+    assert result_data == ["MOCKED-RESULT"]

@@ -1,4 +1,3 @@
-import asyncio
 import base64
 import io
 import json
@@ -19,6 +18,7 @@ import anyio
 import httpx
 import mcp.types as types
 import numpy as np
+from async_lru import alru_cache
 from PIL import Image, UnidentifiedImageError
 from pydantic import (
     BaseModel,
@@ -38,10 +38,6 @@ if TYPE_CHECKING:
     from fast_plate_ocr import LicensePlateRecognizer
 
 _logger = logging.getLogger(__name__)
-_ocr_model_cache: dict[str, "LicensePlateRecognizer"] = {}
-_alpr_cache: dict[tuple[str, str], "ALPR"] = {}
-_ocr_lock = asyncio.Lock()
-_alpr_lock = asyncio.Lock()
 
 
 # --- Reusable Pydantic Types and Validators ---
@@ -178,15 +174,17 @@ class ToolRegistry:
 tool_registry = ToolRegistry()
 
 
+@alru_cache(maxsize=16)
 async def _get_ocr_recognizer(ocr_model: str) -> "LicensePlateRecognizer":
-    async with _ocr_lock:
-        if ocr_model not in _ocr_model_cache:
-            _logger.info(f"Loading license plate OCR model: {ocr_model}")
-            from fast_plate_ocr import LicensePlateRecognizer
+    """
+    Loads and caches a license plate OCR model.
+    The alru_cache decorator handles caching.
+    """
+    _logger.info(f"Loading license plate OCR model: {ocr_model}")
+    from fast_plate_ocr import LicensePlateRecognizer
 
-            recognizer = await anyio.to_thread.run_sync(LicensePlateRecognizer, ocr_model)
-            _ocr_model_cache[ocr_model] = recognizer
-    return _ocr_model_cache[ocr_model]
+    # The LicensePlateRecognizer is not async, so we run it in a thread
+    return await anyio.to_thread.run_sync(LicensePlateRecognizer, ocr_model)
 
 
 async def _get_image_from_source(
@@ -244,19 +242,18 @@ async def _recognize_plate_logic(
     return [types.TextContent(type="text", text=json.dumps(result))]
 
 
+@alru_cache(maxsize=16)
 async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
-    cache_key = (detector_model, ocr_model)
-    async with _alpr_lock:
-        if cache_key not in _alpr_cache:
-            _logger.info(
-                f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'"
-            )
-            from fast_alpr import ALPR
+    """
+    Loads and caches an ALPR instance for a given detector and OCR model.
+    The alru_cache decorator handles caching.
+    """
+    _logger.info(f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'")
+    from fast_alpr import ALPR
 
-            alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
-            alpr_instance = await anyio.to_thread.run_sync(alpr_constructor)
-            _alpr_cache[cache_key] = alpr_instance
-    return _alpr_cache[cache_key]
+    # The ALPR constructor is not async, so we run it in a thread
+    alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
+    return await anyio.to_thread.run_sync(alpr_constructor)
 
 
 async def _detect_and_recognize_plate_logic(

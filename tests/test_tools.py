@@ -61,12 +61,16 @@ def mock_alpr_result():
 @pytest.fixture(autouse=True)
 def clear_caches_and_registry():
     """Clears all tool-related caches and the global registry before each test."""
-    tools._ocr_model_cache.clear()
-    tools._alpr_cache.clear()
+    # Clear the LRU caches on the functions
+    tools._get_ocr_recognizer.cache_clear()
+    tools._get_alpr_instance.cache_clear()
+
+    # Clear the tool registry
     global_tool_registry._tools.clear()
     global_tool_registry._tool_definitions.clear()
     global_tool_registry._tool_models.clear()
-    # Also clear the global placeholder models
+
+    # Reset the placeholder models to their default state
     tools.RecognizePlateArgs = BaseModel
     tools.RecognizePlateFromPathArgs = BaseModel
     tools.DetectAndRecognizePlateArgs = BaseModel
