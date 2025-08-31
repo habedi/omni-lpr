@@ -26,14 +26,17 @@ fi
 export PATH="${VENV_BIN}:$PATH"
 
 BIND="${HOST}:${PORT}"
-echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app --bind ${BIND} ${GUNICORN_EXTRA_ARGS}"
+
+# Word-split GUNICORN_EXTRA_ARGS and store them in an array.
+read -ra GUNICORN_EXTRA_ARGS_ARRAY <<< "${GUNICORN_EXTRA_ARGS:-}"
+echo "Running: ${GUNICORN_BIN} -w ${GUNICORN_WORKERS} -k uvicorn.workers.UvicornWorker --bind ${BIND} ${GUNICORN_EXTRA_ARGS} omni_lpr:starlette_app"
 
 # Exec so Gunicorn is PID 1
 exec "${GUNICORN_BIN}" \
     -w "${GUNICORN_WORKERS}" \
     -k uvicorn.workers.UvicornWorker \
+    --bind "${BIND}" \
     --access-logfile "-" \
     --access-logformat '{"time": "%(t)s", "remote_addr": "%(h)s", "request": "%(r)s", "status": %(s)s, "bytes": %(b)s, "referer": "%(f)s", "user_agent": "%(a)s"}' \
-    omni_lpr:starlette_app \
-    --bind "${BIND}" \
-    "${GUNICORN_EXTRA_ARGS}"
+    "${GUNICORN_EXTRA_ARGS_ARRAY[@]}" \
+    omni_lpr:starlette_app
