@@ -81,7 +81,7 @@ You can confirm it's running by accessing the health check endpoint:
 
 ```sh
 curl http://127.0.0.1:8000/api/health
-# Expected output: {"status": "ok", "version": "0.2.0"}
+# Expected output: {"status": "ok", "version": "0.2.1"}
 ```
 
 #### 3. Recognize a License Plate
