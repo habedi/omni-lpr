@@ -1,7 +1,7 @@
 ## Documentation
 
-This document provides detailed information about installing, configuring, and using Omni-LPR. For a quick start, please
-see the main [README.md](../README.md) file.
+This document provides detailed information about installing, configuring, and using Omni-LPR.
+For a quick start, please see the main [README.md](../README.md) file.
 
 ### Installation
 
@@ -41,8 +41,8 @@ You can pull the images and run them directly.
   ```
 
 > [!NOTE]
-> The `latest` tag refers to the latest stable release. You can replace `latest` with a specific version tag (e.g.,
-`0.2.0`) from the [list of available packages](https://github.com/habedi/omni-lpr/packages).
+> The `latest` tag refers to the latest stable release. You can replace `latest` with a specific version tag (for
+> example, `0.2.0`) from the [list of available packages](https://github.com/habedi/omni-lpr/packages).
 
 For developers, you can also build the Docker images locally using the provided [Makefile](../Makefile).
 
@@ -52,13 +52,13 @@ For developers, you can also build the Docker images locally using the provided 
 
 ### API Documentation
 
-The server exposes its functionality via two interfaces: a REST API and the Model Context Protocol (MCP). Additionally,
-a health check endpoint is available at `GET /api/health`, and a Prometheus metrics endpoint is at `GET /api/metrics`.
+The server exposes its functionality via two interfaces: a REST API and the MCP. Additionally, a health check endpoint
+is available at `GET /api/health`, and a Prometheus metrics endpoint is at `GET /api/metrics`.
 
 #### REST API
 
-The REST API provides a simple way to interact with the server using standard HTTP requests. All tool endpoints are
-available under the `/api/v1` prefix.
+The REST API provides a simple way to interact with the server using standard HTTP requests.
+All tool endpoints are available under the `/api/v1` prefix.
 
 > [!TIP]
 > This project provides interactive API documentation (Swagger UI and ReDoc). Once the server is running, you can access
@@ -78,8 +78,8 @@ This will return a JSON array of tool objects, each with a `name`, `description`
 
 ##### Calling a Tool
 
-To call a specific tool, send a `POST` request to the `/api/v1/tools/{tool_name}/invoke` endpoint. The request body must
-be a JSON object matching the tool's `input_schema`.
+To call a specific tool, send a `POST` request to the `/api/v1/tools/{tool_name}/invoke` endpoint.
+The request body must be a JSON object matching the tool's `input_schema`.
 
 The tool can accept an image in three ways:
 
@@ -120,8 +120,8 @@ curl -X POST \
 
 #### MCP Interface
 
-The server also exposes its capabilities as tools over the Model Context Protocol (MCP). The MCP endpoint is available
-at `http://127.0.0.1:8000/mcp/sse`.
+The server also exposes its capabilities as tools over the MCP.
+The MCP endpoint is available at `http://127.0.0.1:8000/mcp/sse`.
 
 ##### Available Tools
 
