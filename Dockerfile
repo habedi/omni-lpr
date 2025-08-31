@@ -72,7 +72,7 @@ FROM common-final as openvino
 
 # --- CUDA final image ---
 
-FROM nvidia/cuda:13.0.0-tensorrt-runtime-ubuntu24.04 as cuda
+FROM nvidia/cuda:13.0.0-runtime-ubuntu24.04 as cuda
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.12 python3.12-venv python3-pip \
