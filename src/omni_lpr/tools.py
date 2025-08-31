@@ -326,11 +326,31 @@ async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
     Loads and caches an ALPR instance for a given detector and OCR model.
     The alru_cache decorator handles caching.
     """
-    _logger.info(f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'")
+    _logger.info(
+        f"Loading ALPR instance with detector '{detector_model}', "
+        f"OCR '{ocr_model}', and device '{settings.execution_device}'"
+    )
     from fast_alpr import ALPR
 
+    providers = None
+    # ocr_device does not support 'openvino', so we map it to 'cpu' in that case.
+    ocr_device_for_alpr = settings.execution_device if settings.execution_device != "openvino" else "cpu"
+
+    if settings.execution_device == "cuda":
+        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+    elif settings.execution_device == "openvino":
+        providers = ["OpenVINOExecutionProvider", "CPUExecutionProvider"]
+    elif settings.execution_device == "cpu":
+        providers = ["CPUExecutionProvider"]
+
     # The ALPR constructor is not async, so we run it in a thread
-    alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
+    alpr_constructor = partial(
+        ALPR,
+        detector_model=detector_model,
+        ocr_model=ocr_model,
+        ocr_device=ocr_device_for_alpr,
+        detector_providers=providers,
+    )
     return await anyio.to_thread.run_sync(alpr_constructor)
 
 

@@ -1,4 +1,5 @@
 from importlib.metadata import PackageNotFoundError, version
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,6 +21,7 @@ class ServerSettings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
     log_level: str = "INFO"
+    execution_device: Literal["auto", "cpu", "cuda", "openvino"] = "auto"
     default_ocr_model: str = "cct-xs-v1-global-model"
     default_detector_model: str = "yolo-v9-t-384-license-plate-end2end"
 

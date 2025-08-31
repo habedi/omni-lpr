@@ -140,13 +140,14 @@ The following tools are implemented and can be called via the MCP interface:
 The server can be configured using command-line arguments or environment variables. Environment variables are read from
 a `.env` file if it exists. Command-line arguments take precedence over environment variables.
 
-| Argument                   | Env Var                  | Description            | Default                               |
-|----------------------------|--------------------------|------------------------|---------------------------------------|
-| `--port`                   | `PORT`                   | Server port            | `8000`                                |
-| `--host`                   | `HOST`                   | Server host            | `127.0.0.1`                           |
-| `--log-level`              | `LOG_LEVEL`              | Logging level          | `INFO`                                |
-| `--default-ocr-model`      | `DEFAULT_OCR_MODEL`      | Default OCR model      | `cct-xs-v1-global-model`              |
-| `--default-detector-model` | `DEFAULT_DETECTOR_MODEL` | Default detector model | `yolo-v9-t-384-license-plate-end2end` |
+| Argument                   | Env Var                  | Description                                                    | Default                               |
+|----------------------------|--------------------------|----------------------------------------------------------------|---------------------------------------|
+| `--port`                   | `PORT`                   | Server port                                                    | `8000`                                |
+| `--host`                   | `HOST`                   | Server host                                                    | `127.0.0.1`                           |
+| `--log-level`              | `LOG_LEVEL`              | Logging level                                                  | `INFO`                                |
+| `--execution-device`       | `EXECUTION_DEVICE`       | Device for model inference (`auto`, `cpu`, `cuda`, `openvino`) | `auto`                                |
+| `--default-ocr-model`      | `DEFAULT_OCR_MODEL`      | Default OCR model                                              | `cct-xs-v1-global-model`              |
+| `--default-detector-model` | `DEFAULT_DETECTOR_MODEL` | Default detector model                                         | `yolo-v9-t-384-license-plate-end2end` |
 
 ### Concurrency and Worker Configuration
 

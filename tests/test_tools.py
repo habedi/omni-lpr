@@ -1,3 +1,4 @@
+import base64
 import json
 from dataclasses import asdict, dataclass
 from typing import get_args
@@ -274,7 +275,7 @@ async def test_recognizer_model_caching(mocker):
     )
     mock_recognizer_class.assert_called_once_with("cct-s-v1-global-model")
 
-    # Call tool with second OCR model
+    # Call tool with the second OCR model
     await global_tool_registry.call(
         "recognize_plate",
         {"image_base64": TINY_PNG_BASE64, "ocr_model": "cct-xs-v1-global-model"},
@@ -301,9 +302,11 @@ async def test_alpr_instance_caching(mocker):
     mock_alpr_class.assert_called_once_with(
         detector_model="yolo-v9-t-384-license-plate-end2end",
         ocr_model="cct-s-v1-global-model",
+        ocr_device="auto",
+        detector_providers=None,
     )
 
-    # Call with second set of models
+    # Call with the second set of models
     args_2 = {
         "image_base64": TINY_PNG_BASE64,
         "detector_model": "yolo-v9-t-256-license-plate-end2end",
@@ -367,9 +370,6 @@ async def test_unsupported_image_format_from_path(tmp_path):
         await global_tool_registry.call(
             "recognize_plate_from_path", {"path": str(unsupported_file)}
         )
-
-
-import base64
 
 
 @pytest.mark.asyncio
