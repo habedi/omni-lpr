@@ -1,5 +1,3 @@
-# src/omni_lpr/api_models.py
-
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field

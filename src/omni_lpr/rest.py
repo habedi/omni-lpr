@@ -1,4 +1,3 @@
-# src/omni_lpr/rest.py
 import base64
 import json
 import logging

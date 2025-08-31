@@ -1,5 +1,3 @@
-"""Defines standardized error structures for the Omni-LPR server"""
-
 from enum import Enum
 from typing import Any, Optional
 
