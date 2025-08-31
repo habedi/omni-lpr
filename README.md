@@ -66,31 +66,22 @@ pip install omni-lpr
 omni-lpr
 ```
 
-### Sample LLMSudio Configuration
+By default, the server will be listening to requests on port `8000` of `localhost`.
+You can check out the tools that the server provides over MCP using a tool like
+[MCP Inspector](https://github.com/modelcontextprotocol/inspector)
+at [http://localhost:8000/mcp/sse](http://localhost:8000/mcp/sse).
+You can also see the REST API definition in the Swagger UI
+at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
 
-```json
-[
-    {
-        "type": "function",
-        "function": {
-            "name": "detect_license_plate_from_url",
-            "description": "Detects and recognizes all license plates in an image from a given public URL. Returns the detected plate text, confidence scores, and bounding box coordinates.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "image_url": {
-                        "type": "string",
-                        "description": "The publicly accessible URL of the image to be processed."
-                    }
-                },
-                "required": [
-                    "image_url"
-                ]
-            }
-        }
-    }
-]
-```
+The figure below shows a screenshot of the MCP Inspector tool connected to the Omni-LPR server and showing the
+available tools.
+
+<div align="center">
+  <picture>
+<img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto" height="auto">
+</picture>
+</div>
+
 
 ---
 

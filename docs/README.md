@@ -79,7 +79,7 @@ When you have built or pulled the images, you can run them using the following c
 The server exposes its functionality via two interfaces: REST API and MCP.
 A health check endpoint is also available at `GET /api/health`.
 For monitoring, a Prometheus metrics endpoint is available at `GET /api/metrics`.
-It also can be configured using command-line arguments or environment variables on startup.
+It can also be configured using command-line arguments or environment variables on startup.
 
 #### 1. REST API
 
@@ -167,19 +167,10 @@ Currently, the following tools are implemented and can be called via the MCP int
 * **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
 * **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image located at a given URL or
   local file path.
-* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in an image.
 * **`detect_and_recognize_plate_from_path`**: Detects and recognizes license plates from an image at a given URL or
   local file path.
 * **`list_models`**: Lists the available detector and OCR models.
-
-The figure below shows a screenshot of the [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
-tool connected to the Omni-LPR server.
-
-<div align="center">
-  <picture>
-<img src="assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto" height="auto">
-</picture>
-</div>
 
 ### Startup Configuration
 
@@ -211,6 +202,10 @@ The following table summarizes the available configuration options:
 > - `yolo-v9-t-416-license-plate-end2end`
 > - `yolo-v9-t-384-license-plate-end2end` (default)
 > - `yolo-v9-t-256-license-plate-end2end`
+>
+> Models are from the [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr)
+> and [fast-alpr](https://github.com/ankandrew/fast-alpr) projects.
+> Please refer to their repositories for more information about the model architectures and performance.
 
 ### Security Considerations
 
@@ -222,4 +217,4 @@ The following table summarizes the available configuration options:
 - **Authentication:** The server does not have a built-in authentication mechanism. If you need to restrict access to
   the API, you should implement authentication at the reverse proxy level.
 - **Input Validation:** The API uses Pydantic for input validation, which helps prevent many common injection-style
-  attacks. However, it is still important to be aware of the data you are sending to the server.
+  attacks. However, it is still essential to be aware of the data you are sending to the server.
