@@ -55,13 +55,41 @@ pip install omni-lpr
 omni-lpr
 ```
 
-#### Examples
+### Sample LLMSudio Configuration
 
-See the [examples](examples) directory for usage examples.
+```json
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "detect_license_plate_from_url",
+            "description": "Detects and recognizes all license plates in an image from a given public URL. Returns the detected plate text, confidence scores, and bounding box coordinates.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "image_url": {
+                        "type": "string",
+                        "description": "The publicly accessible URL of the image to be processed."
+                    }
+                },
+                "required": [
+                    "image_url"
+                ]
+            }
+        }
+    }
+]
+```
+
+---
 
 ### Documentation
 
-Check out the [docs](docs) directory for Omni-LPR's documentation.
+See the [docs](docs) directory for Omni-LPR's documentation.
+
+### Examples
+
+Check out the [examples](examples) directory for usage examples.
 
 ---
 
@@ -88,6 +116,8 @@ Check out the [docs](docs) directory for Omni-LPR's documentation.
 
 - **Integrations and Ecosystem**
     -   [x] Standalone self-sufficient microservice architecture.
+    -   [x] MCP examples.
+    -   [x] REST API examples.
     -   [ ] A Python client library to simplify interaction with the REST API.
 
 - **Deployment and Operations**
