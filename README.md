@@ -58,7 +58,7 @@ Using Omni-LPR can have the following benefits:
 
 ### Quickstart
 
-You can install and run Omni-LPR server locally using the command below:
+You can install and run Omni-LPR server locally using the commands shown below.
 
 ```sh
 # Install the server
@@ -71,7 +71,7 @@ omni-lpr
 By default, the server will be listening to requests on port `8000` of `localhost`.
 You can check out the tools that the server provides over MCP using a tool like
 [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
-at [http://localhost:8000/mcp/sse](http://localhost:8000/mcp/sse).
+(at [http://localhost:8000/mcp/sse](http://localhost:8000/mcp/sse)).
 You can also see the REST API definition in the Swagger UI
 at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
 
@@ -84,8 +84,12 @@ available tools.
 </picture>
 </div>
 
-You can also connect any client that supports the MCP protocol to the server.
-Below is an example of a configuration for [LMStudio](https://lmstudio.ai/).
+### Integration
+
+You can connect any client that supports the MCP protocol to the server.
+The following examples show how to use the server with [LMStudio](https://lmstudio.ai/).
+
+#### LMStudio Configuration
 
 ```json
 {
@@ -97,12 +101,23 @@ Below is an example of a configuration for [LMStudio](https://lmstudio.ai/).
 }
 ```
 
-Below you can see the demo connecting to the server using LMStudio and running a simple inference.
+#### LMStudio Example Usages
+
+Below is an example of listing the available models in the server.
 
 <div align="center">
   <picture>
 <img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto" height="auto">
 </picture>
+</div>
+
+Below is an example of detecting the license plates in
+an [image available on the web](https://www.olavsplates.com/foto_n/n_cx11111.jpg).
+
+<div align="center">
+  <picture>
+<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LMStudio Screenshot 2" width="auto" height="auto">
+  </picture>
 </div>
 
 ---
