@@ -66,8 +66,17 @@ def setup_app_routes(app: Starlette):
         ]
     )
     # Register the Spectree documentation generator with the app
-    # This will create the /docs and /redoc endpoints
     api_spec.register(app)
+
+
+# --- FIX: Run setup logic at import time ---
+# This ensures that when Gunicorn imports `starlette_app`, it is already
+# fully configured with its tools and routes.
+setup_tools()
+setup_app_routes(starlette_app)
+
+
+# --- END FIX ---
 
 
 @click.command()
@@ -108,15 +117,11 @@ def main(
     if default_detector_model:
         settings.default_detector_model = default_detector_model
 
-    # Then, setup logging
+    # Then, setup logging for the CLI runner
     setup_logging(settings.log_level)
 
-    # Now that settings are loaded, set up the tools and their schemas
     _logger.info("Setting up tools...")
-    setup_tools()
-
-    # Now that tools are registered, add the routes to the app
-    setup_app_routes(starlette_app)
+    # The setup calls were moved to the global scope and are no longer needed here.
 
     _logger.info(f"Starting SSE server on {settings.host}:{settings.port}")
     uvicorn.run(starlette_app, host=settings.host, port=settings.port)
