@@ -4,7 +4,6 @@ import click
 from mcp.server.sse import SseServerTransport
 from pythonjsonlogger import jsonlogger
 from starlette.applications import Starlette
-from starlette.middleware import Middleware
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 

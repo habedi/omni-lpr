@@ -148,6 +148,38 @@ a `.env` file if it exists. Command-line arguments take precedence over environm
 | `--default-ocr-model`      | `DEFAULT_OCR_MODEL`      | Default OCR model      | `cct-xs-v1-global-model`              |
 | `--default-detector-model` | `DEFAULT_DETECTOR_MODEL` | Default detector model | `yolo-v9-t-384-license-plate-end2end` |
 
+### Concurrency and Worker Configuration
+
+Omni-LPR uses Gunicorn to manage multiple worker processes, allowing it to handle many REST API requests in parallel.
+By default, the official Docker images are configured to run with 4 worker processes.
+
+#### Important Considerations for the MCP Interface
+
+The MCP is a stateful protocol.
+This means it relies on a persistent connection and session data stored in the server's memory.
+
+- **Using MCP**: If you intend to use the MCP interface, you must run the server with only one worker process. If more
+  than one worker is used, the server will load-balance requests across different processes, causing the session to be
+  lost and leading to erratic behavior or errors.
+
+- **Using only the REST API**: If you are only using the stateless REST API, you can set the number of workers to a
+  higher value (for example, `4` or more) to maximize performance and handle more concurrent requests.
+
+#### Configuring the Number of Workers in Docker
+
+You can control the number of workers by setting the `GUNICORN_WORKERS` environment variable when you run the Docker
+container.
+
+**Example: Running with a single worker for MCP compatibility**
+
+```sh
+docker run --rm -it --gpus all -p 8000:8000 \
+  -e GUNICORN_WORKERS=1 \
+  ghcr.io/habedi/omni-lpr-cpu:latest
+```
+
+If the `GUNICORN_WORKERS` variable is not set, the container will default to 4 workers.
+
 ### Available Models
 
 You can override the default models for a specific request by passing `detector_model` and `ocr_model` arguments in your
