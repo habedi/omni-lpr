@@ -18,8 +18,8 @@ import anyio
 import httpx
 import mcp.types as types
 import numpy as np
-from async_lru import alru_cache
 from PIL import Image, UnidentifiedImageError
+from async_lru import alru_cache
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -100,25 +100,59 @@ class ListModelsArgs(BaseModel):
 
 
 class ToolRegistry:
+    """
+    Manages the registration and execution of tools.
+
+    This class provides a centralized mechanism to register tools, their
+    definitions, and their input validation models. It handles the dynamic
+    calling of tools, including input validation and error handling.
+    """
+
     def __init__(self):
+        """Initializes the ToolRegistry with empty storage for tools."""
         self._tools: dict[str, callable] = {}
         self._tool_definitions: list[types.Tool] = []
         self._tool_models: dict[str, Type[BaseModel]] = {}
 
     def register(self, tool_definition: types.Tool, model: Type[BaseModel]):
+        """
+        Returns a decorator to register a tool with its definition and model.
+
+        Args:
+            tool_definition: The MCP tool definition.
+            model: The Pydantic model for input validation.
+
+        Returns:
+            A decorator that registers the decorated function as a tool.
+        """
+
         def decorator(func: callable) -> callable:
-            name = tool_definition.name
-            if name in self._tools:
-                raise ValueError(f"Tool '{name}' is already registered.")
-            self._tools[name] = func
-            self._tool_definitions.append(tool_definition)
-            self._tool_models[name] = model
+            """
+            Decorator to register a tool function.
+
+            Args:
+                func: The async tool function to register.
+
+            Returns:
+                The original function, now registered as a tool.
+            """
+            self.register_tool(tool_definition, model, func)
             return func
 
         return decorator
 
     def register_tool(self, tool_definition: types.Tool, model: Type[BaseModel], func: callable):
-        """Register a tool directly without using a decorator."""
+        """
+        Registers a tool directly without using a decorator.
+
+        Args:
+            tool_definition: The MCP tool definition.
+            model: The Pydantic model for input validation.
+            func: The async tool function to register.
+
+        Raises:
+            ValueError: If a tool with the same name is already registered.
+        """
         name = tool_definition.name
         if name in self._tools:
             raise ValueError(f"Tool '{name}' is already registered.")
@@ -129,7 +163,23 @@ class ToolRegistry:
     async def call_validated(
         self, name: str, validated_args: BaseModel
     ) -> list[types.ContentBlock]:
-        """Executes the tool with already validated arguments."""
+        """
+        Executes a tool with already validated Pydantic model arguments.
+
+        This method is an internal-facing counterpart to `call`. It bypasses
+        the validation step and directly executes the tool's logic.
+
+        Args:
+            name: The name of the tool to execute.
+            validated_args: An instance of the tool's Pydantic model containing
+                            the validated arguments.
+
+        Returns:
+            A list of MCP ContentBlocks produced by the tool.
+
+        Raises:
+            ToolLogicError: If the tool execution fails.
+        """
         func = self._tools[name]
         try:
             return await func(validated_args)
@@ -144,6 +194,28 @@ class ToolRegistry:
             ) from e
 
     async def call(self, name: str, arguments: dict) -> list[types.ContentBlock]:
+        """
+        Validates arguments and executes a tool by its name.
+
+        This is the primary method for invoking a tool. It performs the
+        following steps:
+        1. Checks if the tool exists.
+        2. Retrieves the associated Pydantic model for the tool.
+        3. Validates the incoming `arguments` dictionary against the model.
+        4. If validation succeeds, it calls the tool's implementation.
+        5. If validation fails, it raises a `ToolLogicError`.
+
+        Args:
+            name: The name of the tool to call.
+            arguments: A dictionary of input arguments for the tool.
+
+        Returns:
+            A list of MCP ContentBlocks produced by the tool.
+
+        Raises:
+            ToolLogicError: If the tool is unknown, no validation model is
+                            registered, or input validation fails.
+        """
         if name not in self._tools:
             _logger.warning(f"Unknown tool requested: {name}")
             raise ToolLogicError(message=f"Unknown tool: {name}", code=ErrorCode.VALIDATION_ERROR)
@@ -168,6 +240,12 @@ class ToolRegistry:
         return await self.call_validated(name, validated_args)
 
     def list(self) -> list[types.Tool]:
+        """
+        Lists all registered tools.
+
+        Returns:
+            A list of MCP tool definitions.
+        """
         return self._tool_definitions
 
 
@@ -278,18 +356,21 @@ async def _detect_and_recognize_plate_logic(
 
 
 async def recognize_plate_base64_tool(args: "RecognizePlateArgs") -> list[types.ContentBlock]:
+    """Tool wrapper for recognizing a plate from a Base64 image."""
     return await _recognize_plate_logic(ocr_model=args.ocr_model, image_base64=args.image_base64)
 
 
 async def recognize_plate_path_tool(
     args: "RecognizePlateFromPathArgs",
 ) -> list[types.ContentBlock]:
+    """Tool wrapper for recognizing a plate from an image path or URL."""
     return await _recognize_plate_logic(ocr_model=args.ocr_model, path=args.path)
 
 
 async def detect_and_recognize_plate_base64_tool(
     args: "DetectAndRecognizePlateArgs",
 ) -> list[types.ContentBlock]:
+    """Tool wrapper for detecting and recognizing a plate from a Base64 image."""
     return await _detect_and_recognize_plate_logic(
         detector_model=args.detector_model,
         ocr_model=args.ocr_model,
@@ -300,6 +381,7 @@ async def detect_and_recognize_plate_base64_tool(
 async def detect_and_recognize_plate_path_tool(
     args: "DetectAndRecognizePlateFromPathArgs",
 ) -> list[types.ContentBlock]:
+    """Tool wrapper for detecting and recognizing a plate from an image path or URL."""
     return await _detect_and_recognize_plate_logic(
         detector_model=args.detector_model, ocr_model=args.ocr_model, path=args.path
     )
@@ -316,9 +398,15 @@ async def list_models(_: ListModelsArgs) -> list[types.ContentBlock]:
 
 def setup_tools():
     """
-    Defines and registers all tools in the tool registry.
-    This function is called after settings are loaded, allowing Pydantic models
-    to be created with defaults based on those settings.
+    Initializes and registers all the tools for the application.
+
+    This function is the central point for tool setup. It defines the Pydantic
+    models for each tool's arguments, using settings for default values.
+    It then creates a tool definition for each tool and registers it, along with
+    its corresponding model and implementation function, in the global
+    `tool_registry`.
+
+    This setup is designed to be called once at application startup.
     """
 
     # --- Dynamically Defined Pydantic Models ---

@@ -57,7 +57,7 @@ omni-lpr
 
 #### Examples
 
-See the [examples](examples) directory for examples.
+See the [examples](examples) directory for usage examples.
 
 ### Documentation
 

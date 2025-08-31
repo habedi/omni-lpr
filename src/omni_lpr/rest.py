@@ -48,8 +48,26 @@ async def list_tools(request: Request) -> JSONResponse:
 
 async def _parse_tool_arguments(request: Request, model: BaseModel) -> BaseModel:
     """
-    Parses tool arguments from the request based on Content-Type.
-    Handles 'application/json' and 'multipart/form-data'.
+    Parses and validates tool arguments from an incoming request.
+
+    This function dynamically handles different `Content-Type` headers to
+    extract arguments for a tool call. It supports:
+    - `application/json`: Parses the request body as JSON.
+    - `multipart/form-data`: Handles file uploads and other form fields.
+      Specifically, it looks for an `image` field, reads its bytes,
+      and encodes it as a Base64 string under the `image_base64` key.
+
+    Args:
+        request: The incoming `starlette.requests.Request` object.
+        model: The Pydantic model to validate the extracted arguments against.
+
+    Returns:
+        An instance of the provided Pydantic `model` populated with the
+        validated arguments.
+
+    Raises:
+        ValueError: If the `Content-Type` is unsupported, or if a
+                    `multipart/form-data` request is missing the `image` part.
     """
     content_type = request.headers.get("content-type", "")
 

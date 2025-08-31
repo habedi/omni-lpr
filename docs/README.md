@@ -74,7 +74,7 @@ When you have built or pulled the images, you can run them using the following c
 
 ---
 
-### Documentation
+### API Documentation
 
 The server exposes its functionality via two interfaces: REST API and MCP.
 A health check endpoint is also available at `GET /api/health`.
@@ -181,7 +181,7 @@ tool connected to the Omni-LPR server.
 </picture>
 </div>
 
-#### Startup Configuration
+### Startup Configuration
 
 As mentioned earlier, the server can be configured using command-line arguments or environment variables on startup.
 Environment variables are read from `.env` file if it exists and from the current process environment.

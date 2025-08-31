@@ -330,7 +330,7 @@ async def test_list_models():
 async def test_get_image_from_source_url_fails(mocker):
     # Mock httpx to return a 404 error
     mock_response = httpx.Response(404)
-    mock_client = mocker.patch(
+    mocker.patch(
         "httpx.AsyncClient.get",
         side_effect=httpx.HTTPStatusError("Not Found", request=mocker.MagicMock(),
                                           response=mock_response)
@@ -343,3 +343,39 @@ async def test_get_image_from_source_url_fails(mocker):
             {"path": "http://example.com/notfound.jpg"}
         )
     assert "Failed to fetch image from URL" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_get_image_from_corrupted_data():
+    """Tests that a corrupted image raises a ValueError."""
+    setup_tools()
+    corrupted_base64 = base64.b64encode(b"this is not an image").decode("utf-8")
+    with pytest.raises(ToolLogicError, match="not a valid image file"):
+        await global_tool_registry.call(
+            "recognize_plate", {"image_base64": corrupted_base64}
+        )
+
+
+@pytest.mark.asyncio
+async def test_unsupported_image_format_from_path(tmp_path):
+    """Tests that an unsupported image format from a path raises a ValueError."""
+    setup_tools()
+    unsupported_file = tmp_path / "test.txt"
+    unsupported_file.write_text("this is not an image")
+
+    with pytest.raises(ToolLogicError, match="not a valid image file"):
+        await global_tool_registry.call(
+            "recognize_plate_from_path", {"path": str(unsupported_file)}
+        )
+
+
+import base64
+
+
+@pytest.mark.asyncio
+async def test_empty_image_data():
+    """Tests that providing empty image data raises a validation error."""
+    setup_tools()
+    with pytest.raises(ToolLogicError) as exc_info:
+        await global_tool_registry.call("recognize_plate", {"image_base64": ""})
+    assert "image_base64 cannot be empty" in str(exc_info.value.error.details)
