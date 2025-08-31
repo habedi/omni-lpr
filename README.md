@@ -64,7 +64,7 @@ examples, and API reference.
     -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
     -   [x] Interactive API documentation (via Swagger UI and ReDoc).
-    -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
+    -   [x] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
         image data.
 
 - **Performance and Scalability**

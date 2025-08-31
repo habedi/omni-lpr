@@ -45,9 +45,7 @@ async def health_check(_request):
 
 # Create app in global scope so it can be imported, but without routes.
 # Routes will be added in main() after tools are set up.
-starlette_app = Starlette(
-    debug=True, middleware=[Middleware(PrometheusMiddleware)]
-)
+starlette_app = Starlette(debug=True, middleware=[Middleware(PrometheusMiddleware)])
 
 
 def setup_app_routes(app: Starlette):

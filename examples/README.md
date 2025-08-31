@@ -60,4 +60,6 @@ make example-mcp
 | 6 | [mcp_detect_and_recognize_plate_from_path_example.py](mcp_detect_and_recognize_plate_from_path_example.py)   | MCP example for `detect_and_recognize_plate_from_path`.  |
 | 7 | [rest_list_models_example.py](rest_list_models_example.py)                                                   | REST example for `list_models`.                          |
 | 8 | [mcp_list_models_example.py](mcp_list_models_example.py)                                                     | MCP example for `list_models`.                           |
-| 9 | [health_check_example.py](health_check_example.py)                                                           | Example for checking the server's health status.         |
+| 9 | [rest_recognize_plate_from_upload_example.py](rest_recognize_plate_from_upload_example.py)                   | REST example for `recognize_plate` (file upload).        |
+| 10| [rest_detect_and_recognize_plate_from_upload_example.py](rest_detect_and_recognize_plate_from_upload_example.py)| REST example for `detect_and_recognize_plate` (file upload). |
+| 11| [health_check_example.py](health_check_example.py)                                                           | Example for checking the server's health status.         |

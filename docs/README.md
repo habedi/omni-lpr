@@ -107,10 +107,11 @@ This will return a JSON array of tool objects, each with a `name`, `description`
 To call a specific tool, send a `POST` request to the `/api/v1/tools/{tool_name}/invoke` endpoint.
 The request body must be a JSON object matching the tool's `input_schema`.
 
-The tool can accept an image in two ways:
+The tool can accept an image in three ways:
 
-1. A Base64-encoded string in the `image_base64` field.
-2. A local file path or a URL in the `path` field.
+1.  A Base64-encoded string in the `image_base64` field.
+2.  A local file path or a URL in the `path` field.
+3.  As a file upload (`multipart/form-data`).
 
 ###### Example: Calling `detect_and_recognize_plate`
 
@@ -143,6 +144,15 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"path": "https://example.com/plate.jpg"}' \
   http://localhost:8000/api/v1/tools/detect_and_recognize_plate/invoke
+```
+
+**Using a file upload:**
+
+```sh
+curl -X POST \
+  -F "image=@/path/to/your/image.jpg" \
+  -F "ocr_model=cct-s-v1-global-model" \
+  http://localhost:8000/api/v1/tools/recognize_plate/invoke
 ```
 
 #### 2. MCP Interface (for AI Agents)
@@ -213,5 +223,3 @@ The following table summarizes the available configuration options:
   the API, you should implement authentication at the reverse proxy level.
 - **Input Validation:** The API uses Pydantic for input validation, which helps prevent many common injection-style
   attacks. However, it is still important to be aware of the data you are sending to the server.
-
-

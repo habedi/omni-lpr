@@ -1,5 +1,5 @@
 # src/omni_lpr/rest.py
-
+import base64
 import json
 import logging
 
@@ -57,29 +57,63 @@ async def list_tools(request: Request) -> JSONResponse:
     ),
     tags=["Tool Invocation"],
 )
-async def invoke_tool(request: Request) -> JSONResponse:
+async def invoke_tool(request: Request) -> JSONResponse:  # noqa: C901
     """
     Handles the execution of a specific tool identified by its name.
     """
     tool_name = request.path_params["tool_name"]
     _logger.info(f"REST endpoint 'invoke_tool' called for tool: '{tool_name}'")
 
-    # Check if the tool exists
     if tool_name not in tool_registry._tools:
         error = ErrorResponse(
             error={"code": "NOT_FOUND", "message": f"Tool '{tool_name}' not found."}
         )
         return JSONResponse(error.model_dump(), status_code=404)
 
-    # Get the expected input model for this specific tool
     input_model = tool_registry._tool_models.get(tool_name, BaseModel)
+    validated_args = None
+
+    content_type = request.headers.get("content-type", "")
 
     try:
-        # If the request has a body, parse it. Otherwise, default to an empty dict.
-        # This handles tools that require no arguments and are called with an empty body.
-        body = await request.body()
-        json_data = json.loads(body) if body else {}
-        validated_args = input_model(**json_data)
+        if "multipart/form-data" in content_type:
+            _logger.debug("Processing 'multipart/form-data' request.")
+            form = await request.form()
+            image_upload = form.get("image")
+            if not image_upload:
+                raise ValueError("Missing 'image' part in multipart form.")
+
+            # Read image and convert to Base64
+            image_bytes = await image_upload.read()
+            image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+            # Extract other parameters, assuming they are top-level in the form
+            params = {k: v for k, v in form.items() if k != "image"}
+            params["image_base64"] = image_base64
+            validated_args = input_model(**params)
+
+        elif "application/json" in content_type:
+            _logger.debug("Processing 'application/json' request.")
+            body = await request.body()
+            json_data = json.loads(body) if body else {}
+            validated_args = input_model(**json_data)
+
+        else:
+            # Handle requests with no body (e.g., list_models if it were a POST)
+            # or unsupported content types for tools that expect input.
+            if input_model.model_fields:
+                _logger.warning(f"Unsupported Content-Type: {content_type}")
+                error = ErrorResponse(
+                    error={
+                        "code": "UNSUPPORTED_MEDIA_TYPE",
+                        "message": "Unsupported Content-Type. Use application/json or multipart/form-data.",
+                    }
+                )
+                return JSONResponse(error.model_dump(), status_code=415)
+            else:
+                # For tools with no arguments, proceed with empty args
+                validated_args = input_model()
+
     except ValidationError as e:
         error = ErrorResponse(
             error={
@@ -89,23 +123,15 @@ async def invoke_tool(request: Request) -> JSONResponse:
             }
         )
         return JSONResponse(error.model_dump(), status_code=400)
-    except json.JSONDecodeError:
-        error = ErrorResponse(
-            error={"code": "INVALID_JSON", "message": "Request body is not valid JSON."}
-        )
+    except (json.JSONDecodeError, ValueError) as e:
+        error = ErrorResponse(error={"code": "BAD_REQUEST", "message": str(e)})
         return JSONResponse(error.model_dump(), status_code=400)
 
     try:
-        # Execute the tool with the already validated model
-        # The tool function returns MCP-style ContentBlocks
         mcp_content_blocks = await tool_registry.call_validated(tool_name, validated_args)
-
-        # Convert MCP ContentBlocks to our API's JsonContentBlock
         api_content_blocks = [
             JsonContentBlock(data=json.loads(block.text)) for block in mcp_content_blocks
         ]
-
-        # Wrap in the final ToolResponse model
         response_data = ToolResponse(content=api_content_blocks)
         return JSONResponse(response_data.model_dump())
 

@@ -1,8 +1,15 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
+from pathlib import Path
 
 from omni_lpr.__main__ import setup_app_routes, setup_tools, starlette_app
 from omni_lpr.tools import tool_registry
+
+
+@pytest.fixture
+def test_data_path():
+    """Returns the path to the test data directory."""
+    return Path(__file__).parent / "testdata"
 
 
 @pytest.fixture
