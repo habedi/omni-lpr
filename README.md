@@ -85,7 +85,7 @@ omni-lpr
 
 ### Documentation
 
-See the [docs](docs) directory for Omni-LPR's documentation.
+Omni-LPR's documentation is available [here](docs).
 
 ### Examples
 
