@@ -124,6 +124,7 @@ When you have built or pulled the images, you can run them using the following c
 
 The server exposes its functionality via two interfaces: REST API and MCP.
 A health check endpoint is also available at `GET /api/health`.
+For monitoring, a Prometheus metrics endpoint is available at `GET /api/metrics`.
 It also can be configured using command-line arguments or environment variables on startup.
 
 #### 1. REST API
@@ -265,7 +266,7 @@ The following table summarizes the available configuration options:
 
 - **Performance and Scalability**
     -   [x] Asynchronous I/O for handling concurrent requests.
-    -   [x] A Prometheus metrics endpoint (`/metrics`) for monitoring request latency, throughput, and error rates.
+    -   [x] A Prometheus metrics endpoint (`/api/metrics`) for monitoring request latency, throughput, and error rates.
     -   [ ] Request batching for model inference to improve throughput under a heavy load.
 
 - **Integrations and Ecosystem**
