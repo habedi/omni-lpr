@@ -44,10 +44,24 @@ Using Omni-LPR can have the following benefits:
 
 ---
 
+### Quickstart
+
+```sh
+# Install the server
+pip install omni-lpr
+
+# Start the server
+omni-lpr
+```
+
+#### Examples
+
+See the [examples](examples) directory for examples.
+
+
 ### Documentation
 
-Check out the [docs/README.md](docs/README.md) file for detailed documentation, including installation guide, usage
-examples, and API reference.
+Check out the [docs](docs) directory for Omni-LPR's documentation.
 
 ---
 

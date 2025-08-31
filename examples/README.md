@@ -13,7 +13,7 @@ You can start the server using the following command:
 poetry run omni-lpr
 ```
 
-The server will then be listening on [http://127.0.0.1:8000](http://127.0.0.1:8000) by default.
+The server will then be listening on [http://127.0.0.1:8000](http://127.0.0.1:8000/api/health) by default.
 
 #### 2. Run an Example
 
