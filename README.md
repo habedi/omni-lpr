@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img alt="Omni-LPR Logo" src="logo.svg" height="30%" width="30%">
+    <img alt="Omni-LPR Logo" src="logo.svg" width="300">
   </picture>
 <br>
 
@@ -25,162 +25,131 @@ A multi-interface (REST and MCP) server for automatic license plate recognition
 ---
 
 Omni-LPR is a self-hostable server that provides automatic license plate recognition (ALPR) capabilities via a REST API
-and over the Model Context Protocol (MCP).
-It can be used both as a standalone ALPR microservice and as an ALPR toolbox for AI agents and LLMs.
+and the Model Context Protocol (MCP). It can be used both as a standalone ALPR microservice and as an ALPR toolbox for
+AI agents and large language models (LLMs).
 
-### Why Omni-LPR?
+## Why Omni-LPR?
 
-Using Omni-LPR can have the following benefits:
-
-- **Decoupling.** Your main application can be in any programming language. It doesn't need to be tangled up with
-  Python or specific ML dependencies because the server handles all of that.
-
-- **Multiple Interfaces.** You aren't locked into one way of communicating. You can use a standard REST API from any
-  app, or you can use MCP, which is designed for AI agent integration.
-
-- **Ready-to-Deploy.** You don't have to build it from scratch. There are pre-built Docker images that are easy to
-  deploy and start using immediately.
-
-- **Hardware Acceleration.** The server is optimized for the hardware you have. It supports generic CPUs (ONNX), Intel
-  CPUs (OpenVINO), and NVIDIA GPUs (CUDA).
-
-- **Asynchronous I/O.** It's built on Starlette, which means it has high-performance, non-blocking I/O. It can handle
-  many concurrent requests without getting bogged down.
-
-- **Scalability.** Because it's a separate service, it can be scaled independently of your main application. If you
-  suddenly need more ALPR power, you can scale Omni-LPR up without touching anything else.
+- **Decoupling:** Your main application can be in any programming language. It doesn't need to be tangled up with Python
+  or specific ML dependencies because the server handles all of that.
+- **Multiple Interfaces:** Communicate via a standard REST API or using the Model Context Protocol (MCP), which is
+  designed for AI agent integration.
+- **Ready-to-Deploy:** Pre-built Docker images are available for easy deployment.
+- **Hardware Acceleration:** Optimized for different hardware backends, supporting generic CPUs (ONNX), Intel CPUs (
+  OpenVINO), and NVIDIA GPUs (CUDA).
+- **Asynchronous I/O:** Built on Starlette for high-performance, non-blocking I/O that can handle many concurrent
+  requests.
+- **Scalability:** As a separate microservice, it can be scaled independently of your main application.
 
 > [!IMPORTANT]
 > Omni-LPR is in early development, so bugs and breaking API changes are expected.
 > Please use the [issues page](https://github.com/habedi/omni-lpr/issues) to report bugs or request features.
 
----
+## Quickstart
 
-### Quickstart
+You can get started with Omni-LPR in a few minutes by following the steps described below.
 
-You can install and run Omni-LPR server locally using the commands shown below.
+### 1. Install the Server
+
+You can install Omni-LPR using `pip`:
 
 ```sh
-# Install the server
 pip install omni-lpr
+```
 
-# Start the server
+### 2. Start the Server
+
+When installed, start the server with a single command:
+
+```sh
 omni-lpr
 ```
 
-By default, the server will be listening to requests on port `8000` of `localhost`.
-You can check out the tools that the server provides over MCP using a tool like
-[MCP Inspector](https://github.com/modelcontextprotocol/inspector)
-(at [http://localhost:8000/mcp/sse](http://localhost:8000/mcp/sse)).
-You can also see the REST API definition in the Swagger UI
-at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
+By default, the server will be listening on `http://127.0.0.1:8000`.
+You can confirm it's running by accessing the health check endpoint:
 
-The figure below shows a screenshot of the MCP Inspector tool connected to the Omni-LPR server and showing the
-available tools.
-
-<div align="center">
-  <picture>
-<img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto" height="auto">
-</picture>
-</div>
-
-### Integration
-
-You can connect any client that supports the MCP protocol to the server.
-The following examples show how to use the server with [LMStudio](https://lmstudio.ai/).
-
-#### LMStudio Configuration
-
-```json
-{
-    "mcpServers": {
-        "omni-lpr-local": {
-            "url": "http://localhost:8000/mcp/sse"
-        }
-    }
-}
+```sh
+curl http://127.0.0.1:8000/api/health
+# Expected output: {"status": "ok", "version": "0.2.0"}
 ```
 
-#### LMStudio Example Usages
+### 3. Recognize a License Plate
 
-Below is an example of listing the available models in the server.
+Now you can make a request to recognize a license plate from an image.
+The example below uses a publicly available image URL.
+
+```sh
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"path": "https://www.olavsplates.com/foto_n/n_cx11111.jpg"}' \
+  http://127.0.0.1:8000/api/v1/tools/detect_and_recognize_plate_from_path/invoke
+```
+
+You should receive a JSON response with the detected license plate information.
+
+## Usage
+
+Omni-LPR exposes its capabilities as "tools" that can be called via a REST API or over the MCP.
+
+### Core Tools
+
+- **`list_models`**: Lists the available license plate detector and OCR models.
+- **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
+- **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+
+The server can accept an image in three ways: a Base64-encoded string, a local file path or a URL, or as a direct file
+upload. For more details on how to use the different tool variations, please see
+the [API Documentation](docs/README.md).
+
+### REST API
+
+The REST API provides a standard way to interact with the server. All tool endpoints are available under the `/api/v1`
+prefix. Once the server is running, you can access interactive API documentation in the Swagger UI
+at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
+
+### MCP Interface
+
+The server also exposes its tools over the Model Context Protocol (MCP) for integration with AI agents and LLMs. The MCP
+endpoint is available at `http://127.0.0.1:8000/mcp/sse`.
+
+You can use a tool like [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore the available MCP
+tools.
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto" height="auto">
-</picture>
-</div>
-
-Below is an example of detecting the license plates in
-an [image available on the web](https://www.olavsplates.com/foto_n/n_cx11111.jpg).
-
-<div align="center">
-  <picture>
-<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LMStudio Screenshot 2" width="auto" height="auto">
+    <img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto">
   </picture>
 </div>
 
----
+The following examples show how to use the server with [LMStudio](https://lmstudio.ai/).
 
-### Documentation
+<div align="center">
+  <picture>
+    <img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto">
+  </picture>
+</div>
 
-Omni-LPR's documentation is available [here](docs).
+<div align="center">
+  <picture>
+    <img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LMStudio Screenshot 2" width="auto">
+  </picture>
+</div>
 
-### Examples
+## Documentation
 
-Check out the [examples](examples) directory for usage examples.
+For detailed information on installation, configuration, and advanced usage, please see the [documentation in the
+`docs` directory](docs/README.md). For usage examples, check out the [`examples`](examples) directory.
 
----
+## Contributing
 
-### Feature Roadmap
+Contributions are always welcome!
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started.
 
-- **Core ALPR Capabilities**
-
-    - [x] License plate detection.
-    - [x] License plate recognition.
-    - [x] Optimized models for CPU, OpenVINO, and CUDA backends.
-
-- **Interfaces and Developer Experience**
-
-    - [x] MCP interface for AI agent integration.
-    - [x] REST API for all core functions/tools.
-    - [x] Standardized JSON error responses.
-    - [x] Interactive API documentation (Swagger UI and ReDoc).
-    - [x] Support for direct image uploads (`multipart/form-data`).
-
-- **Performance**
-
-    - [x] Asynchronous I/O for concurrent requests.
-    - [x] Prometheus metrics endpoint (`/api/metrics`).
-    - [ ] Request batching for model inference.
-
-- **Integrations**
-
-    - [x] Standalone microservice architecture.
-    - [x] MCP and REST API usage examples.
-    - [ ] A Python client library to simplify interaction with the REST API.
-
-- **Deployment**
-
-    - [x] Pre-built Docker images for each hardware backend.
-    - [x] Configuration via environment variables and CLI arguments.
-    - [ ] A Helm chart for Kubernetes deployment.
-
-- **Benchmarks**
-
-    - [ ] Performance benchmarks for different hardware and request types.
-
----
-
-### Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to make a contribution.
-
-### License
+## License
 
 Omni-LPR is licensed under the MIT License (see [LICENSE](LICENSE)).
 
-### Acknowledgements
+## Acknowledgements
 
 - This project uses the awesome [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr)
   and [fast-alpr](https://github.com/ankandrew/fast-alpr) Python libraries.
