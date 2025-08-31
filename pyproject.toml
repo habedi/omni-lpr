@@ -1,7 +1,7 @@
 [project]
 name = "omni-lpr"
-version = "0.1.0"
-description = " A multiprotocol (REST and MCP) server for automatic license plate recognition"
+version = "0.2.0"
+description = " A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
@@ -13,24 +13,19 @@ maintainers = [
 
 keywords = [
     "alpr",
-    "lpr",
     "license plate recognition",
     "automatic license plate recognition",
-    "api",
-    "rest",
-    "mcp",
     "computer vision",
-    "server",
+    "rest-api",
+    "mcp",
     "microservice",
     "onnx",
-    "openvino",
     "cuda"
 ]
 
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -56,6 +51,9 @@ dependencies = [
     "httpx (>=0.28.1,<0.29.0)",
     "fast-alpr[onnx] (>=0.3.0,<0.4.0)",
     "pydantic (>=2.11.7,<3.0.0)",
+    "spectree[starlette] (>=1.5.4,<2.0.0)",
+    "starlette-prometheus[descriptive-attrs] (>=0.10.0,<0.11.0)",
+    "async-lru (>=2.0.4,<3.0.0)",
 ]
 
 [project.optional-dependencies]
@@ -66,12 +64,12 @@ cuda = [
     "fast-alpr[onnx-gpu] (>=0.3.0,<0.4.0)",
 ]
 dev = [
-    "pytest>=8.0.1",
-    "pytest-cov>=6.0.0",
-    "pytest-mock>=3.14.0",
+    "pytest (>=8.0.1,<9.0.0)",
+    "pytest-cov (>=6.0.0,<7.0.0)",
+    "pytest-mock (>=3.14.0,<4.0.0)",
     "pytest-asyncio (>=1.1.0,<2.0.0)",
-    "mypy>=1.11.1",
-    "ruff>=0.9.3",
+    "mypy (>=1.11.1,<2.0.0)",
+    "ruff (>=0.9.3,<1.0.0)",
     "pre-commit (>=4.2.0,<5.0.0)",
 ]
 
@@ -80,11 +78,11 @@ Repository = "https://github.com/habedi/omni-lpr"
 Documentation = "https://github.com/habedi/omni-lpr/blob/main/README.md"
 
 [project.scripts]
-omni-lpr = "server.__main__:main"
+omni-lpr = "omni_lpr.__main__:main"
 
 [tool.poetry]
 include = ["README.md"]
-packages = [{ include = "server", from = "src" }]
+packages = [{ include = "omni_lpr", from = "src" }]
 package-mode = true
 
 [build-system]
@@ -128,7 +126,7 @@ check_untyped_defs = true
 warn_return_any = true
 strict_optional = true
 warn_redundant_casts = true
-exclude = "^(scripts/|tests/)"
+exclude = "^(examples/|scripts/|tests/)"
 
 [tool.ruff]
 exclude = [

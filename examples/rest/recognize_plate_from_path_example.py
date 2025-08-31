@@ -1,0 +1,40 @@
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import httpx
+from shared import get_args
+
+
+def main():
+    """Sends a license plate image path to the REST API and prints the result."""
+    args = get_args(
+        default_url="http://127.0.0.1:8000/api/v1/tools/recognize_plate_from_path/invoke"
+    )
+
+    # The data to send in the POST request
+    # This tool takes a file path or URL directly.
+    data = {"path": args.image_path}
+
+    print(f"Sending request to {args.url} with image path: {args.image_path}")
+
+    try:
+        # Send the POST request
+        response = httpx.post(args.url, json=data, timeout=30)
+        response.raise_for_status()
+
+        # Print the result
+        print("Response from server:")
+        print(response.json())
+
+    except httpx.RequestError as e:
+        print(f"An error occurred while requesting {e.request.url!r}.")
+        print(e)
+    except httpx.HTTPStatusError as e:
+        print(f"Error response {e.response.status_code} while requesting {e.request.url!r}.")
+        print(f"Response body: {e.response.text}")
+
+
+if __name__ == "__main__":
+    main()

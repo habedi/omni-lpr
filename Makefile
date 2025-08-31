@@ -9,7 +9,6 @@ DOCKERFILE   ?= Dockerfile
 GUNICORN_NUM_WORKERS ?= 4
 
 # Server configuration (can be overridden by environment variables)
-TRANSPORT_PROTOCOL ?= sse
 PORT      ?= 8000
 HOST      ?= 0.0.0.0
 
@@ -44,7 +43,7 @@ setup: ## Install system dependencies and dependency manager (e.g., Poetry)
 
 .PHONY: install
 install: ## Install Python dependencies
-	$(DEP_MNGR) install --all-extras --no-interaction
+	$(DEP_MNGR) install --extras dev --no-interaction
 
 # ==============================================================================
 # QUALITY & TESTING
@@ -81,12 +80,12 @@ test-hooks: ## Test Git hooks on all files
 .PHONY: run
 run: ## Start the server
 	@echo "Starting the server..."
-	$(DEP_MNGR) run mcp-lpr
+	$(DEP_MNGR) run omni-lpr --host $(HOST) --port $(PORT) --log-level DEBUG
 
 .PHONY: run-gunicorn
 run-gunicorn: ## Start the server with Gunicorn
-	@echo "Starting the server with Gunicorn..."
-	$(DEP_MNGR) run gunicorn -w $(GUNICORN_NUM_WORKERS) -k uvicorn.workers.UvicornWorker src.server.server:starlette_app
+	@echo "Starting the Omni-LPR server with Gunicorn..."
+	$(DEP_MNGR) run gunicorn -w $(GUNICORN_NUM_WORKERS) -k uvicorn.workers.UvicornWorker omni_lpr:starlette_app
 
 # ==============================================================================
 # BUILD & PUBLISH
@@ -100,30 +99,36 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 	$(DEP_MNGR) config pypi-token.pypi $(PYPI_TOKEN)
 	$(DEP_MNGR) publish --build
 
-
 # ==============================================================================
 # EXAMPLES
 # ==============================================================================
 .PHONY: example-rest example-mcp
 
-SERVER_PID := /tmp/mcp-lpr-server.pid
+SERVER_PID := /tmp/omni-lpr-server.pid
 
-define run_example
-    @echo "Starting server in background..."
-    $(DEP_MNGR) run mcp-lpr --transport sse > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
-    @echo "Waiting for server to start..."
-    @while ! nc -z localhost 8000; do sleep 1; done
-    @echo "Server started. Running example: $(1)"
-    $(DEP_MNGR) run python $(2)
-    @echo "Stopping server..."
-    @kill `cat $(SERVER_PID)`
+# Define the lists of example files
+REST_EXAMPLES := $(wildcard examples/rest/*.py)
+MCP_EXAMPLES := $(wildcard examples/mcp/*.py)
+
+define run_examples
+	@echo "Starting server in background..."
+	$(DEP_MNGR) run omni-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
+	@echo "Waiting for server to start..."
+	@while ! nc -z localhost 8000; do sleep 1; done
+	@echo "Server started. Running $(1) examples..."
+	@for example in $(2); do \
+		echo "\n--- Running $$example ---"; \
+		$(DEP_MNGR) run python $$example; \
+	done
+	@echo "\nStopping server..."
+	@kill `cat $(SERVER_PID)`
 endef
 
-example-rest: ## Run the REST API examples
-	$(call run_example,"REST",examples/rest_simple_example.py)
+example-rest: ## Run all REST API examples
+	$(call run_examples,"REST",$(REST_EXAMPLES))
 
-example-mcp: ## Run the MCP examples
-	$(call run_example,"MCP",examples/mcp_simple_example.py)
+example-mcp: ## Run all MCP API examples
+	$(call run_examples,"MCP",$(MCP_EXAMPLES))
 
 # ==============================================================================
 # DOCKER
@@ -168,3 +173,8 @@ clean: ## Remove caches and build artifacts
 	find . -type f -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 	rm -rf $(CACHE_DIRS) $(COVERAGE) $(DIST_DIRS) $(TMP_DIRS)
+
+.PHONY: docker-prune
+docker-prune: ## Remove dangling (untagged) Docker images
+	@echo "Removing dangling Docker images..."
+	docker image prune -f

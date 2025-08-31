@@ -18,6 +18,7 @@ jobs:
   build_and_publish:
     name: Build and Publish Docker Image
     runs-on: ubuntu-latest
+    needs: call_tests
     strategy:
       matrix:
         image_type: [ cpu, openvino, cuda ]
@@ -57,7 +58,7 @@ jobs:
           if [ -z "${{ steps.meta.outputs.tags }}" ]; then
             echo "tags=ghcr.io/${{ github.repository }}-${{ matrix.image_type }}:latest" >> $GITHUB_OUTPUT
           else
-            # Ensure tags value is trimmed and only the first tag is used if there are multiple
+            # Make sure tags value is trimmed and only the first tag is used if there are multiple
             first_tag=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
             echo "tags=${first_tag}" >> $GITHUB_OUTPUT
           fi
@@ -67,6 +68,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          target: ${{ matrix.image_type }}
           push: true
           tags: ${{ steps.fallback.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
