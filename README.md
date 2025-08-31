@@ -58,6 +58,8 @@ Using Omni-LPR can have the following benefits:
 
 ### Quickstart
 
+You can install and run Omni-LPR server locally using the command below:
+
 ```sh
 # Install the server
 pip install omni-lpr
@@ -94,6 +96,14 @@ Below is an example of a configuration for [LMStudio](https://lmstudio.ai/).
     }
 }
 ```
+
+Below you can see the demo connecting to the server using LMStudio and running a simple inference.
+
+<div align="center">
+  <picture>
+<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto" height="auto">
+</picture>
+</div>
 
 ---
 
