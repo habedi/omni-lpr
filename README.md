@@ -46,39 +46,39 @@ Using Omni-LPR can have the following benefits:
 
 ### Documentation
 
-For detailed documentation, including installation instructions, usage examples, and API reference,
-see the [docs/README.md](docs/README.md) file.
+Check out the [docs/README.md](docs/README.md) file for detailed documentation, including installation guide, usage
+examples, and API reference.
 
 ---
 
 ### Feature Roadmap
 
 - **Core ALPR Capabilities & Model Support**
-    -   [x] Plate detection via YOLO-v9 models.
-    -   [x] Plate recognition via character-centric transformer models.
-    -   [x] Support for models optimized for different hardware backends (generic CPUs, Intel CPUs via OpenVINO, and
+    -   [x] Plate detection (via YOLO-v9 models).
+    -   [x] Plate recognition (via character-centric transformer models).
+    -   [x] Optimized models for different hardware backends (generic CPUs, Intel CPUs via OpenVINO, and
         NVIDIA GPUs via CUDA).
 
 - **API, Interfaces, and Developer Experience**
     -   [x] MCP interface for AI agent integration.
     -   [x] REST API for all core tool functions available via the MCP interface.
     -   [x] Standardized JSON error responses.
-    -   [x] Interactive API documentation (like Swagger UI and OpenAPI).
+    -   [x] Interactive API documentation (via Swagger UI and ReDoc).
     -   [ ] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
-        images.
+        image data.
 
 - **Performance and Scalability**
-    -   [x] Asynchronous I/O for handling concurrent requests.
+    -   [x] Asynchronous I/O for handling concurrent requests efficiently.
     -   [x] A Prometheus metrics endpoint (`/api/metrics`) for monitoring request latency, throughput, and error rates.
-    -   [ ] Request batching for model inference to improve throughput under a heavy load.
+    -   [ ] Request batching for model inference to improve server throughput.
 
 - **Integrations and Ecosystem**
-    -   [x] Standalone microservice architecture.
+    -   [x] Standalone self-sufficient microservice architecture.
     -   [ ] A Python client library to simplify interaction with the REST API.
 
 - **Deployment and Operations**
     -   [x] Pre-built Docker images for different hardware backends.
-    -   [x] Configuration via environment variables and CLI arguments.
+    -   [x] Configuration via environment variables and command-line arguments.
     -   [ ] A Helm chart for simplified deployment to Kubernetes clusters.
 
 - **Benchmarks**
