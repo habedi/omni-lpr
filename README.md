@@ -248,6 +248,18 @@ The following table summarizes the available configuration options:
 > - `yolo-v9-t-384-license-plate-end2end` (default)
 > - `yolo-v9-t-256-license-plate-end2end`
 
+### Security Considerations
+
+- **Network Exposure:** It is recommended to run Omni-LPR in a trusted network environment. Avoid exposing the server to
+  the public internet unless it is strictly necessary.
+- **Reverse Proxy:** If you need to expose the server to the internet, it is recommended to use a reverse proxy (like
+  Nginx or Caddy) to handle incoming requests. This allows you to terminate TLS, handle rate limiting, and
+  provide an extra layer of security.
+- **Authentication:** The server does not have a built-in authentication mechanism. If you need to restrict access to
+  the API, you should implement authentication at the reverse proxy level.
+- **Input Validation:** The API uses Pydantic for input validation, which helps prevent many common injection-style
+  attacks. However, it is still important to be aware of the data you are sending to the server.
+
 ### Feature Roadmap
 
 - **Core ALPR Capabilities & Model Support**
