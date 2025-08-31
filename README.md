@@ -32,12 +32,23 @@ It can be used both as a standalone ALPR microservice and as an ALPR toolbox for
 
 Using Omni-LPR can have the following benefits:
 
-- **Decoupling:** your main application can be in any programming language, and it won't need Python or ML dependencies.
-- **Multiple Interfaces:** you can use the ALPR service via a standard REST API, or the MCP for AI agent integration.
-- **Ready-to-Deploy:** easy to deploy and start with pre-built Docker images.
-- **Hardware Acceleration:** support for generic CPUs (ONNX), Intel CPUs (OpenVINO), and NVIDIA GPUs (CUDA).
-- **Asynchronous I/O:** built on Starlette for high-performance, non-blocking I/O.
-- **Scalability:** the service can be scaled independently of your main application.
+- **Decoupling.** Your main application can be in any programming language. It doesn't need to be tangled up with
+  Python or specific ML dependencies because the server handles all of that.
+
+- **Multiple Interfaces.** You aren't locked into one way of communicating. You can use a standard REST API from any
+  app, or you can use MCP, which is designed for AI agent integration.
+
+- **Ready-to-Deploy.** You don't have to build it from scratch. There are pre-built Docker images that are easy to
+  deploy and start using immediately.
+
+- **Hardware Acceleration.** The server is optimized for the hardware you have. It supports generic CPUs (ONNX), Intel
+  CPUs (OpenVINO), and NVIDIA GPUs (CUDA).
+
+- **Asynchronous I/O.** It's built on Starlette, which means it has high-performance, non-blocking I/O. It can handle
+  many concurrent requests without getting bogged down.
+
+- **Scalability.** Because it's a separate service, it can be scaled independently of your main application. If you
+  suddenly need more ALPR power, you can scale Omni-LPR up without touching anything else.
 
 > [!IMPORTANT]
 > Omni-LPR is in early development, so bugs and breaking API changes are expected.
@@ -95,38 +106,41 @@ Check out the [examples](examples) directory for usage examples.
 
 ### Feature Roadmap
 
-- **Core ALPR Capabilities & Model Support**
-    -   [x] Plate detection (via YOLO-v9 models).
-    -   [x] Plate recognition (via character-centric transformer models).
-    -   [x] Optimized models for different hardware backends (generic CPUs, Intel CPUs via OpenVINO, and
-        NVIDIA GPUs via CUDA).
+- **Core ALPR Capabilities**
 
-- **API, Interfaces, and Developer Experience**
-    -   [x] MCP interface for AI agent integration.
-    -   [x] REST API for all core tool functions available via the MCP interface.
-    -   [x] Standardized JSON error responses.
-    -   [x] Interactive API documentation (via Swagger UI and ReDoc).
-    -   [x] Support for image uploads (`multipart/form-data`) in the REST API as an alternative to Base64-encoded
-        image data.
+    - [x] License plate detection.
+    - [x] License plate recognition.
+    - [x] Optimized models for CPU, OpenVINO, and CUDA backends.
 
-- **Performance and Scalability**
-    -   [x] Asynchronous I/O for handling concurrent requests efficiently.
-    -   [x] A Prometheus metrics endpoint (`/api/metrics`) for monitoring request latency, throughput, and error rates.
-    -   [ ] Request batching for model inference to improve server throughput.
+- **Interfaces and Developer Experience**
 
-- **Integrations and Ecosystem**
-    -   [x] Standalone self-sufficient microservice architecture.
-    -   [x] MCP examples.
-    -   [x] REST API examples.
-    -   [ ] A Python client library to simplify interaction with the REST API.
+    - [x] MCP interface for AI agent integration.
+    - [x] REST API for all core functions/tools.
+    - [x] Standardized JSON error responses.
+    - [x] Interactive API documentation (Swagger UI and ReDoc).
+    - [x] Support for direct image uploads (`multipart/form-data`).
 
-- **Deployment and Operations**
-    -   [x] Pre-built Docker images for different hardware backends.
-    -   [x] Configuration via environment variables and command-line arguments.
-    -   [ ] A Helm chart for simplified deployment to Kubernetes clusters.
+- **Performance**
+
+    - [x] Asynchronous I/O for concurrent requests.
+    - [x] Prometheus metrics endpoint (`/api/metrics`).
+    - [ ] Request batching for model inference.
+
+- **Integrations**
+
+    - [x] Standalone microservice architecture.
+    - [x] MCP and REST API usage examples.
+    - [ ] A Python client library to simplify interaction with the REST API.
+
+- **Deployment**
+
+    - [x] Pre-built Docker images for each hardware backend.
+    - [x] Configuration via environment variables and CLI arguments.
+    - [ ] A Helm chart for Kubernetes deployment.
 
 - **Benchmarks**
-    -   [ ] Performance benchmarks for different hardware backends and request types.
+
+    - [ ] Performance benchmarks for different hardware and request types.
 
 ---
 
