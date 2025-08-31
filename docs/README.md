@@ -53,7 +53,7 @@ For developers, you can also build the Docker images locally using the provided 
 ### API Documentation
 
 The server exposes its functionality via two interfaces: a REST API and the MCP. Additionally, a health check endpoint
-is available at `GET /api/health`, and a Prometheus metrics endpoint is at `GET /api/metrics`.
+is available at `GET /api/health`.
 
 #### REST API
 

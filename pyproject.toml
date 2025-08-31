@@ -52,7 +52,6 @@ dependencies = [
     "fast-alpr[onnx] (>=0.3.0,<0.4.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "spectree[starlette] (>=1.5.4,<2.0.0)",
-    "starlette-prometheus[descriptive-attrs] (>=0.10.0,<0.11.0)",
     "async-lru (>=2.0.4,<3.0.0)",
 ]
 

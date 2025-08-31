@@ -198,7 +198,6 @@ Check out the [examples](examples) directory for usage examples.
 - **Performance**
 
     - [x] Asynchronous I/O for concurrent requests.
-    - [x] Prometheus metrics endpoint (`/api/metrics`).
     - [ ] Request batching for model inference.
 
 - **Integrations**
