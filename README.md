@@ -82,6 +82,18 @@ available tools.
 </picture>
 </div>
 
+You can also connect any client that supports the MCP protocol to the server.
+Below is an example of a configuration for [LMStudio](https://lmstudio.ai/).
+
+```json
+{
+    "mcpServers": {
+        "omni-lpr-local": {
+            "url": "http://localhost:8000/mcp/sse"
+        }
+    }
+}
+```
 
 ---
 
