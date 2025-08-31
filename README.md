@@ -54,6 +54,8 @@ Using Omni-LPR can have the following benefits:
 > Omni-LPR is in early development, so bugs and breaking API changes are expected.
 > Please use the [issues page](https://github.com/habedi/omni-lpr/issues) to report bugs or request features.
 
+---
+
 ### Quickstart
 
 You can get started with Omni-LPR in a few minutes by following the steps described below.

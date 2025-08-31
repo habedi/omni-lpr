@@ -1,6 +1,6 @@
 [project]
 name = "omni-lpr"
-version = "0.2.0"
+version = "0.2.1"
 description = " A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
