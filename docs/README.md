@@ -109,9 +109,9 @@ The request body must be a JSON object matching the tool's `input_schema`.
 
 The tool can accept an image in three ways:
 
-1.  A Base64-encoded string in the `image_base64` field.
-2.  A local file path or a URL in the `path` field.
-3.  As a file upload (`multipart/form-data`).
+1. A Base64-encoded string in the `image_base64` field.
+2. A local file path or a URL in the `path` field.
+3. As a file upload (`multipart/form-data`).
 
 ###### Example: Calling `detect_and_recognize_plate`
 

@@ -1,19 +1,27 @@
-import httpx
+import os
+import sys
 
-from shared import get_args
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import httpx
+from shared import get_args, get_image_base64
 
 
 def main():
-    """Sends a license plate image path to the REST API and prints the result."""
+    """Sends a license plate image to the REST API and prints the result."""
     args = get_args(
-        default_url="http://127.0.0.1:8000/api/v1/tools/recognize_plate_from_path/invoke"
+        default_url="http://127.0.0.1:8000/api/v1/tools/detect_and_recognize_plate/invoke"
     )
 
-    # The data to send in the POST request
-    # This tool takes a file path or URL directly.
-    data = {"path": args.image_path}
+    # Read the image file and encode it in base64
+    image_base64 = get_image_base64(args.image_path)
+    if not image_base64:
+        return
 
-    print(f"Sending request to {args.url} with image path: {args.image_path}")
+    # The data to send in the POST request
+    data = {"image_base64": image_base64}
+
+    print(f"Sending request to {args.url} with image: {args.image_path}")
 
     try:
         # Send the POST request

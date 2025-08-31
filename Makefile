@@ -107,8 +107,8 @@ publish: ## Publish to PyPI (requires PYPI_TOKEN)
 SERVER_PID := /tmp/omni-lpr-server.pid
 
 # Define the lists of example files
-REST_EXAMPLES := $(wildcard examples/rest_*_example.py)
-MCP_EXAMPLES := $(wildcard examples/mcp_*_example.py)
+REST_EXAMPLES := $(wildcard examples/rest/*.py)
+MCP_EXAMPLES := $(wildcard examples/mcp/*.py)
 
 define run_examples
 	@echo "Starting server in background..."

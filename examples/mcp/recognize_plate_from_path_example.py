@@ -1,17 +1,16 @@
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import anyio
 from mcp import ClientSession, types
 from mcp.client.sse import sse_client
-
-from shared import get_args, get_image_base64
+from shared import get_args
 
 
 async def amain(image_path: str, url: str):
-    """Connects to the MCP server and calls the recognize_plate tool."""
-    # Read the image file and encode it in base64
-    image_base64 = get_image_base64(image_path)
-    if not image_base64:
-        return
-
+    """Connects to the MCP server and calls the recognize_plate_from_path tool."""
     print(f"Connecting to MCP server using SSE at {url}")
 
     try:
@@ -25,12 +24,13 @@ async def amain(image_path: str, url: str):
                 print("Client initialized.")
 
                 # The tool to call
-                tool_name = "recognize_plate"
+                tool_name = "recognize_plate_from_path"
 
                 # The arguments for the tool
-                tool_args = {"image_base64": image_base64}
+                # This tool takes a file path or URL directly.
+                tool_args = {"path": image_path}
 
-                print(f"Calling tool '{tool_name}' with image: {image_path}")
+                print(f"Calling tool '{tool_name}' with image path: {image_path}")
 
                 # Call the tool
                 result = await session.call_tool(tool_name, arguments=tool_args)

@@ -21,7 +21,6 @@ from .tools import tool_registry
 # Initialize logger
 _logger = logging.getLogger(__name__)
 
-
 # 1. Initialize Spectree for API documentation generation
 # This instance will be used to decorate and document our endpoints.
 api_spec = SpecTree(

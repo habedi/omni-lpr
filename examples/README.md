@@ -23,13 +23,13 @@ Each script accepts command-line arguments to specify the path to the image and 
 For example, to run the REST API example with a specific image:
 
 ```bash
-poetry run python examples/rest_simple_example.py --image-path /path/to/your/image.png
+poetry run python examples/rest/recognize_plate_from_path_example.py --image-path /path/to/your/image.png
 ```
 
 To see all available options for an example, use the `--help` flag:
 
 ```bash
-poetry run python examples/rest_simple_example.py --help
+poetry run python examples/rest/recognize_plate_from_path_example.py --help
 ```
 
 #### 3. Run All Examples
@@ -50,16 +50,17 @@ make example-mcp
 
 ### Example Files
 
-| # | File                                                                                                         | Description                                              |
-|---|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-| 1 | [rest_recognize_plate_example.py](rest_recognize_plate_example.py)                                           | REST example for `recognize_plate` (base64 image).       |
-| 2 | [mcp_recognize_plate_example.py](mcp_recognize_plate_example.py)                                             | MCP example for `recognize_plate` (base64 image).        |
-| 3 | [rest_recognize_plate_from_path_example.py](rest_recognize_plate_from_path_example.py)                       | REST example for `recognize_plate_from_path`.            |
-| 4 | [mcp_recognize_plate_from_path_example.py](mcp_recognize_plate_from_path_example.py)                         | MCP example for `recognize_plate_from_path`.             |
-| 5 | [rest_detect_and_recognize_plate_from_path_example.py](rest_detect_and_recognize_plate_from_path_example.py) | REST example for `detect_and_recognize_plate_from_path`. |
-| 6 | [mcp_detect_and_recognize_plate_from_path_example.py](mcp_detect_and_recognize_plate_from_path_example.py)   | MCP example for `detect_and_recognize_plate_from_path`.  |
-| 7 | [rest_list_models_example.py](rest_list_models_example.py)                                                   | REST example for `list_models`.                          |
-| 8 | [mcp_list_models_example.py](mcp_list_models_example.py)                                                     | MCP example for `list_models`.                           |
-| 9 | [rest_recognize_plate_from_upload_example.py](rest_recognize_plate_from_upload_example.py)                   | REST example for `recognize_plate` (file upload).        |
-| 10| [rest_detect_and_recognize_plate_from_upload_example.py](rest_detect_and_recognize_plate_from_upload_example.py)| REST example for `detect_and_recognize_plate` (file upload). |
-| 11| [health_check_example.py](health_check_example.py)                                                           | Example for checking the server's health status.         |
+| #  | File                                                                                                             | Description                                                   |
+|----|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| 1  | [rest/recognize_plate_example.py](rest/recognize_plate_example.py)                                               | REST example for `recognize_plate` (base64 image).            |
+| 2  | [mcp/recognize_plate_example.py](mcp/recognize_plate_example.py)                                                 | MCP example for `recognize_plate` (base64 image).             |
+| 3  | [rest/recognize_plate_from_path_example.py](rest/recognize_plate_from_path_example.py)                           | REST example for `recognize_plate_from_path`.                 |
+| 4  | [mcp/recognize_plate_from_path_example.py](mcp/recognize_plate_from_path_example.py)                             | MCP example for `recognize_plate_from_path`.                  |
+| 5  | [rest/detect_and_recognize_plate_from_path_example.py](rest/detect_and_recognize_plate_from_path_example.py)     | REST example for `detect_and_recognize_plate_from_path`.      |
+| 6  | [mcp/detect_and_recognize_plate_from_path_example.py](mcp/detect_and_recognize_plate_from_path_example.py)       | MCP example for `detect_and_recognize_plate_from_path`.       |
+| 7  | [rest/detect_and_recognize_plate_example.py](rest/detect_and_recognize_plate_example.py)                         | REST example for `detect_and_recognize_plate` (base64 image). |
+| 8  | [rest/list_models_example.py](rest/list_models_example.py)                                                       | REST example for `list_models`.                               |
+| 9  | [mcp/list_models_example.py](mcp/list_models_example.py)                                                         | MCP example for `list_models`.                                |
+| 10 | [rest/recognize_plate_from_upload_example.py](rest/recognize_plate_from_upload_example.py)                       | REST example for `recognize_plate` (file upload).             |
+| 11 | [rest/detect_and_recognize_plate_from_upload_example.py](rest/detect_and_recognize_plate_from_upload_example.py) | REST example for `detect_and_recognize_plate` (file upload).  |
+| 12 | [rest/health_check_example.py](rest/health_check_example.py)                                                     | Example for checking the server's health status.              |
