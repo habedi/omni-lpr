@@ -32,12 +32,12 @@ You can pull the images and run them directly.
 
 - **CPU Image (OpenVINO):**
   ```sh
-  docker run --rm -it -p 8000:8000 ghcr.io/habedi/omni-lpr-openvino:latest
+  docker run --rm -it -p 8000:8000 -e EXECUTION_DEVICE=openvino ghcr.io/habedi/omni-lpr-openvino:latest
   ```
 
 - **GPU Image (CUDA):**
   ```sh
-  docker run --rm -it --gpus all -p 8000:8000 ghcr.io/habedi/omni-lpr-cuda:latest
+  docker run --rm -it --gpus all -p 8000:8000 -e EXECUTION_DEVICE=cuda ghcr.io/habedi/omni-lpr-cuda:latest
   ```
 
 > [!NOTE]
@@ -181,6 +181,24 @@ docker run --rm -it --gpus all -p 8000:8000 \
 
 If you are only using the stateless REST API, you can leave the worker count at the default of 4 (or higher) for better
 performance.
+
+To force the application to use the GPU or OpenVINO for model inference, set the `EXECUTION_DEVICE` variable to `cuda` or
+`openvino`.
+
+**Example: Forcing GPU execution**
+```sh
+docker run --rm -it --gpus all -p 8000:8000 \
+  -e EXECUTION_DEVICE=cuda \
+  ghcr.io/habedi/omni-lpr-cuda:latest
+```
+
+**Example: Forcing OpenVINO execution**
+```sh
+docker run --rm -it --gpus all -p 8000:8000 \
+  -e EXECUTION_DEVICE=openvino \
+  ghcr.io/habedi/omni-lpr-openvino:latest
+```
+
 
 #### Running with the `omni-lpr` Command (Uvicorn)
 

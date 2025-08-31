@@ -136,9 +136,9 @@ tools.
 ### Integration
 
 You can connect any client that supports the MCP protocol to the server.
-The following examples show how to use the server with [LMStudio](https://lmstudio.ai/).
+The following examples show how to use the server with [LM Studio](https://lmstudio.ai/).
 
-#### LMStudio Configuration
+#### LM Studio Configuration
 
 ```json
 {
@@ -152,20 +152,20 @@ The following examples show how to use the server with [LMStudio](https://lmstud
 
 #### Tool Usage Examples
 
-The screenshot of using the `list_models` tool in LMStudio to list the available models for the APLR.
+The screenshot of using the `list_models` tool in LM Studio to list the available models for the APLR.
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto" height="auto">
+<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LM Studio Screenshot 1" width="auto" height="auto">
 </picture>
 </div>
 
-The screenshot below shows using the `detect_and_recognize_plate_from_path` tool in LMStudio to detect and recognize
+The screenshot below shows using the `detect_and_recognize_plate_from_path` tool in LM Studio to detect and recognize
 the license plate from an [image available on the web](https://www.olavsplates.com/foto_n/n_cx11111.jpg).
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LMStudio Screenshot 2" width="auto" height="auto">
+<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LM Studio Screenshot 2" width="auto" height="auto">
   </picture>
 </div>
 

@@ -334,7 +334,9 @@ async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
 
     providers = None
     # ocr_device does not support 'openvino', so we map it to 'cpu' in that case.
-    ocr_device_for_alpr = settings.execution_device if settings.execution_device != "openvino" else "cpu"
+    ocr_device_for_alpr = (
+        settings.execution_device if settings.execution_device != "openvino" else "cpu"
+    )
 
     if settings.execution_device == "cuda":
         providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
