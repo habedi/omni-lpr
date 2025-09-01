@@ -91,6 +91,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = [
+    "e2e: marks tests as end-to-end tests",
+]
 addopts = [
     "--tb=short",
     #"--disable-warnings",

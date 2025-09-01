@@ -379,3 +379,16 @@ async def test_empty_image_data():
     with pytest.raises(ToolLogicError) as exc_info:
         await global_tool_registry.call("recognize_plate", {"image_base64": ""})
     assert "image_base64 cannot be empty" in str(exc_info.value.error.details)
+
+
+@pytest.mark.asyncio
+async def test_get_image_from_directory_path_raises_error(tmp_path):
+    """Tests that providing a path to a directory raises a ToolLogicError."""
+    setup_tools()
+    # tmp_path is a pytest fixture that provides a temporary directory
+    directory_path = tmp_path
+    with pytest.raises(ToolLogicError) as exc_info:
+        await global_tool_registry.call("recognize_plate_from_path", {"path": str(directory_path)})
+    # The specific error can vary by OS (like IsADirectoryError on Linux),
+    # so we check for a substring that indicates a read failure on a directory.
+    assert "Is a directory" in str(exc_info.value) or "read failed" in str(exc_info.value)
