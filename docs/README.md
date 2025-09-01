@@ -156,6 +156,8 @@ a `.env` file if it exists. Command-line arguments take precedence over environm
 | `--port`                   | `PORT`                   | Server port                                                    | `8000`                                |
 | `--host`                   | `HOST`                   | Server host                                                    | `127.0.0.1`                           |
 | `--log-level`              | `LOG_LEVEL`              | Logging level                                                  | `INFO`                                |
+| `--max-image-size-mb`      | `MAX_IMAGE_SIZE_MB`      | Maximum image size for uploads (in MB)                         | `5`                                   |
+| `--model-cache-size`       | `MODEL_CACHE_SIZE`       | Number of models to keep in cache                              | `16`                                  |
 | `--execution-device`       | `EXECUTION_DEVICE`       | Device for model inference (`auto`, `cpu`, `cuda`, `openvino`) | `auto`                                |
 | `--default-ocr-model`      | `DEFAULT_OCR_MODEL`      | Default OCR model                                              | `cct-xs-v1-global-model`              |
 | `--default-detector-model` | `DEFAULT_DETECTOR_MODEL` | Default detector model                                         | `yolo-v9-t-384-license-plate-end2end` |

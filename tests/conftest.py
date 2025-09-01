@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from httpx import ASGITransport, AsyncClient
 from omni_lpr.__main__ import setup_app_routes, setup_tools, starlette_app
-from omni_lpr.tools import tool_registry
+from omni_lpr.tools import setup_cache, tool_registry
 
 
 @pytest.fixture
@@ -28,6 +28,7 @@ async def test_app_client():
 
     # Set up the application components
     setup_tools()
+    setup_cache()
     setup_app_routes(starlette_app)
 
     # Yield a test client

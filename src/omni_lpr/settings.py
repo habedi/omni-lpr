@@ -21,6 +21,8 @@ class ServerSettings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8000
     log_level: str = "INFO"
+    max_image_size_mb: int = 5
+    model_cache_size: int = 16
     execution_device: Literal["auto", "cpu", "cuda", "openvino"] = "auto"
     default_ocr_model: str = "cct-xs-v1-global-model"
     default_detector_model: str = "yolo-v9-t-384-license-plate-end2end"

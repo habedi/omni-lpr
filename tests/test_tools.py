@@ -15,6 +15,7 @@ from omni_lpr.tools import (
     OcrModel,
     ToolRegistry,
     list_models,
+    setup_cache,
     setup_tools,
     tool_registry as global_tool_registry,
 )
@@ -63,6 +64,7 @@ def mock_alpr_result():
 def clear_caches_and_registry():
     """Clears all tool-related caches and the global registry before each test."""
     # Clear the LRU caches on the functions
+    setup_cache()
     tools._get_ocr_recognizer.cache_clear()
     tools._get_alpr_instance.cache_clear()
 
