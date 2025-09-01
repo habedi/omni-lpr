@@ -182,23 +182,57 @@ docker run --rm -it --gpus all -p 8000:8000 \
 If you are only using the stateless REST API, you can leave the worker count at the default of 4 (or higher) for better
 performance.
 
-To force the application to use the GPU or OpenVINO for model inference, set the `EXECUTION_DEVICE` variable to `cuda` or
-`openvino`.
+### Hardware Acceleration Configuration
 
-**Example: Forcing GPU execution**
+To use hardware acceleration (like an NVIDIA GPU or Intel's OpenVINO), you need to perform two steps:
+
+1. **Install the correct package**: You must install `omni-lpr` with the appropriate "extra" to get the necessary
+   hardware-specific libraries.
+2. **Set the Execution Device**: You must set the `EXECUTION_DEVICE` environment variable when running the server to
+   tell the application which backend to activate.
+
+This two-step process guarantees that the application has the required libraries before it tries to use them.
+
+#### Example: Using CUDA for NVIDIA GPUs
+
+**Step 1: Install with the `[cuda]` extra**
+
 ```sh
-docker run --rm -it --gpus all -p 8000:8000 \
-  -e EXECUTION_DEVICE=cuda \
-  ghcr.io/habedi/omni-lpr-cuda:latest
+pip install omni-lpr[cuda]
 ```
 
+**Step 2: Run the server with `EXECUTION_DEVICE` set to `cuda`**
+
+```sh
+EXECUTION_DEVICE=cuda omni-lpr
+```
+
+#### Example: Using OpenVINO for Intel CPUs
+
+**Step 1: Install with the `[openvino]` extra**
+
+```sh
+pip install omni-lpr[openvino]
+```
+
+**Step 2: Run the server with `EXECUTION_DEVICE` set to `openvino`**
+
+```sh
+EXECUTION_DEVICE=openvino omni-lpr
+```
+
+> [!NOTE]
+> If you set `EXECUTION_DEVICE` to `cuda` or `openvino` without having installed the corresponding package extra, the
+> application will fail to start with an error.
+> This is intentional to prevent silent fallbacks to the CPU.
+
 **Example: Forcing OpenVINO execution**
+
 ```sh
 docker run --rm -it --gpus all -p 8000:8000 \
   -e EXECUTION_DEVICE=openvino \
   ghcr.io/habedi/omni-lpr-openvino:latest
 ```
-
 
 #### Running with the `omni-lpr` Command (Uvicorn)
 
