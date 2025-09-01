@@ -11,12 +11,13 @@
 [![Code Quality](https://img.shields.io/codefactor/grade/github/habedi/omni-lpr?style=flat&label=code%20quality&labelColor=333333&logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/habedi/omni-lpr)
 [![Python Version](https://img.shields.io/badge/python-%3E=3.10-3776ab?style=flat&labelColor=333333&logo=python&logoColor=white)](https://github.com/habedi/omni-lpr)
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
-[![Examples](https://img.shields.io/github/v/tag/habedi/omni-lpr?label=examples&color=green&style=flat&labelColor=282c34&logo=python&logoColor=white)](https://github.com/habedi/omni-lpr/tree/main/examples)
 [![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
 <br>
-[![Docker Image (CPU)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(cpu)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
-[![Docker Image (OpenVINO)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(openvino)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
-[![Docker Image (CUDA)](https://img.shields.io/github/v/release/habedi/omni-lpr?label=image%20(cuda)&logo=docker&logoColor=white&style=flat&color=007ec6)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
+[![Documentation](https://img.shields.io/badge/docs-view-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
+[![Examples](https://img.shields.io/badge/examples-view-green?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/examples)
+[![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
+[![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
+[![Docker Image (CUDA)](https://img.shields.io/badge/Docker-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
@@ -54,6 +55,8 @@ Using Omni-LPR can have the following benefits:
 > Omni-LPR is in early development, so bugs and breaking API changes are expected.
 > Please use the [issues page](https://github.com/habedi/omni-lpr/issues) to report bugs or request features.
 
+---
+
 ### Quickstart
 
 You can get started with Omni-LPR in a few minutes by following the steps described below.
@@ -79,7 +82,7 @@ You can confirm it's running by accessing the health check endpoint:
 
 ```sh
 curl http://127.0.0.1:8000/api/health
-# Expected output: {"status": "ok", "version": "0.2.0"}
+# Expected output: {"status": "ok", "version": "0.2.1"}
 ```
 
 #### 3. Recognize a License Plate
@@ -100,26 +103,33 @@ You should receive a JSON response with the detected license plate information.
 
 Omni-LPR exposes its capabilities as "tools" that can be called via a REST API or over the MCP.
 
-#### Core Tools
+#### Available Tools
 
-- **`list_models`**: Lists the available license plate detector and OCR models.
-- **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
-- **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+The server provides tools for listing models, recognizing plates from image data, and recognizing plates from a path.
 
-The server can accept an image in three ways: a Base64-encoded string, a local file path or a URL, or as a direct file
-upload. For more details on how to use the different tool variations, please see
-the [API Documentation](docs/README.md).
+- **`list_models`**: Lists the available detector and OCR models.
+
+- **Tools that process image data** (provided as Base64 or file upload):
+    - **`recognize_plate`**: Recognizes text from a pre-cropped license plate image.
+    - **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+
+- **Tools that process an image path** (a URL or local file path):
+    - **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given path.
+    - **`detect_and_recognize_plate_from_path`**: Detects and recognizes plates in a full image at a given path.
+
+For more details on how to use the different tools and provide image data, please see the
+[API Documentation](docs/README.md).
 
 #### REST API
 
 The REST API provides a standard way to interact with the server. All tool endpoints are available under the `/api/v1`
 prefix. Once the server is running, you can access interactive API documentation in the Swagger UI
-at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
+at http://127.0.0.1:8000/apidoc/swagger.
 
 #### MCP Interface
 
 The server also exposes its tools over the MCP for integration with AI agents and LLMs. The MCP endpoint is available at
-`http://127.0.0.1:8000/mcp/sse`.
+http://127.0.0.1:8000/mcp/sse.
 
 You can use a tool like [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore the available MCP
 tools.
@@ -133,9 +143,9 @@ tools.
 ### Integration
 
 You can connect any client that supports the MCP protocol to the server.
-The following examples show how to use the server with [LMStudio](https://lmstudio.ai/).
+The following examples show how to use the server with [LM Studio](https://lmstudio.ai/).
 
-#### LMStudio Configuration
+#### LM Studio Configuration
 
 ```json
 {
@@ -149,20 +159,20 @@ The following examples show how to use the server with [LMStudio](https://lmstud
 
 #### Tool Usage Examples
 
-The screenshot of using the `list_models` tool in LMStudio to list the available models for the APLR.
+The screenshot of using the `list_models` tool in LM Studio to list the available models for the APLR.
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LMStudio Screenshot 1" width="auto" height="auto">
+<img src="docs/assets/screenshots/lmstudio-list-models-1.png" alt="LM Studio Screenshot 1" width="auto" height="auto">
 </picture>
 </div>
 
-The screenshot below shows using the `detect_and_recognize_plate_from_path` tool in LMStudio to detect and recognize
+The screenshot below shows using the `detect_and_recognize_plate_from_path` tool in LM Studio to detect and recognize
 the license plate from an [image available on the web](https://www.olavsplates.com/foto_n/n_cx11111.jpg).
 
 <div align="center">
   <picture>
-<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LMStudio Screenshot 2" width="auto" height="auto">
+<img src="docs/assets/screenshots/lmstudio-detect-plates-1.png" alt="LM Studio Screenshot 2" width="auto" height="auto">
   </picture>
 </div>
 
@@ -195,7 +205,6 @@ Check out the [examples](examples) directory for usage examples.
 - **Performance**
 
     - [x] Asynchronous I/O for concurrent requests.
-    - [x] Prometheus metrics endpoint (`/api/metrics`).
     - [ ] Request batching for model inference.
 
 - **Integrations**

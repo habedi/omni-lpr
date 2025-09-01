@@ -1,3 +1,4 @@
+import base64
 import json
 from dataclasses import asdict, dataclass
 from typing import get_args
@@ -14,6 +15,7 @@ from omni_lpr.tools import (
     OcrModel,
     ToolRegistry,
     list_models,
+    setup_cache,
     setup_tools,
     tool_registry as global_tool_registry,
 )
@@ -62,6 +64,7 @@ def mock_alpr_result():
 def clear_caches_and_registry():
     """Clears all tool-related caches and the global registry before each test."""
     # Clear the LRU caches on the functions
+    setup_cache()
     tools._get_ocr_recognizer.cache_clear()
     tools._get_alpr_instance.cache_clear()
 
@@ -274,7 +277,7 @@ async def test_recognizer_model_caching(mocker):
     )
     mock_recognizer_class.assert_called_once_with("cct-s-v1-global-model")
 
-    # Call tool with second OCR model
+    # Call tool with the second OCR model
     await global_tool_registry.call(
         "recognize_plate",
         {"image_base64": TINY_PNG_BASE64, "ocr_model": "cct-xs-v1-global-model"},
@@ -301,9 +304,11 @@ async def test_alpr_instance_caching(mocker):
     mock_alpr_class.assert_called_once_with(
         detector_model="yolo-v9-t-384-license-plate-end2end",
         ocr_model="cct-s-v1-global-model",
+        ocr_device="auto",
+        detector_providers=None,
     )
 
-    # Call with second set of models
+    # Call with the second set of models
     args_2 = {
         "image_base64": TINY_PNG_BASE64,
         "detector_model": "yolo-v9-t-256-license-plate-end2end",
@@ -369,9 +374,6 @@ async def test_unsupported_image_format_from_path(tmp_path):
         )
 
 
-import base64
-
-
 @pytest.mark.asyncio
 async def test_empty_image_data():
     """Tests that providing empty image data raises a validation error."""
@@ -379,3 +381,16 @@ async def test_empty_image_data():
     with pytest.raises(ToolLogicError) as exc_info:
         await global_tool_registry.call("recognize_plate", {"image_base64": ""})
     assert "image_base64 cannot be empty" in str(exc_info.value.error.details)
+
+
+@pytest.mark.asyncio
+async def test_get_image_from_directory_path_raises_error(tmp_path):
+    """Tests that providing a path to a directory raises a ToolLogicError."""
+    setup_tools()
+    # tmp_path is a pytest fixture that provides a temporary directory
+    directory_path = tmp_path
+    with pytest.raises(ToolLogicError) as exc_info:
+        await global_tool_registry.call("recognize_plate_from_path", {"path": str(directory_path)})
+    # The specific error can vary by OS (like IsADirectoryError on Linux),
+    # so we check for a substring that indicates a read failure on a directory.
+    assert "Is a directory" in str(exc_info.value) or "read failed" in str(exc_info.value)

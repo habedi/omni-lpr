@@ -47,8 +47,15 @@ def _validate_base64(v: Any, _: ValidationInfo) -> str:
         raise PydanticCustomError("not_base64_string", "A valid Base64 string is required.")
     if not v:
         raise ValueError("image_base64 cannot be empty.")
-    if len(v) > 7000000:
-        raise ValueError("Input image is too large. The maximum size is 5MB.")
+
+    # Calculate the maximum allowed Base64 string length for a given image size in MB.
+    # Base64 encoding increases the size by a factor of 4/3.
+    max_len = int(settings.max_image_size_mb * 1024 * 1024 * 4 / 3)
+    if len(v) > max_len:
+        raise ValueError(
+            f"Input image is too large. The maximum size is {settings.max_image_size_mb}MB."
+        )
+
     try:
         base64.b64decode(v)
     except (ValueError, TypeError) as e:
@@ -252,7 +259,6 @@ class ToolRegistry:
 tool_registry = ToolRegistry()
 
 
-@alru_cache(maxsize=16)
 async def _get_ocr_recognizer(ocr_model: str) -> "LicensePlateRecognizer":
     """
     Loads and caches a license plate OCR model.
@@ -320,17 +326,38 @@ async def _recognize_plate_logic(
     return [types.TextContent(type="text", text=json.dumps(result))]
 
 
-@alru_cache(maxsize=16)
 async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
     """
     Loads and caches an ALPR instance for a given detector and OCR model.
     The alru_cache decorator handles caching.
     """
-    _logger.info(f"Loading ALPR instance with detector '{detector_model}' and OCR '{ocr_model}'")
+    _logger.info(
+        f"Loading ALPR instance with detector '{detector_model}', "
+        f"OCR '{ocr_model}', and device '{settings.execution_device}'"
+    )
     from fast_alpr import ALPR
 
+    providers = None
+    # ocr_device does not support 'openvino', so we map it to 'cpu' in that case.
+    ocr_device_for_alpr = (
+        settings.execution_device if settings.execution_device != "openvino" else "cpu"
+    )
+
+    if settings.execution_device == "cuda":
+        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+    elif settings.execution_device == "openvino":
+        providers = ["OpenVINOExecutionProvider", "CPUExecutionProvider"]
+    elif settings.execution_device == "cpu":
+        providers = ["CPUExecutionProvider"]
+
     # The ALPR constructor is not async, so we run it in a thread
-    alpr_constructor = partial(ALPR, detector_model=detector_model, ocr_model=ocr_model)
+    alpr_constructor = partial(
+        ALPR,
+        detector_model=detector_model,
+        ocr_model=ocr_model,
+        ocr_device=ocr_device_for_alpr,
+        detector_providers=providers,
+    )
     return await anyio.to_thread.run_sync(alpr_constructor)
 
 
@@ -394,6 +421,20 @@ async def list_models(_: ListModelsArgs) -> list[types.ContentBlock]:
         "ocr_models": list(get_args(OcrModel)),
     }
     return [types.TextContent(type="text", text=json.dumps(models))]
+
+
+def setup_cache():
+    """
+    Sets up the cache for model loading functions.
+
+    This function must be called after the settings are finalized (e.g., after
+    CLI overrides are applied) but before any tool is called. It re-wraps the
+    model loading functions with an `alru_cache` decorator configured with the
+    `model_cache_size` from the settings.
+    """
+    global _get_ocr_recognizer, _get_alpr_instance
+    _get_ocr_recognizer = alru_cache(maxsize=settings.model_cache_size)(_get_ocr_recognizer)
+    _get_alpr_instance = alru_cache(maxsize=settings.model_cache_size)(_get_alpr_instance)
 
 
 def setup_tools():

@@ -59,3 +59,26 @@ async def test_no_plate_detection_e2e(test_app_client: AsyncClient):
     response_json = response.json()
     content = response_json["content"][0]["data"]
     assert content == []
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_models_e2e(test_app_client: AsyncClient):
+    """
+    End-to-end test for the 'list_models' tool.
+    """
+    response = await test_app_client.post(
+        "/api/v1/tools/list_models/invoke",
+        json={},
+    )
+
+    assert response.status_code == 200, f"Request failed: {response.text}"
+    response_json = response.json()
+    content = response_json["content"][0]["data"]
+
+    assert "detector_models" in content
+    assert "ocr_models" in content
+    assert isinstance(content["detector_models"], list)
+    assert isinstance(content["ocr_models"], list)
+    assert len(content["detector_models"]) > 0
+    assert len(content["ocr_models"]) > 0

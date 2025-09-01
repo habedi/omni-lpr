@@ -4,14 +4,12 @@ import click
 from mcp.server.sse import SseServerTransport
 from pythonjsonlogger import jsonlogger
 from starlette.applications import Starlette
-from starlette.middleware import Middleware
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
-from starlette_prometheus import PrometheusMiddleware, metrics
 
 from .mcp import app
 from .settings import settings
-from .tools import setup_tools
+from .tools import setup_cache, setup_tools
 
 _logger = logging.getLogger(__name__)
 
@@ -45,7 +43,7 @@ async def health_check(_request):
 
 # Create app in global scope so it can be imported, but without routes.
 # Routes will be added in main() after tools are set up.
-starlette_app = Starlette(debug=True, middleware=[Middleware(PrometheusMiddleware)])
+starlette_app = Starlette(debug=True)
 
 
 def setup_app_routes(app: Starlette):
@@ -62,7 +60,6 @@ def setup_app_routes(app: Starlette):
             health_route,
             # Mount all the new, documented v1 API routes under /api/v1
             Mount("/api/v1", routes=setup_rest_routes()),
-            Route("/api/metrics", endpoint=metrics),
         ]
     )
     # Register the Spectree documentation generator with the app
@@ -95,12 +92,28 @@ setup_app_routes(starlette_app)
     help="The default detector model to use.",
     envvar="DEFAULT_DETECTOR_MODEL",
 )
+@click.option(
+    "--max-image-size-mb",
+    default=None,
+    type=int,
+    help="The maximum image size in megabytes.",
+    envvar="MAX_IMAGE_SIZE_MB",
+)
+@click.option(
+    "--model-cache-size",
+    default=None,
+    type=int,
+    help="The number of models to keep in the cache.",
+    envvar="MODEL_CACHE_SIZE",
+)
 def main(
     host: str | None,
     port: int | None,
     log_level: str | None,
     default_ocr_model: str | None,
     default_detector_model: str | None,
+    max_image_size_mb: int | None,
+    model_cache_size: int | None,
 ) -> int:
     """Main entrypoint for the omni-lpr server."""
     import uvicorn
@@ -116,12 +129,17 @@ def main(
         settings.default_ocr_model = default_ocr_model
     if default_detector_model:
         settings.default_detector_model = default_detector_model
+    if max_image_size_mb:
+        settings.max_image_size_mb = max_image_size_mb
+    if model_cache_size:
+        settings.model_cache_size = model_cache_size
 
     # Then, setup logging for the CLI runner
     setup_logging(settings.log_level)
 
-    _logger.info("Setting up tools...")
+    _logger.info("Setting up tools and cache...")
     # The setup calls were moved to the global scope and are no longer needed here.
+    setup_cache()
 
     _logger.info(f"Starting SSE server on {settings.host}:{settings.port}")
     uvicorn.run(starlette_app, host=settings.host, port=settings.port)

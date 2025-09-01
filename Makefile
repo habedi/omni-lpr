@@ -156,11 +156,11 @@ docker-run-cpu: ## Run the CPU Docker container
 
 .PHONY: docker-run-cuda
 docker-run-cuda: ## Run the CUDA Docker container
-	docker run --rm -it --gpus all -p $(PORT):$(PORT) $(IMAGE_NAME):cuda
+	docker run --rm -it --gpus all -p $(PORT):$(PORT) -e EXECUTION_DEVICE=cuda $(IMAGE_NAME):cuda
 
 .PHONY: docker-run-openvino
 docker-run-openvino: ## Run the OpenVINO Docker container
-	docker run --rm -it -p $(PORT):$(PORT) $(IMAGE_NAME):openvino
+	docker run --rm -it -p $(PORT):$(PORT) -e EXECUTION_DEVICE=openvino $(IMAGE_NAME):openvino
 
 .PHONY: docker-run
 docker-run: docker-run-cpu ## Run the default Docker container (CPU)
