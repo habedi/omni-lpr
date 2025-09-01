@@ -103,15 +103,22 @@ You should receive a JSON response with the detected license plate information.
 
 Omni-LPR exposes its capabilities as "tools" that can be called via a REST API or over the MCP.
 
-#### Core Tools
+#### Available Tools
 
-- **`list_models`**: Lists the available license plate detector and OCR models.
-- **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
-- **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+The server provides tools for listing models, recognizing plates from image data, and recognizing plates from a path.
 
-The server can accept an image in three ways: a Base64-encoded string, a local file path or a URL, or as a direct file
-upload. For more details on how to use the different tool variations, please see
-the [API Documentation](docs/README.md).
+- **`list_models`**: Lists the available detector and OCR models.
+
+- **Tools that process image data** (provided as Base64 or file upload):
+    - **`recognize_plate`**: Recognizes text from a pre-cropped license plate image.
+    - **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+
+- **Tools that process an image path** (a URL or local file path):
+    - **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given path.
+    - **`detect_and_recognize_plate_from_path`**: Detects and recognizes plates in a full image at a given path.
+
+For more details on how to use the different tools and provide image data, please see the
+[API Documentation](docs/README.md).
 
 #### REST API
 

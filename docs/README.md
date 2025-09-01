@@ -66,9 +66,23 @@ All tool endpoints are available under the `/api/v1` prefix.
 > - **Swagger UI**: [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger)
 > - **ReDoc**: [http://127.0.0.1:8000/apidoc/redoc](http://127.0.0.1:8000/apidoc/redoc)
 
-##### Discovering Tools
+##### Providing Image Data
+
+The server's tools can process images provided in several ways. The key is to use the right tool for your input method:
+
+1. **Image Data (`image_base64`)**: For tools like `recognize_plate` and `detect_and_recognize_plate`, you provide the
+   actual image data. The REST API accepts this data in two formats:
+    - As a **Base64-encoded string** within a JSON object (`"Content-Type: application/json"`).
+    - As a **direct file upload** (`"Content-Type: multipart/form-data"`). The server automatically converts the
+      uploaded file into a Base64 string for the tool.
+
+2. **Image Path (`path`)**: For tools like `recognize_plate_from_path` and `detect_and_recognize_plate_from_path`,
+   you provide a URL or a local file path to the image in a JSON object.
+
+##### Listing Available Tools
 
 To get a list of available tools and their input schemas, send a `GET` request to the `/api/v1/tools` endpoint.
+This helps you see which tools are available and what parameters they expect (for example, `image_base64` or `path`).
 
 ```sh
 curl http://localhost:8000/api/v1/tools
@@ -76,20 +90,15 @@ curl http://localhost:8000/api/v1/tools
 
 This will return a JSON array of tool objects, each with a `name`, `description`, and `input_schema`.
 
-##### Calling a Tool
+##### Invoking a Tool
 
-To call a specific tool, send a `POST` request to the `/api/v1/tools/{tool_name}/invoke` endpoint.
-The request body must be a JSON object matching the tool's `input_schema`.
+To call a specific tool, send a `POST` request to its invocation endpoint: `/api/v1/tools/{tool_name}/invoke`.
 
-The tool can accept an image in three ways:
+###### Example 1: Using a tool that takes image data (`recognize_plate`)
 
-1. A Base64-encoded string in the `image_base64` field.
-2. A local file path or a URL in the `path` field.
-3. As a file upload (`multipart/form-data`).
+This tool expects the `image_base64` parameter. You can provide it via a JSON request or a file upload.
 
-###### Example: Calling `recognize_plate` with different inputs
-
-**Using Base64:**
+**Option A: With a Base64 string in JSON**
 
 ```sh
 # On macOS: base64 -i /path/to/your/image.jpg | pbcopy
@@ -101,21 +110,23 @@ curl -X POST \
   http://localhost:8000/api/v1/tools/recognize_plate/invoke
 ```
 
-**Using a file path or URL:**
-
-```sh
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"path": "/path/to/your/image.jpg"}' \
-  http://localhost:8000/api/v1/tools/recognize_plate_from_path/invoke
-```
-
-**Using a file upload:**
+**Option B: With a direct file upload**
 
 ```sh
 curl -X POST \
   -F "image=@/path/to/your/image.jpg" \
   http://localhost:8000/api/v1/tools/recognize_plate/invoke
+```
+
+###### Example 2: Using a tool that takes an image path (`recognize_plate_from_path`)
+
+This tool expects the `path` parameter, which can be a URL or a local file path accessible by the server.
+
+```sh
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"path": "https://www.olavsplates.com/foto_n/n_cx11111.jpg"}' \
+  http://localhost:8000/api/v1/tools/recognize_plate_from_path/invoke
 ```
 
 #### MCP Interface
@@ -151,11 +162,6 @@ a `.env` file if it exists. Command-line arguments take precedence over environm
 
 ### Concurrency and Worker Configuration
 
-Omni-LPR uses Gunicorn to manage multiple worker processes, allowing it to handle many concurrent REST API requests.
-By default, the official Docker images are configured to run with 4 worker processes.
-
-### Concurrency and Worker Configuration
-
 Omni-LPR can be run in two ways: directly via the `omni-lpr` command, or using the official Docker images.
 The way you run it affects how it handles concurrent requests and how you should configure it, especially for the
 stateful MCP interface.
@@ -174,7 +180,7 @@ This setup is ideal for production as it allows the server to handle many REST A
 **Example: Running Docker with a single worker for MCP compatibility**
 
 ```sh
-docker run --rm -it --gpus all -p 8000:8000 \
+docker run --rm -it -p 8000:8000 \
   -e GUNICORN_WORKERS=1 \
   ghcr.io/habedi/omni-lpr-cpu:latest
 ```
@@ -229,7 +235,7 @@ EXECUTION_DEVICE=openvino omni-lpr
 **Example: Forcing OpenVINO execution**
 
 ```sh
-docker run --rm -it --gpus all -p 8000:8000 \
+docker run --rm -it -p 8000:8000 \
   -e EXECUTION_DEVICE=openvino \
   ghcr.io/habedi/omni-lpr-openvino:latest
 ```
