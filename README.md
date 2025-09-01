@@ -117,12 +117,12 @@ the [API Documentation](docs/README.md).
 
 The REST API provides a standard way to interact with the server. All tool endpoints are available under the `/api/v1`
 prefix. Once the server is running, you can access interactive API documentation in the Swagger UI
-at [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger).
+at http://127.0.0.1:8000/apidoc/swagger.
 
 #### MCP Interface
 
 The server also exposes its tools over the MCP for integration with AI agents and LLMs. The MCP endpoint is available at
-`http://127.0.0.1:8000/mcp/sse`.
+http://127.0.0.1:8000/mcp/sse.
 
 You can use a tool like [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore the available MCP
 tools.

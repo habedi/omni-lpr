@@ -121,7 +121,7 @@ curl -X POST \
 #### MCP Interface
 
 The server also exposes its capabilities as tools over the MCP.
-The MCP endpoint is available at `http://127.0.0.1:8000/mcp/sse`.
+The MCP endpoint is available at http://127.0.0.1:8000/mcp/sse.
 
 ##### Available Tools
 
