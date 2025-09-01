@@ -107,15 +107,15 @@ Omni-LPR exposes its capabilities as "tools" that can be called via a REST API o
 
 The server provides tools for listing models, recognizing plates from image data, and recognizing plates from a path.
 
-- **`list_models`**: Lists the available detector and OCR models.
+- `list_models`: Lists the available detector and OCR models.
 
 - **Tools that process image data** (provided as Base64 or file upload):
-    - **`recognize_plate`**: Recognizes text from a pre-cropped license plate image.
-    - **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+    - `recognize_plate`: Recognizes text from a pre-cropped license plate image.
+    - `detect_and_recognize_plate`: Detects and recognizes all license plates in a full image.
 
 - **Tools that process an image path** (a URL or local file path):
-    - **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given path.
-    - **`detect_and_recognize_plate_from_path`**: Detects and recognizes plates in a full image at a given path.
+    - `recognize_plate_from_path`: Recognizes text from a pre-cropped license plate image at a given path.
+    - `detect_and_recognize_plate_from_path`: Detects and recognizes plates in a full image at a given path.
 
 For more details on how to use the different tools and provide image data, please see the
 [API Documentation](docs/README.md).
@@ -205,6 +205,7 @@ Check out the [examples](examples) directory for usage examples.
 - **Performance**
 
     - [x] Asynchronous I/O for concurrent requests.
+    - [x] Simple LRU cache for recently processed images.
     - [ ] Request batching for model inference.
 
 - **Integrations**

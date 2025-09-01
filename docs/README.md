@@ -72,8 +72,8 @@ The server's tools can process images provided in several ways. The key is to us
 
 1. **Image Data (`image_base64`)**: For tools like `recognize_plate` and `detect_and_recognize_plate`, you provide the
    actual image data. The REST API accepts this data in two formats:
-    - As a **Base64-encoded string** within a JSON object (`"Content-Type: application/json"`).
-    - As a **direct file upload** (`"Content-Type: multipart/form-data"`). The server automatically converts the
+    - As a Base64-encoded string within a JSON object (`"Content-Type: application/json"`).
+    - As a direct file upload (`"Content-Type: multipart/form-data"`). The server automatically converts the
       uploaded file into a Base64 string for the tool.
 
 2. **Image Path (`path`)**: For tools like `recognize_plate_from_path` and `detect_and_recognize_plate_from_path`,
@@ -138,13 +138,13 @@ The MCP endpoint is available at http://127.0.0.1:8000/mcp/sse.
 
 The following tools are implemented and can be called via the MCP interface:
 
-* **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
-* **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given URL or local file
+* `recognize_plate`: Recognizes text from a pre-cropped image of a license plate.
+* `recognize_plate_from_path`: Recognizes text from a pre-cropped license plate image at a given URL or local file
   path.
-* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in an image.
-* **`detect_and_recognize_plate_from_path`**: Detects and recognizes license plates from an image at a given URL or
+* `detect_and_recognize_plate`: Detects and recognizes all license plates in an image.
+* `detect_and_recognize_plate_from_path`: Detects and recognizes license plates from an image at a given URL or
   local file path.
-* **`list_models`**: Lists the available detector and OCR models.
+* `list_models`: Lists the available detector and OCR models.
 
 ### Startup Configuration
 
