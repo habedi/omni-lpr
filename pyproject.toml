@@ -1,7 +1,7 @@
 [project]
 name = "omni-lpr"
 version = "0.2.2"
-description = " A multi-interface (REST and MCP) server for automatic license plate recognition"
+description = "A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [
