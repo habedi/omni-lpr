@@ -1,6 +1,6 @@
 [project]
 name = "omni-lpr"
-version = "0.2.2"
+version = "0.3.0"
 description = "A multi-interface (REST and MCP) server for automatic license plate recognition"
 readme = "README.md"
 license = { text = "MIT" }
@@ -53,6 +53,7 @@ dependencies = [
     "pydantic (>=2.11.7,<3.0.0)",
     "spectree[starlette] (>=1.5.4,<2.0.0)",
     "async-lru (>=2.0.4,<3.0.0)",
+    "opencv-python (>=4.12.0.88,<5.0.0.0)",
 ]
 
 [project.optional-dependencies]

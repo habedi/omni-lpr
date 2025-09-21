@@ -7,16 +7,16 @@
     "url": "https://github.com/habedi/omni-lpr",
     "source": "github"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
       "identifier": "omni-lpr",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "transport": {
-        "type": "sse",
-        "url": "http://localhost:8080/mcp/sse"
+        "type": "streamable-http",
+        "url": "http://localhost:8000/mcp"
       }
     }
   ]
