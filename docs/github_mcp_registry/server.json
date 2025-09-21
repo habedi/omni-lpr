@@ -16,7 +16,7 @@
       "version": "0.3.0",
       "transport": {
         "type": "streamable-http",
-        "url": "http://localhost:8000/mcp"
+        "url": "http://localhost:8000/mcp/"
       }
     }
   ]
