@@ -1,13 +1,17 @@
 import logging
+from contextlib import asynccontextmanager
 
 import click
-from mcp.server.sse import SseServerTransport
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from pythonjsonlogger import jsonlogger
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, Response
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
+from starlette.types import Receive, Scope, Send
 
-from .mcp import app
+from .event_store import InMemoryEventStore
+from .mcp import app as mcp_app
 from .settings import settings
 from .tools import setup_cache, setup_tools
 
@@ -23,63 +27,79 @@ def setup_logging(log_level: str):
     _logger.info(f"Logging configured with level: {log_level.upper()}")
 
 
-sse = SseServerTransport("/mcp/messages/")
-
-
-async def handle_sse(request):
-    async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
-        await app.run(streams[0], streams[1], app.create_initialization_options())
-    return Response()
-
-
 async def health_check(_request):
-    """
-    Health check endpoint.
-    Returns the status of the server and the server version.
-    """
+    """Health check endpoint."""
     _logger.debug("Health check requested.")
     return JSONResponse({"status": "ok", "version": settings.pkg_version})
 
 
-# Create app in global scope so it can be imported, but without routes.
-# Routes will be added in main() after tools are set up.
-starlette_app = Starlette(debug=True)
+# --- Setup Streamable HTTP Manager for the main app ---
+event_store = InMemoryEventStore()
+session_manager = StreamableHTTPSessionManager(app=mcp_app, event_store=event_store)
 
 
-def setup_app_routes(app: Starlette):
+async def handle_streamable_http(scope: Scope, receive: Receive, send: Send) -> None:
+    """ASGI handler for streamable HTTP connections."""
+    await session_manager.handle_request(scope, receive, send)
+
+
+@asynccontextmanager
+async def lifespan(app: Starlette):
+    """Context manager for managing the session manager lifecycle."""
+    async with session_manager.run():
+        _logger.info("Application started with StreamableHTTP session manager.")
+        try:
+            yield
+        finally:
+            _logger.info("Application shutting down...")
+
+
+# Create main app with lifespan manager
+starlette_app = Starlette(debug=True, lifespan=lifespan)
+
+
+def setup_app_routes(main_app: Starlette):
     """Adds routes to the Starlette application."""
     from .rest import api_spec, setup_rest_routes
 
-    # The /api/health endpoint can now be documented as well if desired
+    # 1. Create a separate sub-application for the documented v1 API
+    api_v1_app = Starlette()
+    api_v1_app.router.routes.extend(setup_rest_routes())
+
+    # 2. Register spectree only on the sub-application
+    api_spec.register(api_v1_app)
+
+    # 3. Define other routes for the main application
     health_route = Route("/api/health", endpoint=health_check, methods=["GET"])
 
-    app.routes.extend(
+    # 4. Mount the sub-app and add other routes to the main app
+    main_app.routes.extend(
         [
-            Route("/mcp/sse", endpoint=handle_sse, methods=["GET"]),
-            Mount("/mcp/messages/", app=sse.handle_post_message),
+            Mount("/mcp/", app=handle_streamable_http),
             health_route,
-            # Mount all the new, documented v1 API routes under /api/v1
-            Mount("/api/v1", routes=setup_rest_routes()),
+            Mount("/api/v1", app=api_v1_app),
         ]
     )
-    # Register the Spectree documentation generator with the app
-    api_spec.register(app)
 
 
-# --- FIX: Run setup logic at import time ---
-# This ensures that when Gunicorn imports `starlette_app`, it is already
-# fully configured with its tools and routes.
+# Run setup logic at import time
 setup_tools()
 setup_app_routes(starlette_app)
 
-
-# --- END FIX ---
+# Wrap the final app with CORS middleware
+starlette_app = CORSMiddleware(
+    starlette_app,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "DELETE"],
+    expose_headers=["Mcp-Session-Id"],
+)
 
 
 @click.command()
 @click.option("--host", default=None, help="The host to bind to.", envvar="HOST")
 @click.option("--port", default=None, type=int, help="The port to bind to.", envvar="PORT")
 @click.option("--log-level", default=None, help="The log level to use.", envvar="LOG_LEVEL")
+# ... (the rest of the file is unchanged) ...
 @click.option(
     "--default-ocr-model",
     default=None,
@@ -134,14 +154,11 @@ def main(
     if model_cache_size:
         settings.model_cache_size = model_cache_size
 
-    # Then, setup logging for the CLI runner
     setup_logging(settings.log_level)
-
-    _logger.info("Setting up tools and cache...")
-    # The setup calls were moved to the global scope and are no longer needed here.
+    _logger.info("Setting up cache...")
     setup_cache()
 
-    _logger.info(f"Starting SSE server on {settings.host}:{settings.port}")
+    _logger.info(f"Starting Streamable HTTP server on {settings.host}:{settings.port}")
     uvicorn.run(starlette_app, host=settings.host, port=settings.port)
     return 0
 

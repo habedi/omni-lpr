@@ -2,32 +2,24 @@ import argparse
 
 import anyio
 from mcp import ClientSession, types
-from mcp.client.sse import sse_client
+from mcp.client.streamable_http import streamablehttp_client
 
 
 async def amain(url: str):
     """Connects to the MCP server and calls the list_models tool."""
-    print(f"Connecting to MCP server using SSE at {url}")
+    print(f"Connecting to MCP server using Streamable HTTP at {url}")
 
     try:
-        # Use the sse_client to get read/write streams over a Server-Sent Events connection
-        async with sse_client(url) as (read, write):
-            # Create a session using the streams
+        # Fix: Unpack all three returned values, ignoring the third.
+        async with streamablehttp_client(url) as (read, write, _):
             async with ClientSession(read, write) as session:
-                # Initialize the connection
                 await session.initialize()
-
                 print("Client initialized.")
 
-                # The tool to call
                 tool_name = "list_models"
-
                 print(f"Calling tool '{tool_name}'")
-
-                # Call the tool
                 result = await session.call_tool(tool_name)
 
-                # Print the result from the response structure
                 print("Response from server:")
                 content_block = result.content[0]
                 if isinstance(content_block, types.TextContent):
@@ -46,7 +38,7 @@ def main():
     parser.add_argument(
         "--url",
         type=str,
-        default="http://127.0.0.1:8000/mcp/sse",
+        default="http://127.0.0.1:8000/mcp/",
         help="The URL for the endpoint.",
     )
     args = parser.parse_args()

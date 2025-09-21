@@ -63,8 +63,8 @@ All tool endpoints are available under the `/api/v1` prefix.
 > [!TIP]
 > This project provides interactive API documentation (Swagger UI and ReDoc). Once the server is running, you can access
 > them at:
-> - **Swagger UI**: [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger)
-> - **ReDoc**: [http://127.0.0.1:8000/apidoc/redoc](http://127.0.0.1:8000/apidoc/redoc)
+> - **Swagger UI**: http://127.0.0.1:8000/api/v1/apidoc/swagger
+> - **ReDoc**: http://127.0.0.1:8000/api/v1/apidoc/redoc
 
 ##### Providing Image Data
 
@@ -72,8 +72,8 @@ The server's tools can process images provided in several ways. The key is to us
 
 1. **Image Data (`image_base64`)**: For tools like `recognize_plate` and `detect_and_recognize_plate`, you provide the
    actual image data. The REST API accepts this data in two formats:
-    - As a **Base64-encoded string** within a JSON object (`"Content-Type: application/json"`).
-    - As a **direct file upload** (`"Content-Type: multipart/form-data"`). The server automatically converts the
+    - As a Base64-encoded string within a JSON object (`"Content-Type: application/json"`).
+    - As a direct file upload (`"Content-Type: multipart/form-data"`). The server automatically converts the
       uploaded file into a Base64 string for the tool.
 
 2. **Image Path (`path`)**: For tools like `recognize_plate_from_path` and `detect_and_recognize_plate_from_path`,
@@ -85,7 +85,7 @@ To get a list of available tools and their input schemas, send a `GET` request t
 This helps you see which tools are available and what parameters they expect (for example, `image_base64` or `path`).
 
 ```sh
-curl http://localhost:8000/api/v1/tools
+curl http://127.0.0.1:8000/api/v1/tools
 ```
 
 This will return a JSON array of tool objects, each with a `name`, `description`, and `input_schema`.
@@ -107,7 +107,7 @@ This tool expects the `image_base64` parameter. You can provide it via a JSON re
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"image_base64": "PASTE_YOUR_BASE64_STRING_HERE"}' \
-  http://localhost:8000/api/v1/tools/recognize_plate/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate/invoke
 ```
 
 **Option B: With a direct file upload**
@@ -115,7 +115,7 @@ curl -X POST \
 ```sh
 curl -X POST \
   -F "image=@/path/to/your/image.jpg" \
-  http://localhost:8000/api/v1/tools/recognize_plate/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate/invoke
 ```
 
 ###### Example 2: Using a tool that takes an image path (`recognize_plate_from_path`)
@@ -126,25 +126,25 @@ This tool expects the `path` parameter, which can be a URL or a local file path 
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"path": "https://www.olavsplates.com/foto_n/n_cx11111.jpg"}' \
-  http://localhost:8000/api/v1/tools/recognize_plate_from_path/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate_from_path/invoke
 ```
 
 #### MCP Interface
 
 The server also exposes its capabilities as tools over the MCP.
-The MCP endpoint is available at http://127.0.0.1:8000/mcp/sse.
+The MCP endpoint is available at http://127.0.0.1:8000/mcp/.
 
 ##### Available Tools
 
 The following tools are implemented and can be called via the MCP interface:
 
-* **`recognize_plate`**: Recognizes text from a pre-cropped image of a license plate.
-* **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given URL or local file
+* `recognize_plate`: Recognizes text from a pre-cropped image of a license plate.
+* `recognize_plate_from_path`: Recognizes text from a pre-cropped license plate image at a given URL or local file
   path.
-* **`detect_and_recognize_plate`**: Detects and recognizes all license plates in an image.
-* **`detect_and_recognize_plate_from_path`**: Detects and recognizes license plates from an image at a given URL or
+* `detect_and_recognize_plate`: Detects and recognizes all license plates in an image.
+* `detect_and_recognize_plate_from_path`: Detects and recognizes license plates from an image at a given URL or
   local file path.
-* **`list_models`**: Lists the available detector and OCR models.
+* `list_models`: Lists the available detector and OCR models.
 
 ### Startup Configuration
 
@@ -174,8 +174,8 @@ The Docker images use Gunicorn as a process manager to run multiple Uvicorn work
 This setup is ideal for production as it allows the server to handle many REST API requests in parallel.
 
 - **Default Behavior**: By default, the Docker images start with 4 worker processes.
-- **The MCP Problem**: The MCP is stateful. With multiple workers, Gunicorn may route requests for the same session to
-  different processes, causing errors.
+- **The MCP Problem**: The MCP is stateful (in most cases). With multiple workers, Gunicorn may route requests for the
+  same session to different processes, causing errors.
 - **Solution**: If you plan to use the MCP interface, you must configure the Docker container to run with only one
   worker. You can do this by setting the `GUNICORN_WORKERS` environment variable.
 

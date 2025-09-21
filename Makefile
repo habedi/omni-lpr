@@ -114,7 +114,7 @@ define run_examples
 	@echo "Starting server in background..."
 	$(DEP_MNGR) run omni-lpr > /dev/null 2>&1 & echo $$! > $(SERVER_PID)
 	@echo "Waiting for server to start..."
-	@while ! nc -z localhost 8000; do sleep 1; done
+	@while ! nc -z 127.0.0.1 8000; do sleep 1; done
 	@echo "Server started. Running $(1) examples..."
 	@for example in $(2); do \
 		echo "\n--- Running $$example ---"; \

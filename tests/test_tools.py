@@ -7,6 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 from mcp import types
+from pydantic import BaseModel
+
 from omni_lpr import tools
 from omni_lpr.errors import ErrorCode, ToolLogicError
 from omni_lpr.tools import (
@@ -19,7 +21,6 @@ from omni_lpr.tools import (
     setup_tools,
     tool_registry as global_tool_registry,
 )
-from pydantic import BaseModel
 
 TINY_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
 

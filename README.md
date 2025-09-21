@@ -18,6 +18,7 @@
 [![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
 [![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
 [![Docker Image (CUDA)](https://img.shields.io/badge/Docker-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
+[![MCP Registry](https://img.shields.io/badge/mcp%20registry-visit-orange?logo=github&logoColor=white)](https://github.com/mcp/habedi/omni-lpr)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
@@ -107,15 +108,15 @@ Omni-LPR exposes its capabilities as "tools" that can be called via a REST API o
 
 The server provides tools for listing models, recognizing plates from image data, and recognizing plates from a path.
 
-- **`list_models`**: Lists the available detector and OCR models.
+- `list_models`: Lists the available detector and OCR models.
 
 - **Tools that process image data** (provided as Base64 or file upload):
-    - **`recognize_plate`**: Recognizes text from a pre-cropped license plate image.
-    - **`detect_and_recognize_plate`**: Detects and recognizes all license plates in a full image.
+    - `recognize_plate`: Recognizes text from a pre-cropped license plate image.
+    - `detect_and_recognize_plate`: Detects and recognizes all license plates in a full image.
 
 - **Tools that process an image path** (a URL or local file path):
-    - **`recognize_plate_from_path`**: Recognizes text from a pre-cropped license plate image at a given path.
-    - **`detect_and_recognize_plate_from_path`**: Detects and recognizes plates in a full image at a given path.
+    - `recognize_plate_from_path`: Recognizes text from a pre-cropped license plate image at a given path.
+    - `detect_and_recognize_plate_from_path`: Detects and recognizes plates in a full image at a given path.
 
 For more details on how to use the different tools and provide image data, please see the
 [API Documentation](docs/README.md).
@@ -124,19 +125,19 @@ For more details on how to use the different tools and provide image data, pleas
 
 The REST API provides a standard way to interact with the server. All tool endpoints are available under the `/api/v1`
 prefix. Once the server is running, you can access interactive API documentation in the Swagger UI
-at http://127.0.0.1:8000/apidoc/swagger.
+at http://127.0.0.1:8000/api/v1/apidoc/swagger.
 
 #### MCP Interface
 
 The server also exposes its tools over the MCP for integration with AI agents and LLMs. The MCP endpoint is available at
-http://127.0.0.1:8000/mcp/sse.
+http://127.0.0.1:8000/mcp/, via streamable HTTP.
 
 You can use a tool like [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore the available MCP
 tools.
 
 <div align="center">
   <picture>
-    <img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto">
+    <img src="docs/assets/screenshots/mcp-inspector-3.png" alt="MCP Inspector Screenshot" width="auto">
   </picture>
 </div>
 
@@ -151,7 +152,7 @@ The following examples show how to use the server with [LM Studio](https://lmstu
 {
     "mcpServers": {
         "omni-lpr-local": {
-            "url": "http://localhost:8000/mcp/sse"
+            "url": "http://127.0.0.1:8000/mcp/"
         }
     }
 }
@@ -201,10 +202,12 @@ Check out the [examples](examples) directory for usage examples.
     - [x] Standardized JSON error responses.
     - [x] Interactive API documentation (Swagger UI and ReDoc).
     - [x] Support for direct image uploads (`multipart/form-data`).
+    - [x] Switch from deprecated SSE to streamable HTTP for transport.
 
 - **Performance**
 
     - [x] Asynchronous I/O for concurrent requests.
+    - [x] Simple LRU cache for recently processed images.
     - [ ] Request batching for model inference.
 
 - **Integrations**

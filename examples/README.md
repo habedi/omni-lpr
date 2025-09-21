@@ -4,7 +4,7 @@ This directory contains examples of how to use the Omni-LPR server via the REST 
 
 ### Prerequisites
 
-Before running the examples, ensure the Omni-LPR server is running.
+Before running the examples, make sure the Omni-LPR server is running.
 
 If you have installed the package via `pip`, you can start the server with:
 
