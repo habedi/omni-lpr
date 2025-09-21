@@ -85,7 +85,7 @@ To get a list of available tools and their input schemas, send a `GET` request t
 This helps you see which tools are available and what parameters they expect (for example, `image_base64` or `path`).
 
 ```sh
-curl http://localhost:8000/api/v1/tools
+curl http://127.0.0.1:8000/api/v1/tools
 ```
 
 This will return a JSON array of tool objects, each with a `name`, `description`, and `input_schema`.
@@ -107,7 +107,7 @@ This tool expects the `image_base64` parameter. You can provide it via a JSON re
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"image_base64": "PASTE_YOUR_BASE64_STRING_HERE"}' \
-  http://localhost:8000/api/v1/tools/recognize_plate/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate/invoke
 ```
 
 **Option B: With a direct file upload**
@@ -115,7 +115,7 @@ curl -X POST \
 ```sh
 curl -X POST \
   -F "image=@/path/to/your/image.jpg" \
-  http://localhost:8000/api/v1/tools/recognize_plate/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate/invoke
 ```
 
 ###### Example 2: Using a tool that takes an image path (`recognize_plate_from_path`)
@@ -126,7 +126,7 @@ This tool expects the `path` parameter, which can be a URL or a local file path 
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"path": "https://www.olavsplates.com/foto_n/n_cx11111.jpg"}' \
-  http://localhost:8000/api/v1/tools/recognize_plate_from_path/invoke
+  http://127.0.0.1:8000/api/v1/tools/recognize_plate_from_path/invoke
 ```
 
 #### MCP Interface

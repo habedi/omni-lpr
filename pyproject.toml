@@ -20,7 +20,8 @@ keywords = [
     "mcp",
     "microservice",
     "onnx",
-    "cuda"
+    "cuda",
+    "mcp-name:io.github.habedi/omni-lpr",
 ]
 
 classifiers = [

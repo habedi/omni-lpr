@@ -18,6 +18,7 @@
 [![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
 [![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
 [![Docker Image (CUDA)](https://img.shields.io/badge/Docker-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
+[![MCP Registry](https://img.shields.io/badge/mcp%20registry-visit-orange?logo=github&logoColor=white)](https://github.com/mcp/habedi/omni-lpr)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
@@ -151,7 +152,7 @@ The following examples show how to use the server with [LM Studio](https://lmstu
 {
     "mcpServers": {
         "omni-lpr-local": {
-            "url": "http://localhost:8000/mcp/"
+            "url": "http://127.0.0.1:8000/mcp/"
         }
     }
 }
