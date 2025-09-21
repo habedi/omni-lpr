@@ -1,34 +1,34 @@
-import json
+# File: tests/test_mcp_protocol.py
 
 import pytest
 
 
 @pytest.mark.asyncio
-async def test_mcp_root_endpoint(test_app_client):
-    """The MCP Streamable HTTP transport should expose a root endpoint."""
-    resp = await test_app_client.get("/mcp/v1/root")
-    assert resp.status_code in [200, 404, 405]
-    # If 200 OK, ensure it's JSON with some structure
-    if resp.status_code == 200:
-        data = resp.json()
-        assert isinstance(data, dict)
-
-
-@pytest.mark.asyncio
-async def test_mcp_requests_endpoint_invalid_payload(test_app_client):
-    """Posting an invalid payload to the requests endpoint should not 500.
-
-    We accept any 4xx/405 response here to confirm the route is wired
-    and handled by the MCP transport.
+async def test_mcp_post_endpoint_invalid_payload(test_app_client):
     """
+    Posting an invalid payload to the MCP endpoint should result in a client error.
+    We accept any 4xx response here to confirm the route is wired correctly.
+    """
+    # Note: Added trailing slash to URL to avoid 307 redirect
     # Empty body
-    resp = await test_app_client.post("/mcp/v1/requests", content="")
-    assert resp.status_code in [400, 404, 405, 415, 422]
+    resp = await test_app_client.post("/mcp/", content="")
+    assert 400 <= resp.status_code < 500
 
     # Invalid JSON
     resp = await test_app_client.post(
-        "/mcp/v1/requests",
+        "/mcp/",
         headers={"Content-Type": "application/json"},
         content="{not: valid}",
     )
-    assert resp.status_code in [400, 404, 405, 415, 422]
+    assert 400 <= resp.status_code < 500
+
+
+@pytest.mark.asyncio
+async def test_mcp_get_endpoint_for_session(test_app_client):
+    """
+    A GET request without a session ID should be handled gracefully.
+    The MCP server should respond with a 4xx error if the session is not found.
+    """
+    # Note: Added trailing slash to URL to avoid the HTTP 307 redirect
+    resp = await test_app_client.get("/mcp/")
+    assert 400 <= resp.status_code < 500
