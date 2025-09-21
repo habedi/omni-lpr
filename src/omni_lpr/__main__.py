@@ -11,7 +11,7 @@ from starlette.routing import Mount, Route
 from starlette.types import Receive, Scope, Send
 
 from .event_store import InMemoryEventStore
-from .mcp import app
+from .mcp import app as mcp_app
 from .settings import settings
 from .tools import setup_cache, setup_tools
 
@@ -28,17 +28,14 @@ def setup_logging(log_level: str):
 
 
 async def health_check(_request):
-    """
-    Health check endpoint.
-    Returns the status of the server and the server version.
-    """
+    """Health check endpoint."""
     _logger.debug("Health check requested.")
     return JSONResponse({"status": "ok", "version": settings.pkg_version})
 
 
-# --- Setup Streamable HTTP Manager ---
+# --- Setup Streamable HTTP Manager for the main app ---
 event_store = InMemoryEventStore()
-session_manager = StreamableHTTPSessionManager(app=app, event_store=event_store)
+session_manager = StreamableHTTPSessionManager(app=mcp_app, event_store=event_store)
 
 
 async def handle_streamable_http(scope: Scope, receive: Receive, send: Send) -> None:
@@ -57,29 +54,35 @@ async def lifespan(app: Starlette):
             _logger.info("Application shutting down...")
 
 
-# Create the app with a lifespan manager
+# Create main app with lifespan manager
 starlette_app = Starlette(debug=True, lifespan=lifespan)
 
 
-def setup_app_routes(app_instance: Starlette):
+def setup_app_routes(main_app: Starlette):
     """Adds routes to the Starlette application."""
     from .rest import api_spec, setup_rest_routes
 
+    # 1. Create a separate sub-application for the documented v1 API
+    api_v1_app = Starlette()
+    api_v1_app.router.routes.extend(setup_rest_routes())
+
+    # 2. Register spectree only on the sub-application
+    api_spec.register(api_v1_app)
+
+    # 3. Define other routes for the main application
     health_route = Route("/api/health", endpoint=health_check, methods=["GET"])
 
-    app_instance.routes.extend(
+    # 4. Mount the sub-app and add other routes to the main app
+    main_app.routes.extend(
         [
-            Mount("/mcp", app=handle_streamable_http),
+            Mount("/mcp/", app=handle_streamable_http),
             health_route,
-            Mount("/api/v1", routes=setup_rest_routes()),
+            Mount("/api/v1", app=api_v1_app),
         ]
     )
-    api_spec.register(app_instance)
 
 
-# --- Run setup logic at import time ---
-# This ensures that when Gunicorn imports `starlette_app`, it is already
-# fully configured with its tools and routes.
+# Run setup logic at import time
 setup_tools()
 setup_app_routes(starlette_app)
 
@@ -96,6 +99,7 @@ starlette_app = CORSMiddleware(
 @click.option("--host", default=None, help="The host to bind to.", envvar="HOST")
 @click.option("--port", default=None, type=int, help="The port to bind to.", envvar="PORT")
 @click.option("--log-level", default=None, help="The log level to use.", envvar="LOG_LEVEL")
+# ... (the rest of the file is unchanged) ...
 @click.option(
     "--default-ocr-model",
     default=None,

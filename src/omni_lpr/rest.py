@@ -20,16 +20,16 @@ from .tools import tool_registry
 # Initialize logger
 _logger = logging.getLogger(__name__)
 
-# 1. Initialize Spectree for API documentation generation
-# This instance will be used to decorate and document our endpoints.
+# Initialize Spectree for API documentation generation
 api_spec = SpecTree(
     "starlette",
     title="Omni-LPR REST API",
     description="A multi-interface server for automatic license plate recognition.",
     version=settings.pkg_version,
     mode="strict",
-    swagger_url="/api/v1/docs",
-    redoc_url="/api/v1/redoc",
+    # Fix: Make doc paths relative to the sub-app's root
+    swagger_url="/docs",
+    redoc_url="/redoc",
     naming_strategy=lambda model: model.__name__,
 )
 
@@ -40,7 +40,6 @@ async def list_tools(request: Request) -> JSONResponse:
     Lists all available tools.
     """
     tools = tool_registry.list()
-    # The tool definitions are TypedDicts, convert them to dicts for the response model
     tool_dicts = [dict(t) for t in tools]
     response_data = ToolListResponse(tools=tool_dicts)
     return JSONResponse(response_data.model_dump())
@@ -49,25 +48,6 @@ async def list_tools(request: Request) -> JSONResponse:
 async def _parse_tool_arguments(request: Request, model: BaseModel) -> BaseModel:
     """
     Parses and validates tool arguments from an incoming request.
-
-    This function dynamically handles different `Content-Type` headers to
-    extract arguments for a tool call. It supports:
-    - `application/json`: Parses the request body as JSON.
-    - `multipart/form-data`: Handles file uploads and other form fields.
-      Specifically, it looks for an `image` field, reads its bytes,
-      and encodes it as a Base64 string under the `image_base64` key.
-
-    Args:
-        request: The incoming `starlette.requests.Request` object.
-        model: The Pydantic model to validate the extracted arguments against.
-
-    Returns:
-        An instance of the provided Pydantic `model` populated with the
-        validated arguments.
-
-    Raises:
-        ValueError: If the `Content-Type` is unsupported, or if a
-                    `multipart/form-data` request is missing the `image` part.
     """
     content_type = request.headers.get("content-type", "")
 
@@ -91,7 +71,6 @@ async def _parse_tool_arguments(request: Request, model: BaseModel) -> BaseModel
         params["image_base64"] = image_base64
         return model(**params)
 
-    # Handle cases with no body or unsupported content types
     if model.model_fields:
         _logger.warning(f"Unsupported Content-Type: {content_type}")
         raise ValueError("Unsupported Content-Type. Use application/json or multipart/form-data.")
@@ -99,7 +78,6 @@ async def _parse_tool_arguments(request: Request, model: BaseModel) -> BaseModel
         return model()
 
 
-# 2. Define the core tool invocation endpoint logic
 @api_spec.validate(
     resp=Response(
         HTTP_200=ToolResponse,
@@ -153,7 +131,6 @@ async def invoke_tool(request: Request) -> JSONResponse:
         return JSONResponse(error.model_dump(), status_code=500)
 
 
-# 3. Create a function to set up all v1 routes
 def setup_rest_routes() -> list[Route]:
     """
     Creates and decorates all REST API routes.
@@ -162,7 +139,4 @@ def setup_rest_routes() -> list[Route]:
         Route("/tools", endpoint=list_tools, methods=["GET"]),
         Route("/tools/{tool_name}/invoke", endpoint=invoke_tool, methods=["POST"]),
     ]
-
-    # Note: The GET /tools endpoint can be added here as well and decorated similarly.
-
     return routes

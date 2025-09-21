@@ -1,5 +1,3 @@
-# File: examples/mcp/recognize_plate_example.py
-
 import os
 import sys
 

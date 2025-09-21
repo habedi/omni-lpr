@@ -124,19 +124,19 @@ For more details on how to use the different tools and provide image data, pleas
 
 The REST API provides a standard way to interact with the server. All tool endpoints are available under the `/api/v1`
 prefix. Once the server is running, you can access interactive API documentation in the Swagger UI
-at http://127.0.0.1:8000/apidoc/swagger.
+at http://127.0.0.1:8000/api/v1/apidoc/swagger.
 
 #### MCP Interface
 
 The server also exposes its tools over the MCP for integration with AI agents and LLMs. The MCP endpoint is available at
-http://127.0.0.1:8000/mcp/sse.
+http://127.0.0.1:8000/mcp/, via streamable HTTP.
 
 You can use a tool like [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to explore the available MCP
 tools.
 
 <div align="center">
   <picture>
-    <img src="docs/assets/screenshots/mcp-inspector-2.png" alt="MCP Inspector Screenshot" width="auto">
+    <img src="docs/assets/screenshots/mcp-inspector-3.png" alt="MCP Inspector Screenshot" width="auto">
   </picture>
 </div>
 
@@ -151,7 +151,7 @@ The following examples show how to use the server with [LM Studio](https://lmstu
 {
     "mcpServers": {
         "omni-lpr-local": {
-            "url": "http://localhost:8000/mcp/sse"
+            "url": "http://localhost:8000/mcp/"
         }
     }
 }
@@ -201,6 +201,7 @@ Check out the [examples](examples) directory for usage examples.
     - [x] Standardized JSON error responses.
     - [x] Interactive API documentation (Swagger UI and ReDoc).
     - [x] Support for direct image uploads (`multipart/form-data`).
+    - [x] Switch from deprecated SSE to streamable HTTP for transport.
 
 - **Performance**
 

@@ -1,5 +1,3 @@
-# File: examples/mcp/list_models_example.py
-
 import argparse
 
 import anyio

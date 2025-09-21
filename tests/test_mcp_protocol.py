@@ -1,5 +1,3 @@
-# File: tests/test_mcp_protocol.py
-
 import pytest
 
 

@@ -1,5 +1,3 @@
-# File: tests/conftest.py
-
 from contextlib import asynccontextmanager
 from pathlib import Path
 

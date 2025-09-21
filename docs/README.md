@@ -63,8 +63,8 @@ All tool endpoints are available under the `/api/v1` prefix.
 > [!TIP]
 > This project provides interactive API documentation (Swagger UI and ReDoc). Once the server is running, you can access
 > them at:
-> - **Swagger UI**: [http://127.0.0.1:8000/apidoc/swagger](http://127.0.0.1:8000/apidoc/swagger)
-> - **ReDoc**: [http://127.0.0.1:8000/apidoc/redoc](http://127.0.0.1:8000/apidoc/redoc)
+> - **Swagger UI**: http://127.0.0.1:8000/api/v1/apidoc/swagger
+> - **ReDoc**: http://127.0.0.1:8000/api/v1/apidoc/redoc
 
 ##### Providing Image Data
 
@@ -132,7 +132,7 @@ curl -X POST \
 #### MCP Interface
 
 The server also exposes its capabilities as tools over the MCP.
-The MCP endpoint is available at http://127.0.0.1:8000/mcp/sse.
+The MCP endpoint is available at http://127.0.0.1:8000/mcp/.
 
 ##### Available Tools
 
@@ -174,8 +174,8 @@ The Docker images use Gunicorn as a process manager to run multiple Uvicorn work
 This setup is ideal for production as it allows the server to handle many REST API requests in parallel.
 
 - **Default Behavior**: By default, the Docker images start with 4 worker processes.
-- **The MCP Problem**: The MCP is stateful. With multiple workers, Gunicorn may route requests for the same session to
-  different processes, causing errors.
+- **The MCP Problem**: The MCP is stateful (in most cases). With multiple workers, Gunicorn may route requests for the
+  same session to different processes, causing errors.
 - **Solution**: If you plan to use the MCP interface, you must configure the Docker container to run with only one
   worker. You can do this by setting the `GUNICORN_WORKERS` environment variable.
 
