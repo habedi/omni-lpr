@@ -242,3 +242,6 @@ Omni-LPR is licensed under the MIT License (see [LICENSE](LICENSE)).
 - This project uses the awesome [fast-plate-ocr](https://github.com/ankandrew/fast-plate-ocr)
   and [fast-alpr](https://github.com/ankandrew/fast-alpr) Python libraries.
 - The project logo is from [SVG Repo](https://www.svgrepo.com/svg/237124/license-plate-number).
+
+<!-- Need to add this line for MCP registry publication -->
+<!-- mcp-name: io.github.habedi/omni-lpr -->
