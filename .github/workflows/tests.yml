@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   push:
     tags:
       - "v*"
@@ -14,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
 
     strategy:

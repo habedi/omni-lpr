@@ -13,12 +13,11 @@
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
 [![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
 <br>
-[![Documentation](https://img.shields.io/badge/docs-view-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
+[![Documentation](https://img.shields.io/badge/docs-read-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
 [![Examples](https://img.shields.io/badge/examples-view-green?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/examples)
 [![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
 [![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
 [![Docker Image (CUDA)](https://img.shields.io/badge/Docker-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
-[![MCP Registry](https://img.shields.io/badge/mcp%20registry-visit-orange?logo=github&logoColor=white)](https://github.com/mcp/habedi/omni-lpr)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
@@ -52,6 +51,9 @@ Using Omni-LPR can have the following benefits:
 - **Scalability.** Because it's a separate service, it can be scaled independently of your main application. If you
   suddenly need more ALPR power, you can scale Omni-LPR up without touching anything else.
 
+
+See the [ROADMAP.md](ROADMAP.md) for the list of implemented and planned features.
+
 > [!IMPORTANT]
 > Omni-LPR is in early development, so bugs and breaking API changes are expected.
 > Please use the [issues page](https://github.com/habedi/omni-lpr/issues) to report bugs or request features.
@@ -83,7 +85,7 @@ You can confirm it's running by accessing the health check endpoint:
 
 ```sh
 curl http://127.0.0.1:8000/api/health
-# Expected output: {"status": "ok", "version": "0.2.1"}
+# Sample expected output: {"status": "ok", "version": "0.3.4"}
 ```
 
 #### 3. Recognize a License Plate
@@ -181,50 +183,11 @@ the license plate from an [image available on the web](https://www.olavsplates.c
 
 ### Documentation
 
-Omni-LPR's documentation is available [here](docs).
+Omni-LPR documentation is available [here](docs).
 
-### Examples
+#### Examples
 
 Check out the [examples](examples) directory for usage examples.
-
-### Feature Roadmap
-
-- **Core ALPR Capabilities**
-
-    - [x] License plate detection.
-    - [x] License plate recognition.
-    - [x] Optimized models for CPU, OpenVINO, and CUDA backends.
-
-- **Interfaces and Developer Experience**
-
-    - [x] MCP interface for AI agent integration.
-    - [x] REST API for all core functions/tools.
-    - [x] Standardized JSON error responses.
-    - [x] Interactive API documentation (Swagger UI and ReDoc).
-    - [x] Support for direct image uploads (`multipart/form-data`).
-    - [x] Switch from deprecated SSE to streamable HTTP for transport.
-
-- **Performance**
-
-    - [x] Asynchronous I/O for concurrent requests.
-    - [x] Simple LRU cache for recently processed images.
-    - [ ] Request batching for model inference.
-
-- **Integrations**
-
-    - [x] Standalone microservice architecture.
-    - [x] MCP and REST API usage examples.
-    - [ ] A Python client library to simplify interaction with the REST API.
-
-- **Deployment**
-
-    - [x] Pre-built Docker images for each hardware backend.
-    - [x] Configuration via environment variables and CLI arguments.
-    - [ ] A Helm chart for Kubernetes deployment.
-
-- **Benchmarks**
-
-    - [ ] Performance benchmarks for different hardware and request types.
 
 ---
 
