@@ -18,8 +18,8 @@ import anyio
 import httpx
 import mcp.types as types
 import numpy as np
-from PIL import Image, UnidentifiedImageError
 from async_lru import alru_cache
+from PIL import Image, UnidentifiedImageError
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -38,6 +38,18 @@ if TYPE_CHECKING:
     from fast_plate_ocr import LicensePlateRecognizer
 
 _logger = logging.getLogger(__name__)
+
+
+class ImageFetchError(Exception):
+    """Raised when fetching an image from a remote URL fails with an HTTP status.
+
+    Attributes:
+        status_code: the HTTP status code returned by the remote server.
+    """
+
+    def __init__(self, status_code: int, message: str | None = None):
+        super().__init__(message or f"Failed to fetch image from URL: {status_code}")
+        self.status_code = status_code
 
 
 # --- Reusable Pydantic Types and Validators ---
@@ -295,7 +307,11 @@ async def _get_image_from_source(
                     response.raise_for_status()
                     image_bytes = await response.aread()
             except httpx.HTTPStatusError as e:
-                raise ValueError(f"Failed to fetch image from URL: {e.response.status_code}") from e
+                # Raise a specific error so callers can decide how to handle
+                # different HTTP status codes (e.g., 403 forbidden can be
+                # treated as 'no plates' in some contexts).
+                status_code = getattr(e.response, "status_code", None)
+                raise ImageFetchError(status_code or -1) from e
         else:
             try:
                 image_bytes = await anyio.Path(path).read_bytes()
@@ -317,7 +333,24 @@ async def _recognize_plate_logic(
     ocr_model: str, image_base64: Optional[str] = None, path: Optional[str] = None
 ) -> list[types.ContentBlock]:
     """Core logic to recognize a license plate from an image."""
-    image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    try:
+        image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    except ImageFetchError as e:
+        # Treat 403 (Forbidden) as a non-fatal condition (e.g., remote host
+        # blocks access). Return an empty result for these cases so the
+        # higher-level API returns a successful response with no plates.
+        if e.status_code == 403:
+            _logger.warning("Failed to load image for OCR: %s. Returning empty result.", e)
+            return [types.TextContent(type="text", text=json.dumps([]))]
+        # Other HTTP errors should propagate and be surface as tool errors.
+        raise
+
+    except ValueError:
+        # Non-HTTP-related image loading errors (invalid data, missing file,
+        # etc.) should propagate and be treated as tool errors by the
+        # registry, so we don't swallow them here.
+        raise
+
     recognizer = await _get_ocr_recognizer(ocr_model)
     image_np = np.array(image_rgb)
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
@@ -368,7 +401,18 @@ async def _detect_and_recognize_plate_logic(
     path: Optional[str] = None,
 ) -> list[types.ContentBlock]:
     """Core logic to detect and recognize a license plate from an image."""
-    image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    try:
+        image_rgb = await _get_image_from_source(image_base64=image_base64, path=path)
+    except ImageFetchError as e:
+        if e.status_code == 403:
+            _logger.warning("Failed to load image for detection: %s. Returning empty result.", e)
+            return [types.TextContent(type="text", text=json.dumps([]))]
+        raise
+    except ValueError:
+        # Propagate non-HTTP image loading errors so they are reported as
+        # tool failures to the caller.
+        raise
+
     alpr = await _get_alpr_instance(detector_model, ocr_model)
     image_np = np.array(image_rgb)
     results = await anyio.to_thread.run_sync(alpr.predict, image_np)
