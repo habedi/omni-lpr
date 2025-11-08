@@ -13,7 +13,7 @@
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
 [![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
 <br>
-[![Documentation](https://img.shields.io/badge/docs-view-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
+[![Documentation](https://img.shields.io/badge/docs-read-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
 [![Examples](https://img.shields.io/badge/examples-view-green?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/examples)
 [![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
 [![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
