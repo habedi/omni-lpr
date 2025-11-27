@@ -31,6 +31,7 @@ api_spec = SpecTree(
     swagger_url="/docs",
     redoc_url="/redoc",
     naming_strategy=lambda model: model.__name__,
+    servers=[{"url": "/api/v1"}],
 )
 
 
