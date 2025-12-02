@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from omni_lpr import tools
 from omni_lpr.errors import ErrorCode, ToolLogicError
+from omni_lpr.settings import settings
 from omni_lpr.tools import (
     DetectorModel,
     ListModelsArgs,
@@ -23,6 +24,10 @@ from omni_lpr.tools import (
 )
 
 TINY_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+
+_MAX_BASE64_LENGTH = int(settings.max_image_size_mb * 1024 * 1024 * 4 / 3)
+_NEXT_BASE64_MULTIPLE_OF_4 = 4 - (_MAX_BASE64_LENGTH % 4)
+OVERSIZED_BASE64 = "a" * (_MAX_BASE64_LENGTH + _NEXT_BASE64_MULTIPLE_OF_4)
 
 
 @dataclass
@@ -233,9 +238,9 @@ async def test_detect_and_recognize_plate_path_tool_success(mocker, mock_alpr_re
     [
         ("recognize_plate", {"image_base64": ""}, "image_base64 cannot be empty"),
         (
-                "recognize_plate",
-                {"image_base64": "a" * 7000001},
-                "Input image is too large",
+            "recognize_plate",
+            {"image_base64": OVERSIZED_BASE64},
+            "Input image is too large",
         ),
         ("recognize_plate", {"image_base64": "not-base64"}, "Invalid base64 string"),
         ("recognize_plate_from_path", {"path": " "}, "Path cannot be empty"),

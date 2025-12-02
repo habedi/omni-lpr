@@ -60,14 +60,18 @@ def create_test_app(with_tools: bool = True) -> Starlette:
     from omni_lpr.__main__ import health_check
 
     health_route = Route("/api/health", endpoint=health_check, methods=["GET"])
+
+    api_v1_app = Starlette()
+    api_v1_app.router.routes.extend(setup_rest_routes())
+    api_spec.register(api_v1_app)
+
     app.routes.extend(
         [
             Mount("/mcp/", app=handle_streamable_http),
             health_route,
-            Mount("/api/v1", routes=setup_rest_routes()),
+            Mount("/api/v1", app=api_v1_app),
         ]
     )
-    api_spec.register(app)
     return app
 
 
