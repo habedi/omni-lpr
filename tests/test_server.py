@@ -95,8 +95,8 @@ async def test_tool_invocation_with_multipart_form_data(test_app_client, test_da
 
 @pytest.mark.asyncio
 async def test_swagger_docs_available(test_app_client):
-    """Ensure the Swagger UI endpoint stays reachable under /api/v1/docs."""
-    response = await test_app_client.get("/api/v1/docs")
+    """Ensure the Swagger UI endpoint stays reachable under /api/v1/apidoc/swagger."""
+    response = await test_app_client.get("/api/v1/apidoc/swagger")
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     assert "Swagger UI" in response.text
