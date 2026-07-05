@@ -238,9 +238,9 @@ async def test_detect_and_recognize_plate_path_tool_success(mocker, mock_alpr_re
     [
         ("recognize_plate", {"image_base64": ""}, "image_base64 cannot be empty"),
         (
-            "recognize_plate",
-            {"image_base64": OVERSIZED_BASE64},
-            "Input image is too large",
+                "recognize_plate",
+                {"image_base64": OVERSIZED_BASE64},
+                "Input image is too large",
         ),
         ("recognize_plate", {"image_base64": "not-base64"}, "Invalid base64 string"),
         ("recognize_plate_from_path", {"path": " "}, "Path cannot be empty"),

@@ -18,8 +18,8 @@ import anyio
 import httpx
 import mcp.types as types
 import numpy as np
-from async_lru import alru_cache
 from PIL import Image, UnidentifiedImageError
+from async_lru import alru_cache
 from pydantic import (
     BaseModel,
     ConfigDict,
