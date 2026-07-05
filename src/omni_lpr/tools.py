@@ -356,7 +356,23 @@ async def _recognize_plate_logic(
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
 
     _logger.info(f"License plate recognized: {result}")
-    return [types.TextContent(type="text", text=json.dumps(result))]
+    
+    serialized_result = []
+    for res in result:
+        if isinstance(res, str):
+            serialized_result.append(res)
+        elif hasattr(res, "plate"):
+            res_dict = {
+                "plate": res.plate,
+                "char_probs": res.char_probs.tolist() if getattr(res, "char_probs", None) is not None else None,
+                "region": getattr(res, "region", None),
+                "region_prob": getattr(res, "region_prob", None),
+            }
+            serialized_result.append(res_dict)
+        else:
+            serialized_result.append(res)
+
+    return [types.TextContent(type="text", text=json.dumps(serialized_result))]
 
 
 async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
