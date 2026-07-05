@@ -18,8 +18,8 @@ import anyio
 import httpx
 import mcp.types as types
 import numpy as np
-from async_lru import alru_cache
 from PIL import Image, UnidentifiedImageError
+from async_lru import alru_cache
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -356,7 +356,24 @@ async def _recognize_plate_logic(
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
 
     _logger.info(f"License plate recognized: {result}")
-    return [types.TextContent(type="text", text=json.dumps(result))]
+
+    serialized_result = []
+    for res in result:
+        if isinstance(res, str):
+            serialized_result.append(res)
+        elif hasattr(res, "plate"):
+            char_probs = getattr(res, "char_probs", None)
+            res_dict = {
+                "plate": res.plate,
+                "char_probs": char_probs.tolist() if char_probs is not None else None,
+                "region": getattr(res, "region", None),
+                "region_prob": getattr(res, "region_prob", None),
+            }
+            serialized_result.append(res_dict)
+        else:
+            serialized_result.append(res)
+
+    return [types.TextContent(type="text", text=json.dumps(serialized_result))]
 
 
 async def _get_alpr_instance(detector_model: str, ocr_model: str) -> "ALPR":
@@ -477,6 +494,11 @@ def setup_cache():
     `model_cache_size` from the settings.
     """
     global _get_ocr_recognizer, _get_alpr_instance
+    if hasattr(_get_ocr_recognizer, "__wrapped__"):
+        _get_ocr_recognizer = _get_ocr_recognizer.__wrapped__
+    if hasattr(_get_alpr_instance, "__wrapped__"):
+        _get_alpr_instance = _get_alpr_instance.__wrapped__
+
     _get_ocr_recognizer = alru_cache(maxsize=settings.model_cache_size)(_get_ocr_recognizer)
     _get_alpr_instance = alru_cache(maxsize=settings.model_cache_size)(_get_alpr_instance)
 

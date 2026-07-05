@@ -100,3 +100,58 @@ async def test_swagger_docs_available(test_app_client):
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     assert "Swagger UI" in response.text
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_non_existent(test_app_client):
+    """Test invoking a non-existent tool returns 404."""
+    response = await test_app_client.post("/api/v1/tools/non_existent/invoke", json={})
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_validation_error(test_app_client):
+    """Test invoking a tool with validation errors returns 400."""
+    response = await test_app_client.post("/api/v1/tools/recognize_plate/invoke",
+                                          json={"image_base64": ""})
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_unsupported_content_type(test_app_client):
+    """Test invoking a tool with an unsupported content type returns 400."""
+    response = await test_app_client.post(
+        "/api/v1/tools/recognize_plate/invoke",
+        content="some plain text",
+        headers={"content-type": "text/plain"},
+    )
+    assert response.status_code == 400
+    assert "Unsupported Content-Type" in response.json()["error"]["message"]
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_multipart_missing_image(test_app_client):
+    """Test invoking a tool with multipart form data but missing the image part returns 400."""
+    response = await test_app_client.post(
+        "/api/v1/tools/recognize_plate/invoke",
+        files={"not_image": ("dummy.txt", b"content", "text/plain")},
+        data={"ocr_model": "cct-s-v1-global-model"},
+    )
+    assert response.status_code == 400
+    assert "Missing 'image' part" in response.json()["error"]["message"]
+
+
+@pytest.mark.asyncio
+async def test_tool_invocation_internal_server_error(test_app_client, mocker):
+    """Test handling of unexpected errors returns 500."""
+    mocker.patch(
+        "omni_lpr.tools.tool_registry.call_validated",
+        side_effect=RuntimeError("Unexpected error"),
+    )
+    response = await test_app_client.post(
+        "/api/v1/tools/list_models/invoke", json={}
+    )
+    assert response.status_code == 500
+    assert response.json()["error"]["code"] == "INTERNAL_SERVER_ERROR"
