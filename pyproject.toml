@@ -50,6 +50,7 @@ dependencies = [
     "python-json-logger (>=3.3.0,<5.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
     "fast-alpr[onnx] (>=0.4.0,<0.5.0)",
+    "onnxruntime (>=1.19.2,<1.23.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "spectree[starlette] (>=1.5.4,<3.0.0)",
     "async-lru (>=2.0.4,<3.0.0)",
@@ -59,9 +60,11 @@ dependencies = [
 [project.optional-dependencies]
 openvino = [
     "fast-alpr[onnx-openvino] (>=0.4.0,<0.5.0)",
+    "onnxruntime-openvino (>=1.19.2,<1.23.0)",
 ]
 cuda = [
     "fast-alpr[onnx-gpu] (>=0.4.0,<0.5.0)",
+    "onnxruntime-gpu (>=1.19.2,<1.23.0)",
 ]
 dev = [
     "pytest (>=8.0.1,<10.0.0)",
