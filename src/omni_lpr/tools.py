@@ -494,6 +494,11 @@ def setup_cache():
     `model_cache_size` from the settings.
     """
     global _get_ocr_recognizer, _get_alpr_instance
+    if hasattr(_get_ocr_recognizer, "__wrapped__"):
+        _get_ocr_recognizer = _get_ocr_recognizer.__wrapped__
+    if hasattr(_get_alpr_instance, "__wrapped__"):
+        _get_alpr_instance = _get_alpr_instance.__wrapped__
+
     _get_ocr_recognizer = alru_cache(maxsize=settings.model_cache_size)(_get_ocr_recognizer)
     _get_alpr_instance = alru_cache(maxsize=settings.model_cache_size)(_get_alpr_instance)
 
