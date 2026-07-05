@@ -73,7 +73,7 @@ Correctness and speed of detection are prioritized during OCR processing.
 
 ## Python Conventions
 
-- Python version: `>=3.10,<4.0` as declared in `pyproject.toml`.
+- Python version: `>=3.10,<3.14` as declared in `pyproject.toml`.
 - Dependency management uses Poetry.
 - Formatting, linting, and import sorting use Ruff.
 - Typechecking uses MyPy.

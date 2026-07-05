@@ -356,15 +356,16 @@ async def _recognize_plate_logic(
     result = await anyio.to_thread.run_sync(recognizer.run, image_np)
 
     _logger.info(f"License plate recognized: {result}")
-    
+
     serialized_result = []
     for res in result:
         if isinstance(res, str):
             serialized_result.append(res)
         elif hasattr(res, "plate"):
+            char_probs = getattr(res, "char_probs", None)
             res_dict = {
                 "plate": res.plate,
-                "char_probs": res.char_probs.tolist() if getattr(res, "char_probs", None) is not None else None,
+                "char_probs": char_probs.tolist() if char_probs is not None else None,
                 "region": getattr(res, "region", None),
                 "region_prob": getattr(res, "region_prob", None),
             }
