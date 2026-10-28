@@ -3,7 +3,7 @@
 # ==============================================================================
 PYTHON      ?= python3
 PIP         ?= pip3
-DEP_MNGR    ?= poetry
+DEP_MNGR    ?= uv
 DOCS_DIR    ?= docs
 DOCKERFILE   ?= Dockerfile
 GUNICORN_NUM_WORKERS ?= 4
@@ -35,7 +35,7 @@ help: ## Show the help messages for all targets
 # SETUP & INSTALLATION
 # ==============================================================================
 .PHONY: setup
-setup: ## Install system dependencies and dependency manager (e.g., Poetry)
+setup: ## Install system dependencies and uv
 	sudo apt-get update
 	sudo apt-get install -y python3-pip docker.io
 	$(PIP) install --upgrade pip
@@ -43,7 +43,7 @@ setup: ## Install system dependencies and dependency manager (e.g., Poetry)
 
 .PHONY: install
 install: ## Install Python dependencies
-	$(DEP_MNGR) install --extras dev --no-interaction
+	$(DEP_MNGR) sync --locked
 
 # ==============================================================================
 # QUALITY & TESTING
@@ -95,9 +95,8 @@ build: ## Build distributions
 	$(DEP_MNGR) build
 
 .PHONY: publish
-publish: ## Publish to PyPI (requires PYPI_TOKEN)
-	$(DEP_MNGR) config pypi-token.pypi $(PYPI_TOKEN)
-	$(DEP_MNGR) publish --build
+publish: build ## Publish to PyPI (requires PYPI_TOKEN)
+	$(DEP_MNGR) publish --token "$(PYPI_TOKEN)"
 
 # ==============================================================================
 # EXAMPLES

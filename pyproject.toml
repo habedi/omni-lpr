@@ -66,6 +66,7 @@ cuda = [
     "fast-alpr[onnx-gpu] (>=0.4.0,<0.5.0)",
     "onnxruntime-gpu (>=1.19.2,<1.23.0)",
 ]
+[dependency-groups]
 dev = [
     "pytest (>=8.0.1,<10.0.0)",
     "pytest-cov (>=6.0.0,<8.0.0)",
@@ -84,14 +85,9 @@ Documentation = "https://github.com/habedi/omni-lpr/blob/main/README.md"
 [project.scripts]
 omni-lpr = "omni_lpr.__main__:main"
 
-[tool.poetry]
-include = ["README.md"]
-packages = [{ include = "omni_lpr", from = "src" }]
-package-mode = true
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

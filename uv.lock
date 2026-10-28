@@ -1203,6 +1203,12 @@ cuda = [
     { name = "fast-alpr", extra = ["onnx-gpu"] },
     { name = "onnxruntime-gpu" },
 ]
+openvino = [
+    { name = "fast-alpr", extra = ["onnx-openvino"] },
+    { name = "onnxruntime-openvino" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "asgi-lifespan" },
     { name = "mypy" },
@@ -1214,14 +1220,9 @@ dev = [
     { name = "pytest-mock" },
     { name = "ruff" },
 ]
-openvino = [
-    { name = "fast-alpr", extra = ["onnx-openvino"] },
-    { name = "onnxruntime-openvino" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "asgi-lifespan", extras = ["dev"], marker = "extra == 'dev'", specifier = ">=2.1.0,<3.0.0" },
     { name = "async-lru", specifier = ">=2.0.4,<3.0.0" },
     { name = "click", specifier = ">=8.2.1,<9.0.0" },
     { name = "fast-alpr", extras = ["onnx"], specifier = ">=0.4.0,<0.5.0" },
@@ -1230,25 +1231,30 @@ requires-dist = [
     { name = "gunicorn", specifier = ">=23.0.0,<27.0.0" },
     { name = "httpx", specifier = ">=0.28.1,<0.29.0" },
     { name = "mcp", extras = ["cli"], specifier = ">=1.12.3,<2.0.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.1,<3.0.0" },
     { name = "onnxruntime", specifier = ">=1.19.2,<1.23.0" },
     { name = "onnxruntime-gpu", marker = "extra == 'cuda'", specifier = ">=1.19.2,<1.23.0" },
     { name = "onnxruntime-openvino", marker = "extra == 'openvino'", specifier = ">=1.19.2,<1.23.0" },
     { name = "opencv-python", specifier = ">=4.12.0.88,<6.0.0.0" },
     { name = "pillow", specifier = ">=12.2.0,<13.0.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.2.0,<5.0.0" },
     { name = "pydantic", specifier = ">=2.11.7,<3.0.0" },
     { name = "pydantic-settings", specifier = ">=2.10.1,<3.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.1,<10.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.1.0,<2.0.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0.0,<8.0.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.14.0,<4.0.0" },
     { name = "python-dotenv", specifier = ">=1.1.0,<2.0.0" },
     { name = "python-json-logger", specifier = ">=3.3.0,<5.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.9.3,<1.0.0" },
     { name = "spectree", extras = ["starlette"], specifier = ">=1.5.4,<3.0.0" },
 ]
-provides-extras = ["openvino", "cuda", "dev"]
+provides-extras = ["openvino", "cuda"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "asgi-lifespan", extras = ["dev"], specifier = ">=2.1.0,<3.0.0" },
+    { name = "mypy", specifier = ">=1.11.1,<3.0.0" },
+    { name = "pre-commit", specifier = ">=4.2.0,<5.0.0" },
+    { name = "pytest", specifier = ">=8.0.1,<10.0.0" },
+    { name = "pytest-asyncio", specifier = ">=1.1.0,<2.0.0" },
+    { name = "pytest-cov", specifier = ">=6.0.0,<8.0.0" },
+    { name = "pytest-mock", specifier = ">=3.14.0,<4.0.0" },
+    { name = "ruff", specifier = ">=0.9.3,<1.0.0" },
+]
 
 [[package]]
 name = "onnxruntime"

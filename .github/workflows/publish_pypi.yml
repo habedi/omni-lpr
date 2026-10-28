@@ -26,13 +26,10 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install poetry
-          make install
+      - name: Set Up uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Build and Publish to PyPI
-        run: |
-          source .venv/bin/activate
-          PYPI_TOKEN=${{ secrets.PYPI_API_TOKEN }} make publish
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: make publish
