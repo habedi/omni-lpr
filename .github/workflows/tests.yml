@@ -36,16 +36,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Set Up uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install poetry
-          make install
+        run: make install
 
       - name: Run Tests with Coverage
-        run: |
-          source .venv/bin/activate
-          make test
+        run: make test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
