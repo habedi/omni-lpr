@@ -5,7 +5,8 @@ This file provides guidance to coding agents collaborating on this repository.
 ## Mission
 
 Omni-LPR is a self-hostable server that provides automatic license plate recognition (ALPR) capabilities.
-It exposes processing endpoints through a REST API and the Model Context Protocol (MCP), enabling integration with general software applications and AI agents.
+It exposes processing endpoints through a REST API and the Model Context Protocol (MCP), enabling integration with general software applications and
+AI agents.
 
 Priorities, in order:
 
@@ -28,8 +29,8 @@ Priorities, in order:
 - Do not use em dashes. Restructure the sentence, or use a colon or semicolon instead.
 - Avoid colorful adjectives and adverbs. Write "graph generator" not "powerful graph generator".
 - Prefer using noun phrases for checklist items, not imperative verbs. Write "negative weight detection" not "detect negative weights".
-- Headings in Markdown files must be in title case: "Build from Source" not "Build from source". Minor words
-  (a, an, the, and, but, or, for, in, on, at, to, by, of, from, and with) stay lowercase unless they are the first word.
+- Headings in Markdown files must be in title case: "Build from Source" not "Build from source". Minor words (a, an, the, and, but, or, for, in, on,
+  at, to, by, of, from, and with) stay lowercase unless they are the first word.
 - Write correct and complete sentences.
 - Avoid made-up words, abbreviations, and colons in the middle of sentences.
 - Don't use pretentious language and made-up words.
@@ -84,14 +85,14 @@ Correctness and speed of detection are prioritized during OCR processing.
 
 Run the relevant targets for any change:
 
-| Target            | Command            | What It Runs                                                     |
-|-------------------|--------------------|------------------------------------------------------------------|
-| Lint check        | `make lint`        | Ruff checks and automatic style corrections.                     |
-| Formatting        | `make format`      | Ruff code formatting alignment.                                  |
-| Type checks       | `make typecheck`   | MyPy static analysis.                                            |
-| Unit tests        | `make test`        | PyTest validation of tools, server, and MCP endpoints.           |
-| REST API examples | `make example-rest`| Verification of REST endpoints using example scripts.            |
-| MCP API examples  | `make example-mcp` | Verification of MCP endpoints using example scripts.             |
+| Target            | Command             | What It Runs                                           |
+|-------------------|---------------------|--------------------------------------------------------|
+| Lint check        | `make lint`         | Ruff checks and automatic style corrections.           |
+| Formatting        | `make format`       | Ruff code formatting alignment.                        |
+| Type checks       | `make typecheck`    | MyPy static analysis.                                  |
+| Unit tests        | `make test`         | PyTest validation of tools, server, and MCP endpoints. |
+| REST API examples | `make example-rest` | Verification of REST endpoints using example scripts.  |
+| MCP API examples  | `make example-mcp`  | Verification of MCP endpoints using example scripts.   |
 
 ## First Contribution Flow
 
