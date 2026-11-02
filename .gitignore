@@ -83,3 +83,4 @@ site/
 .codex
 .antigravitycli/
 .agents/
+poetry.lock
