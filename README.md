@@ -8,16 +8,15 @@
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/habedi/omni-lpr/tests.yml?label=tests&style=flat&labelColor=333333&logo=github&logoColor=white)](https://github.com/habedi/omni-lpr/actions/workflows/tests.yml)
 [![Code Coverage](https://img.shields.io/codecov/c/github/habedi/omni-lpr?style=flat&label=coverage&labelColor=333333&logo=codecov&logoColor=white)](https://codecov.io/gh/habedi/omni-lpr)
-[![Code Quality](https://img.shields.io/codefactor/grade/github/habedi/omni-lpr?style=flat&label=code%20quality&labelColor=333333&logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/habedi/omni-lpr)
 [![Python Version](https://img.shields.io/badge/python-3.10_--_3.13-3776ab?style=flat&labelColor=333333&logo=python&logoColor=white)](https://github.com/habedi/omni-lpr)
 [![PyPI](https://img.shields.io/pypi/v/omni-lpr?style=flat&labelColor=333333&logo=pypi&logoColor=white)](https://pypi.org/project/omni-lpr/)
-[![License](https://img.shields.io/badge/license-MIT-00acc1?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-507ec6?style=flat&labelColor=333333&logo=open-source-initiative&logoColor=white)](https://github.com/habedi/omni-lpr/blob/main/LICENSE)
 <br>
-[![Documentation](https://img.shields.io/badge/docs-read-8ca0d7?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
-[![Examples](https://img.shields.io/badge/examples-view-green?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/examples)
-[![Docker Image (CPU)](https://img.shields.io/badge/Docker-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
-[![Docker Image (OpenVINO)](https://img.shields.io/badge/Docker-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
-[![Docker Image (CUDA)](https://img.shields.io/badge/Docker-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
+[![Documentation](https://img.shields.io/badge/docs-read-507ec6?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/docs)
+[![Examples](https://img.shields.io/badge/examples-view-507ec6?style=flat&labelColor=282c34)](https://github.com/habedi/omni-lpr/tree/main/examples)
+[![Docker Image (CPU)](https://img.shields.io/badge/ghcr.io-CPU-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cpu)
+[![Docker Image (OpenVINO)](https://img.shields.io/badge/ghcr.io-OpenVINO-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-openvino)
+[![Docker Image (CUDA)](https://img.shields.io/badge/ghcr.io-CUDA-007ec6?style=flat&logo=docker)](https://github.com/habedi/omni-lpr/pkgs/container/omni-lpr-cuda)
 
 A multi-interface (REST and MCP) server for automatic license plate recognition
 
