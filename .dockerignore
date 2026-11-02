@@ -33,8 +33,6 @@ coverage.xml
 # Project configuration files not needed in the image
 .pre-commit-config.yaml
 codecov.yml
-poetry.toml
-# poetry.lock
 # Makefile
 env.example
 .env

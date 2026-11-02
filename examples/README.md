@@ -12,10 +12,10 @@ If you have installed the package via `pip`, you can start the server with:
 omni-lpr
 ```
 
-If you are running from a development environment, you can use Poetry:
+If you are running from a development environment, you can use uv:
 
 ```bash
-poetry run omni-lpr
+uv run omni-lpr
 ```
 
 The server will be available at `http://127.0.0.1:8000` by default.
@@ -32,10 +32,10 @@ For example, to run the REST API example for recognizing a plate from a file pat
 python examples/rest/recognize_plate_from_path_example.py --image-path /path/to/your/image.png
 
 # Or from a development environment
-poetry run python examples/rest/recognize_plate_from_path_example.py --image-path /path/to/your/image.png
+uv run python examples/rest/recognize_plate_from_path_example.py --image-path /path/to/your/image.png
 ```
 
-To see all available options for an example, use the `--help` flag:
+To see all available options, for example, use the `--help` flag:
 
 ```bash
 python examples/rest/recognize_plate_from_path_example.py --help
